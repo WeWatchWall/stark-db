@@ -40,7 +40,6 @@
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.17.0",
-    "duckdb": "^0.5.1",
     "fast-fuzz": "^5.0.17",
     "reflect-metadata": "^0.1.X",
     "sqlite3": "^5.1.2",
