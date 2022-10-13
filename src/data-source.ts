@@ -4,8 +4,9 @@ import { User } from "./entity/User"
 
 export const AppDataSource = new DataSource({
     type: "better-sqlite3",
-    database: "./ test.db",
+    database: "./test.db",
     statementCacheSize: 200,
+    cache: true,
     synchronize: true,
     logging: false,
     entities: [User],
