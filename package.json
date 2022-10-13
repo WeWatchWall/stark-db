@@ -40,9 +40,9 @@
   },
   "dependencies": {
     "@duckdb/duckdb-wasm": "^1.17.0",
+    "better-sqlite3": "^7.6.2",
     "fast-fuzz": "^5.0.17",
     "reflect-metadata": "^0.1.X",
-    "sqlite3": "^5.1.2",
     "typeorm": "^0.3.10"
   },
   "peerDependencies": {
