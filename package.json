@@ -42,7 +42,9 @@
     "@duckdb/duckdb-wasm": "^1.17.0",
     "better-sqlite3": "^7.6.2",
     "fast-fuzz": "^5.0.17",
+    "jsstore": "^4.4.7",
     "reflect-metadata": "^0.1.X",
+    "sqlweb": "^1.6.2",
     "typeorm": "^0.3.10"
   },
   "peerDependencies": {
