@@ -1,11 +1,13 @@
 import 'reflect-metadata';
-import initSqlJs from 'sql.js/dist/sql-wasm.js';
+import initSqlJs from 'sql.js';
 
 import { DataSource } from 'typeorm';
 import { User } from '../entity/User';
 
-export async function getAppDataSource() {
-  const SQL = await initSqlJs();
+export async function getAppDataSource(): Promise<DataSource> {
+  const SQL = await initSqlJs({
+    locateFile: file => `sql-wasm.wasm`
+  });
 
   return new DataSource({
     type: "sqljs",
@@ -16,6 +18,5 @@ export async function getAppDataSource() {
     migrations: [],
     subscribers: [],
   });
-};
-
+}
 

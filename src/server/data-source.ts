@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { User } from '../entity/User';
 
-export async function getAppDataSource() {
+export async function getAppDataSource(): Promise<DataSource> {
   return new DataSource({
     type: "better-sqlite3",
     database: "./test.db",
@@ -15,4 +15,4 @@ export async function getAppDataSource() {
     migrations: [],
     subscribers: [],
   });
-};
+}
