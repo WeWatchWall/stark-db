@@ -1,8 +1,10 @@
-import "reflect-metadata"
-import { DataSource } from "typeorm"
-import { User } from "./entity/User"
+import 'reflect-metadata';
 
-export const AppDataSource = new DataSource({
+import { DataSource } from 'typeorm';
+import { User } from '../entity/User';
+
+export async function getAppDataSource() {
+  return new DataSource({
     type: "better-sqlite3",
     database: "./test.db",
     statementCacheSize: 200,
@@ -12,4 +14,5 @@ export const AppDataSource = new DataSource({
     entities: [User],
     migrations: [],
     subscribers: [],
-})
+  });
+};

@@ -1,5 +1,6 @@
 import 'reflect-metadata';
+import { getAppDataSource } from './browser/data-source';
 
-export function HelloWorld() {
-  return 'Hello World!';
+export {
+  getAppDataSource
 }

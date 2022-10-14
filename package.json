@@ -42,12 +42,11 @@
       "typescript": "4.5.2"
    },
    "dependencies": {
-      "@duckdb/duckdb-wasm": "^1.17.0",
       "better-sqlite3": "^7.6.2",
       "fast-fuzz": "^5.0.17",
-      "jsstore": "^4.4.7",
+      "localforage": "^1.10.0",
       "reflect-metadata": "^0.1.13",
-      "sqlweb": "^1.6.2",
+      "sql.js": "^1.8.0",
       "typeorm": "0.3.10"
    },
    "peerDependencies": {
