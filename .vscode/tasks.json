@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+      "type": "npm",
+      "script": "build-all",
+      "group": "build",
+      "problemMatcher": [],
+      "label": "npm: build-all",
+      "detail": "npm run clean && npm run build"
+    }
+  ]
+}
