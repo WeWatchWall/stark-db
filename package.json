@@ -9,7 +9,7 @@
       "lint": "eslint ./ --ext .js,.jsx,.ts,.tsx",
       "lint:fix": "eslint ./ --ext .js,.jsx,.ts,.tsx --fix",
       "build": "tsc",
-      "build-all": "npm run clean && npm run build",
+      "build-all": "npm run clean && tsc -p tsconfig.dev.json",
       "prepare": "npm run build",
       "test": "ts-mocha test/**/*.test.ts",
       "updatePublish": "node publish.js",
