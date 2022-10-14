@@ -6,7 +6,7 @@ import { User } from '../entity/User';
 
 export async function getAppDataSource(): Promise<DataSource> {
   const SQL = await initSqlJs({
-    locateFile: file => `sql-wasm.wasm`
+    locateFile: _file => `sql-wasm.wasm`
   });
 
   return new DataSource({
