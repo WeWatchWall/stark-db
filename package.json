@@ -47,8 +47,6 @@
       "reflect-metadata": "^0.1.13",
       "sql.js": "^1.8.0",
       "sqlite3": "^5.1.2",
-      "typeorm": "0.3.10"
-   },
-   "peerDependencies": {
+      "typeorm": "file:typeorm-0.3.10.tgz"
    }
 }
