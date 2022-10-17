@@ -8,7 +8,7 @@ export async function getAppDataSource(): Promise<DataSource> {
     type: "sqlite",
     database: "./test.db",
     cache: true,
-    synchronize: true,
+    synchronize: true, // TODO: remove this in production
     logging: false,
     entities: [User],
     migrations: [],

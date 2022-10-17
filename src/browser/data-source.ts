@@ -12,7 +12,7 @@ export async function getAppDataSource(): Promise<DataSource> {
   return new DataSource({
     type: "sqljs",
     driver: SQL,
-    synchronize: true,
+    synchronize: true, // TODO: remove this in production
     logging: false,
     entities: [User],
     migrations: [],
