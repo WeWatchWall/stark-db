@@ -1,10 +1,13 @@
 // import 'reflect-metadata';
+import localforage from 'localforage';
 import { SqljsEntityManager } from 'typeorm/entity-manager/SqljsEntityManager';
+
 import { getAppDataSource } from './browser/data-source';
-import { User } from "./entity/User";
+import { User } from './entity/User';
 
 export async function main() {
-  const appDataSource = await getAppDataSource();
+  let db = await localforage.getItem('db');
+  const appDataSource = await getAppDataSource(<Uint8Array>db);
   await appDataSource.initialize();
 
   console.log("Inserting a new user into the database...");
@@ -20,7 +23,8 @@ export async function main() {
   console.log("Loaded users: ", users);
 
   console.log("Saving the database to localstorage...");
-  await (<SqljsEntityManager>appDataSource.manager).saveDatabase();
+  db = (<SqljsEntityManager>appDataSource.manager).exportDatabase();
+  await localforage.setItem('db', db);
   console.log("Saved the database...");
 
   console.log("You can setup and run express / fastify / any other framework.");

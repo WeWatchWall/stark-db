@@ -43,6 +43,7 @@
    },
    "dependencies": {
       "fast-fuzz-shim": "^1.0.0",
+      "localforage": "^1.10.0",
       "reflect-metadata": "^0.1.13",
       "sql.js": "^1.8.0",
       "sqlite3": "^5.1.2",
