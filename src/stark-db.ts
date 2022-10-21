@@ -1,4 +1,5 @@
 // import 'reflect-metadata';
+import { SqljsEntityManager } from 'typeorm/entity-manager/SqljsEntityManager';
 import { getAppDataSource } from './browser/data-source';
 import { User } from "./entity/User";
 
@@ -17,6 +18,10 @@ export async function main() {
   console.log("Loading users from the database...");
   const users = await appDataSource.manager.find(User);
   console.log("Loaded users: ", users);
+
+  console.log("Saving the database to localstorage...");
+  await (<SqljsEntityManager>appDataSource.manager).saveDatabase();
+  console.log("Saved the database...");
 
   console.log("You can setup and run express / fastify / any other framework.");
 }

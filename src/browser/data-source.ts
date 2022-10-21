@@ -10,6 +10,7 @@ export async function getAppDataSource(): Promise<DataSource> {
   });
 
   return new DataSource({
+    location: "stark-db",
     type: "sqljs",
     driver: SQL,
     synchronize: true, // TODO: remove this in production
