@@ -46,6 +46,7 @@
       "localforage": "^1.10.0",
       "reflect-metadata": "^0.1.13",
       "sql.js": "^1.8.0",
+      "sqlite-parser": "^1.0.1",
       "sqlite3": "^5.1.2",
       "typeorm": "https://github.com/WeWatchWall/stark-db/raw/main/typeorm-0.3.10.tgz"
    }

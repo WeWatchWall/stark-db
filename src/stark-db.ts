@@ -22,7 +22,7 @@ export async function main() {
   const users = await appDataSource.manager.find(User);
   console.log("Loaded users: ", users);
 
-  console.log("Saving the database to localstorage...");
+  console.log("Saving the database to IndexedDB,DB: localforage, Key: db ...");
   db = (<SqljsEntityManager>appDataSource.manager).exportDatabase();
   await localforage.setItem('db', db);
   console.log("Saved the database...");
