@@ -40,7 +40,7 @@ export class Statement {
    * Creates an instance of a SQL statement.
    * @param [init] @type {StatementData} The initial values.
    */
-   constructor(init?: StatementData) {
+  constructor(init?: StatementData) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])
@@ -60,7 +60,6 @@ export class Statement {
   private ready(): void {
     
   }
-
 
   /**
    * Gets the string representation of the instance.
