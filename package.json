@@ -1,6 +1,6 @@
 {
    "name": "stark-db",
-   "version": "0.0.2",
+   "version": "0.1.0",
    "description": "Persistent SQL engine with TypeScript APIs for quick and easy production apps.",
    "main": "./dist/src/stark-db.js",
    "types": "./dist/src/stark-db.d.ts",
@@ -43,7 +43,9 @@
    },
    "dependencies": {
       "fast-fuzz-shim": "^1.0.0",
+      "javascript-state-machine": "^3.1.0",
       "localforage": "^1.10.0",
+      "objectmodel": "^4.3.1",
       "reflect-metadata": "^0.1.13",
       "sql.js": "^1.8.0",
       "sqlite-parser": "^1.0.1",
