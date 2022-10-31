@@ -56,15 +56,17 @@ export class Statement {
 
   private validate(): void {
     new StatementInitArg(this);
-  }
 
-  private ready(): void {
     const parseResult = sqliteParser(this.statement);
     this.meta = parseResult
       ?.statement
       ?.[0];
 
     assert(this.meta, 'Failed to parse the statement.');
+  }
+
+  private ready(): void {
+    
   }
 
   /**
