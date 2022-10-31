@@ -28,6 +28,8 @@ async function main() {
     IF NOT EXISTS "user" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "firstName" VARCHAR NOT NULL, "lastName" VARCHAR NOT NULL, "age" INTEGER NOT NULL);
       INSERT INTO user
       VALUES (1, 'Timber', 'Saw', 25);
+
+    SELECT * FROM user A, user B WHERE A.id = B.id;
     
     CREATE TABLE
     

@@ -1,5 +1,6 @@
 import assert from 'assert';
 import { BasicModel, ObjectModel } from 'objectmodel';
+import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
 import { ZERO } from './constants';
@@ -47,6 +48,8 @@ export class Statement {
   meta: any;
 
   type: ParseType;
+  tables: string[];
+
   isTransaction: boolean;
 
   /**
@@ -83,8 +86,57 @@ export class Statement {
 
   private ready(): void {
     this.parseType();
+    this.parseTables();
   }
 
+  // TODO: Probably needs to handle cases like triggers, views, other DBs, etc.
+  private parseTables(): void {
+
+    const tableActions = [
+      ParseType.create_table,
+      ParseType.modify_table,
+    ];
+
+    const dataActions = [
+      ParseType.modify_data,
+      ParseType.select_data,
+    ];
+
+    if (
+      tableActions.includes(this.type) &&
+      !!this.meta.name?.name // TODO: Might be unnecessary.
+    ) {
+      this.tables = [this.meta.name.name];
+
+    } else if (dataActions.includes(this.type)) {
+      this.tables = this.parseDataTables();
+    }
+  }
+
+  private parseDataTables(): string[] {
+    const tables = new Set<string>();
+
+    let iterator = new RecursiveIterator(
+      this.meta,
+      1, // Breath-first.
+    );
+
+    for(let { node } of iterator) {
+      const conditions = [
+        node.type === `identifier`,
+        node.variant === `table`,
+        !!node.name
+      ];
+
+      if (conditions.includes(false)) { continue; }
+
+      tables.add(node.name);
+    }
+
+    return Array.from(tables);
+  }
+
+  // TODO: Probably needs to handle cases like triggers, views, other DBs, etc. 
   private parseType() {
     const transactionActions = [
       StatementType[0],
@@ -106,18 +158,22 @@ export class Statement {
     if (transactionActions.includes(this.meta.action)) {
       this.type = <ParseType>(<any>StatementType[this.meta.action]);
 
-    } else if (this.meta.format === `table` &&
-      this.meta.variant === StatementType[3]) {
+    } else if (
+      this.meta.format === `table` &&
+      this.meta.variant === StatementType[3]
+    ) {
       this.type = ParseType.create_table;
 
-    } else if (this.meta.format === `table` &&
-      tableModifyActions.includes(this.meta.variant)) {
+    } else if (
+      this.meta.format === `table` &&
+      tableModifyActions.includes(this.meta.variant)
+    ) {
       this.type = ParseType.modify_table;
 
     } else if (dataModifyActions.includes(this.meta.variant)) {
       this.type = ParseType.modify_data;
 
-    } else if (this.meta.action === StatementType[8]) {
+    } else if (this.meta.variant === StatementType[8]) {
       this.type = ParseType.select_data;
 
     } else {
