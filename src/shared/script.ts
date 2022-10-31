@@ -69,9 +69,11 @@ export class Script {
       .map((statement) => `${ statement.trim() }${ DELIMITER }`);
 
     // Parse the script statements.
-    this.statements = statements.map((statement: string, index: number) => 
-      new Statement({ statement, index })
-    );
+    this.statements = statements.map((statement: string, index: number) => {
+      const statementMeta = new Statement({ statement, index });
+      statementMeta.validator.ready();
+      return statementMeta;
+    });
   }
   /* #endregion */
 

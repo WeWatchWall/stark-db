@@ -50,7 +50,7 @@ export class Statement {
     // Copy the properties.
     if (init !== undefined) {
       Object.assign(this, init);
-      this.validator.ready();
+      this.validator.valid();
     }
   }
 
