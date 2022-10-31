@@ -5,21 +5,33 @@ import sqliteParser from 'sqlite-parser';
 import { ZERO } from './constants';
 import { LazyValidator } from './lazyValidator';
 
-export enum StatementType {
-  BEGIN = 'BEGIN',
-  ROLLBACK = 'ROLLBACK',
-  COMMIT = 'COMMIT',
+export enum ParseType {
+  begin_transaction,
+  rollback_transaction,
+  commit_transaction,
 
-  CREATE_TABLE = 'CREATE_TABLE',
-  ALTER_TABLE = 'ALTER_TABLE',
-  DROP_TABLE = 'DROP_TABLE',
+  create_table,
+  modify_table,
 
-  INSERT = 'INSERT',
-  UPDATE = 'UPDATE',
-  SELECT = 'SELECT',
-  DELETE = 'DELETE',
+  modify_data,
+  select_data,
 
-  OTHER = 'OTHER',
+  other,
+}
+
+enum StatementType {
+  begin,
+  rollback,
+  commit,
+
+  create,
+  alter,
+  drop,
+
+  insert,
+  update,
+  select,
+  delete,
 }
 
 class StatementData {
@@ -34,7 +46,7 @@ export class Statement {
   statement: string;
   meta: any;
 
-  type: StatementType;
+  type: ParseType;
   isTransaction: boolean;
 
   /**
@@ -62,11 +74,55 @@ export class Statement {
       ?.statement
       ?.[0];
 
-    assert(this.meta, 'Failed to parse the statement.');
+    assert(this.meta, `Failed to parse the statement.`);
+    assert( // TODO: Might be unnecessary. 
+      this.meta.type === `statement`,
+      `Failed to parse the statement metadata type.`
+    );
   }
 
   private ready(): void {
-    
+    this.parseType();
+  }
+
+  private parseType() {
+    const transactionActions = [
+      StatementType[0],
+      StatementType[1],
+      StatementType[2],
+    ];
+
+    const tableModifyActions = [
+      StatementType[4],
+      StatementType[5],
+    ];
+
+    const dataModifyActions = [
+      StatementType[6],
+      StatementType[7],
+      StatementType[9],
+    ];
+
+    if (transactionActions.includes(this.meta.action)) {
+      this.type = <ParseType>(<any>StatementType[this.meta.action]);
+
+    } else if (this.meta.format === `table` &&
+      this.meta.variant === StatementType[3]) {
+      this.type = ParseType.create_table;
+
+    } else if (this.meta.format === `table` &&
+      tableModifyActions.includes(this.meta.variant)) {
+      this.type = ParseType.modify_table;
+
+    } else if (dataModifyActions.includes(this.meta.variant)) {
+      this.type = ParseType.modify_data;
+
+    } else if (this.meta.action === StatementType[8]) {
+      this.type = ParseType.select_data;
+
+    } else {
+      this.type = ParseType.other;
+    }
   }
 
   /**
