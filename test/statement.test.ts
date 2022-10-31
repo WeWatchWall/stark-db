@@ -254,12 +254,12 @@ const tests = [
   }, {
     id: 24,
     name: 'Data - select with join',
-    statement: 'SELECT * FROM variables A, variables B WHERE A.id = B.id;',
+    statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
     result: {
       index: 0,
-      statement: 'SELECT * FROM variables A, variables B WHERE A.id = B.id;',
+      statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
       type: ParseType.select_data,
-      tables: ["variables"]
+      tables: ["variables", "variables2"]
     }
   },
   /* #endregion */
