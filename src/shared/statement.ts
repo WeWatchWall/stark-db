@@ -1,6 +1,8 @@
-import { Any, BasicModel, ObjectModel } from 'objectmodel';
-import { ZERO } from './constants';
+import assert from 'assert';
+import { BasicModel, ObjectModel } from 'objectmodel';
+import sqliteParser from 'sqlite-parser';
 
+import { ZERO } from './constants';
 import { LazyValidator } from './lazyValidator';
 
 export enum StatementType {
@@ -23,7 +25,6 @@ export enum StatementType {
 class StatementData {
   index: number;
   statement: string;
-  meta: any;
 }
 
 export class Statement {
@@ -49,7 +50,7 @@ export class Statement {
     // Copy the properties.
     if (init !== undefined) {
       Object.assign(this, init);
-      this.validator.valid();
+      this.validator.ready();
     }
   }
 
@@ -58,7 +59,12 @@ export class Statement {
   }
 
   private ready(): void {
-    
+    const parseResult = sqliteParser(this.statement);
+    this.meta = parseResult
+      ?.statement
+      ?.[0];
+
+    assert(this.meta, 'Failed to parse the statement.');
   }
 
   /**
@@ -81,6 +87,5 @@ const PositiveInteger = Integer
 const StatementInitArg = new ObjectModel({
   index: PositiveInteger,
   statement: String,
-  meta: Any,
 });
 /* #endregion */

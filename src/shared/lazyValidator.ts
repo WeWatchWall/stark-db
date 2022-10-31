@@ -1,10 +1,16 @@
-import assert from "assert";
 import StateMachine from 'javascript-state-machine';
+
+enum ValidState {
+  init = 0,
+  valid = 1,
+  ready = 2,
+}
 
 export class LazyValidator {
   private machine?: {
     toJSON: () => string;
     is: (arg0: string) => boolean;
+    state: string;
     step: () => void;
   };
 
@@ -19,9 +25,9 @@ export class LazyValidator {
     this.machine = new StateMachine({
       init: 'init',
       transitions: [
-        { name: 'step', from: 'init', to: 'valid' },
-        { name: 'step', from: 'valid', to: 'ready' },
-        { name: 'step', from: 'ready', to: 'ready' }
+        { name: 'step', from: ValidState[0], to: ValidState[1] },
+        { name: 'step', from: ValidState[1], to: ValidState[2] },
+        { name: 'step', from: ValidState[2], to: ValidState[2] }
       ],
       methods: {
         onValid: function () {
@@ -39,25 +45,20 @@ export class LazyValidator {
     this.machine.toJSON = () => '[StateMachine]';
   }
 
-  /**
-   * Readies the stateful to the required step.
-   */
-  private step(target: string): void {
-    assert(
-      this.machine !== undefined,
-      'The lazy validator should be initialized before any transition.'
-    );
-
-    while (!this.machine.is(target)) {
-      this.machine.step();
-    }
-  }
-
   valid(): void {
-    this.step('valid');
+    this.step(ValidState.valid);
   }
   
   ready(): void {
-    this.step('ready');
+    this.step(ValidState.ready);
+  }
+
+  /**
+   * Readies the stateful to the required step.
+   */
+   private step(target: ValidState): void {
+    while (ValidState[this.machine.state] < target) {
+      this.machine.step();
+    }
   }
 }
