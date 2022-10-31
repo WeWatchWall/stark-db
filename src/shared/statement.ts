@@ -7,32 +7,37 @@ import { ZERO } from './constants';
 import { LazyValidator } from './lazyValidator';
 
 export enum ParseType {
-  begin_transaction,
-  rollback_transaction,
-  commit_transaction,
+  begin_transaction = 0,
+  rollback_transaction = 1,
+  commit_transaction = 2,
 
-  create_table,
-  modify_table,
+  create_table = 3,
+  rename_table = 4,
+  modify_table_columns = 5,
+  drop_table = 6,
 
-  modify_data,
-  select_data,
+  modify_data = 7,
+  select_data = 8,
 
-  other,
+  other = 9,
 }
 
 enum StatementType {
-  begin,
-  rollback,
-  commit,
+  begin = 0,
+  rollback = 1,
+  commit = 2,
+  end = 3,
 
-  create,
-  alter,
-  drop,
+  create = 4,
+  rename = 5,
+  drop = 6,
 
-  insert,
-  update,
-  select,
-  delete,
+  add = 7,
+
+  insert = 8,
+  update = 9,
+  select = 10,
+  delete = 11,
 }
 
 class StatementData {
@@ -40,6 +45,15 @@ class StatementData {
   statement: string;
 }
 
+// TODO: Add support for the following:
+// - WITH PREFIX TO DATA QUERIES
+
+// - CREATE INDEX
+// - CREATE TRIGGER
+// - CREATE VIEW
+
+// - SCHEMA NAME
+// - ATTACH DB
 export class Statement {
   validator: LazyValidator;
 
@@ -65,6 +79,7 @@ export class Statement {
     // Copy the properties.
     if (init !== undefined) {
       Object.assign(this, init);
+      this.statement = this.statement?.trim();
       this.validator.valid();
     }
   }
@@ -89,12 +104,13 @@ export class Statement {
     this.parseTables();
   }
 
-  // TODO: Probably needs to handle cases like triggers, views, other DBs, etc.
   private parseTables(): void {
 
     const tableActions = [
       ParseType.create_table,
-      ParseType.modify_table,
+      ParseType.rename_table,
+      ParseType.modify_table_columns,
+      ParseType.drop_table,
     ];
 
     const dataActions = [
@@ -102,13 +118,7 @@ export class Statement {
       ParseType.select_data,
     ];
 
-    if (
-      tableActions.includes(this.type) &&
-      !!this.meta.name?.name // TODO: Might be unnecessary.
-    ) {
-      this.tables = [this.meta.name.name];
-
-    } else if (dataActions.includes(this.type)) {
+    if ( tableActions.includes(this.type) || dataActions.includes(this.type)) {
       this.tables = this.parseDataTables();
     }
   }
@@ -135,45 +145,58 @@ export class Statement {
 
     return Array.from(tables);
   }
-
-  // TODO: Probably needs to handle cases like triggers, views, other DBs, etc. 
+ 
   private parseType() {
     const transactionActions = [
       StatementType[0],
       StatementType[1],
-      StatementType[2],
     ];
 
-    const tableModifyActions = [
-      StatementType[4],
-      StatementType[5],
+    const transactionEndActions = [
+      StatementType[2],
+      StatementType[3],
+    ];
+
+    const columnModifyActions = [
+      StatementType[7],
+      StatementType[6]
     ];
 
     const dataModifyActions = [
-      StatementType[6],
-      StatementType[7],
+      StatementType[8],
       StatementType[9],
+      StatementType[11],
     ];
 
     if (transactionActions.includes(this.meta.action)) {
       this.type = <ParseType>(<any>StatementType[this.meta.action]);
 
-    } else if (
-      this.meta.format === `table` &&
-      this.meta.variant === StatementType[3]
-    ) {
-      this.type = ParseType.create_table;
+    } else if (transactionEndActions.includes(this.meta.action)) {
+      this.type = ParseType.commit_transaction;
 
     } else if (
       this.meta.format === `table` &&
-      tableModifyActions.includes(this.meta.variant)
+      this.meta.variant === StatementType[4]
     ) {
-      this.type = ParseType.modify_table;
+      this.type = ParseType.create_table;
+
+    } else if (this.meta.action === StatementType[5]) {
+      this.type = ParseType.rename_table;
+
+    } else if (
+      columnModifyActions.includes(this.meta.action)
+    ) {
+      this.type = ParseType.modify_table_columns;
+    } else if (
+      this.meta.format === `table` &&
+      this.meta.variant === StatementType[6]
+    ) {
+      this.type = ParseType.drop_table;
 
     } else if (dataModifyActions.includes(this.meta.variant)) {
       this.type = ParseType.modify_data;
 
-    } else if (this.meta.variant === StatementType[8]) {
+    } else if (this.meta.variant === StatementType[10]) {
       this.type = ParseType.select_data;
 
     } else {
