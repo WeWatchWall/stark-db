@@ -278,7 +278,7 @@ const tests = [
   /* #endregion */
 ];
 
-describe('Statement load.', function () {
+describe('Statements.', function () {
   for (const test of tests) {
     if (test.isSkip) { continue; }
 

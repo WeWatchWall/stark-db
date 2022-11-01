@@ -17,6 +17,8 @@ export class Script {
   script: string;
   statements: Statement[];
 
+  private isSave: boolean;
+
   /**
    * Creates an instance of a SQL script.
    * @param [init] @type {StatementData} The initial values.
@@ -31,7 +33,9 @@ export class Script {
     // Apply the arguments and load the script.
     if (init !== undefined) {
       Object.assign(this, init);
-      this.loader.load();
+      this.script = this.script?.trim();
+
+      this.loader.save();
     }
   }
 
@@ -42,18 +46,16 @@ export class Script {
       () => this.loadReady.apply(this, [])
     );
 
-    let isSave = false;
+    this.isSave = false;
     try {
       this.validator.valid();
     } catch (error) {
-      isSave = true;
+      this.isSave = true;
     }
 
-    if (!isSave) {
-      this.validator.ready();
-    } else {
-      this.loader.save();
-    }
+    if (this.isSave) { return; }
+    
+    this.validator.ready();
   }
 
   private loadValidate(): void {
@@ -93,6 +95,9 @@ export class Script {
 
   /* #region  Save to the script string. */
   private save(): void {
+    // Don't run the save if this is a load.
+    if (!this.isSave) { return; }
+
     this.validator = new LazyValidator(
       () => this.saveValidate.apply(this, []),
       () => this.saveReady.apply(this, [])
@@ -132,7 +137,7 @@ const ScriptLoad = new ObjectModel({
 });
 
 const ScriptSave = new ObjectModel({
-  script: (String),
+  script: [String],
   statements: ArrayModel(Statement),
 });
 /* #endregion */
