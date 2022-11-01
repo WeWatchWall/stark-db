@@ -3,7 +3,7 @@ import { ArrayModel, ObjectModel } from 'objectmodel';
 import { DELIMITER, NEWLINE } from './constants';
 import { LazyLoader } from './lazyLoader';
 import { LazyValidator } from './lazyValidator';
-import { Statement } from './statement';
+import { ParseType, Statement } from './statement';
 
 export class ScriptData {
   script?: string;
@@ -74,6 +74,20 @@ export class Script {
       statementMeta.validator.ready();
       return statementMeta;
     });
+
+    // Set the statement.isTransaction property.
+    let isTransaction = false;
+    for (const statement of this.statements) {
+      if (statement.type === ParseType.begin_transaction) {
+        isTransaction = true;
+      }
+
+      statement.isTransaction = isTransaction;
+
+      if (statement.type === ParseType.commit_transaction) {
+        isTransaction = false;
+      }
+    }
   }
   /* #endregion */
 
