@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import copy from 'fast-copy';
 
-import { Script } from '../src/shared/script';
-import { ParseType, Statement } from '../src/shared/statement';
+import { Script } from '../src/shared/objects/script';
+import { ParseType, Statement } from '../src/shared/objects/statement';
 
 const loadTests = [
   {
@@ -122,8 +122,11 @@ describe('Scripts - Load.', function () {
 
       // Copy and cleanup the statement.
       const result = copy(script);
+
       delete result.loader;
       delete result.validator;
+      delete (<any>result).isSave; // isSave is private.
+
       for (const statement of result.statements) {
         delete statement.validator;
         delete statement.meta;

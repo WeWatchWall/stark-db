@@ -3,8 +3,8 @@ import { BasicModel, ObjectModel } from 'objectmodel';
 import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
-import { ZERO } from './constants';
-import { LazyValidator } from './lazyValidator';
+import { ZERO } from '../utils/constants';
+import { LazyValidator } from '../utils/lazyValidator';
 
 export enum ParseType {
   begin_transaction = 0,

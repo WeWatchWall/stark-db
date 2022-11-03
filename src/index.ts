@@ -1,6 +1,6 @@
 import { getAppDataSource } from "./server/data-source";
 // import { User } from "./entity/User";
-import { Script } from "./shared/script";
+import { Script } from "./shared/objects/script";
 
 async function main() {
   const appDataSource = await getAppDataSource();

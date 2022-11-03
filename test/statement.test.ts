@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ParseType, Statement } from '../src/shared/statement';
+import { ParseType, Statement } from '../src/shared/objects/statement';
 
 const tests = [
   /* #region  Transactions. */

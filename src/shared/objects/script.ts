@@ -1,8 +1,8 @@
 import { ArrayModel, ObjectModel } from 'objectmodel';
 
-import { DELIMITER, NEWLINE } from './constants';
-import { LazyLoader } from './lazyLoader';
-import { LazyValidator } from './lazyValidator';
+import { DELIMITER, NEWLINE } from '../utils/constants';
+import { LazyLoader } from '../utils/lazyLoader';
+import { LazyValidator } from '../utils/lazyValidator';
 import { ParseType, Statement } from './statement';
 
 export class ScriptData {
