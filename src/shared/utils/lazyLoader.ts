@@ -11,7 +11,7 @@ export class LazyLoader {
     toJSON: () => string;
     is: (arg0: string) => boolean;
     state: string;
-    step: () => void;
+    step: () => void | Promise<void>;
   };
 
   /**
@@ -19,8 +19,8 @@ export class LazyLoader {
    * @param load @type {Function}
    */
   constructor(
-    load?: () => void,
-    save?: () => void
+    load?: () => any,
+    save?: () => any
   ) {
     this.machine = new StateMachine({
       init: 'init',
@@ -32,12 +32,12 @@ export class LazyLoader {
       methods: {
         onLoad: function () {
           if (load !== undefined) {
-            load();
+            return load();
           }
         },
         onSave: function () {
           if (save !== undefined) {
-            save();
+            return save();
           }
         }
       }
@@ -50,17 +50,34 @@ export class LazyLoader {
   load(): void {
     this.step(LoadState.load);
   }
-  
+
+  async loadAsync(): Promise<void> {
+    return await this.stepAsync(LoadState.load);
+  }
+
   save(): void {
     this.step(LoadState.save);
+  }
+  
+  async saveAsync(): Promise<void> {
+    return await this.stepAsync(LoadState.save);
   }
 
   /**
    * Readies the stateful to the required step.
    */
-   private step(target: LoadState): void {
+  private step (target: LoadState): void {
     while (LoadState[this.machine.state] < target) {
       this.machine.step();
+    }
+  }
+
+  /**
+   * Readies the stateful to the required step if the handlers are async.
+   */
+  private async stepAsync (target: LoadState): Promise<void> {
+    while (LoadState[this.machine.state] < target) {
+      await this.machine.step();
     }
   }
 }

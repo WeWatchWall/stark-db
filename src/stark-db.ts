@@ -3,7 +3,7 @@ import localforage from 'localforage';
 import { SqljsEntityManager } from 'typeorm/entity-manager/SqljsEntityManager';
 
 import { getAppDataSource } from './browser/data-source';
-import { User } from './entity/User';
+import { User } from './entity/user';
 
 export async function main() {
   let db = await localforage.getItem('db');

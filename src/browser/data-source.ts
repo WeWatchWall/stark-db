@@ -1,8 +1,9 @@
 import 'reflect-metadata';
-import initSqlJs from 'sql.js';
 
+import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm';
-import { User } from '../entity/User';
+
+import { User } from '../entity/user';
 
 export async function getAppDataSource(
   database?: Uint8Array

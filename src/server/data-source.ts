@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 
 import { DataSource } from 'typeorm';
-import { User } from '../entity/User';
+import { User } from '../entity/user';
 import sqlite3 from 'sqlite3';
 
 export async function getAppDataSource(): Promise<DataSource> {

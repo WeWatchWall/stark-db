@@ -46,6 +46,7 @@ class StatementData {
 }
 
 // TODO: Add support for the following:
+// - CREATE TABLE ... AS SELECT
 // - WITH PREFIX TO DATA QUERIES
 
 // - CREATE INDEX

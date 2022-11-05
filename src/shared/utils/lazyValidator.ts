@@ -11,7 +11,7 @@ export class LazyValidator {
     toJSON: () => string;
     is: (arg0: string) => boolean;
     state: string;
-    step: () => void;
+    step: () => void | Promise<void>;
   };
 
   /**
@@ -20,7 +20,7 @@ export class LazyValidator {
    */
   constructor(
     validate: () => void,
-    ready?: () => void
+    ready?: () => any
   ) {
     this.machine = new StateMachine({
       init: 'init',
@@ -35,7 +35,7 @@ export class LazyValidator {
         },
         onReady: function () {
           if (ready !== undefined) {
-            ready();
+            return ready();
           }
         }
       }
@@ -53,12 +53,25 @@ export class LazyValidator {
     this.step(ValidState.ready);
   }
 
+  async readyAsync(): Promise<void> {
+    return await this.stepAsync(ValidState.ready);
+  }
+
   /**
    * Readies the stateful to the required step.
    */
-   private step(target: ValidState): void {
+  private step(target: ValidState): void {
     while (ValidState[this.machine.state] < target) {
       this.machine.step();
+    }
+  }
+
+  /**
+   * Readies the stateful to the required step if the ready function is async.
+   */
+   private async stepAsync(target: ValidState): Promise<void> {
+    while (ValidState[this.machine.state] < target) {
+      await this.machine.step();
     }
   }
 }
