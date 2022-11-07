@@ -105,12 +105,20 @@ export class DatabaseManager<
 
 const DBManagerInit = new ObjectModel({
   adminType: [
-    FunctionModel(Any).return(AdminDBBrowser),
-    FunctionModel(Any).return(AdminDBServer)
+    ObjectModel({
+      constructor: FunctionModel(Any).return(AdminDBBrowser)
+    }),
+    ObjectModel({
+      constructor: FunctionModel(Any).return(AdminDBServer)
+    })
   ],
   userType: [
-    FunctionModel(Any).return(UserDBBrowser),
-    FunctionModel(Any).return(UserDBServer)
+    ObjectModel({
+      constructor: FunctionModel(Any).return(UserDBBrowser)
+    }),
+    ObjectModel({
+      constructor: FunctionModel(Any).return(UserDBServer)
+    })    
   ],
   path: [String],
 }).defaultTo({
