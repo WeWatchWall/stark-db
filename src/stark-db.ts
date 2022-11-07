@@ -11,10 +11,11 @@ export async function main() {
   await appDataSource.initialize();
 
   console.log("Inserting a new user into the database...");
-  const user = new User();
-  user.firstName = "Timber";
-  user.lastName = "Saw";
-  user.age = 25;
+  const user = new User({
+    userName: "Timber",
+    password: "Saw",
+    salt: "25"
+  });
   await appDataSource.manager.save(user);
   console.log("Saved a new user with id: " + user.id);
 

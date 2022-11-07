@@ -6,10 +6,11 @@ async function main() {
   await appDataSource.initialize();
 
   console.log("Inserting a new user into the database...");
-  const user = new User();
-  user.firstName = "Timber";
-  user.lastName = "Saw";
-  user.age = 25;
+  const user = new User({
+    userName: "Timber",
+    password: "Saw",
+    salt: "25"
+  });
   await appDataSource.manager.save(user);
   console.log("Saved a new user with id: " + user.id);
 
@@ -19,7 +20,10 @@ async function main() {
   const usersQueryRaw = usersQuery.getQueryAndParameters();
   console.log("usersQueryRaw", usersQueryRaw);
 
-  const users = await usersQuery.getMany();
+  let users = await usersQuery.getMany();
+  console.log("Loaded users: ", users);
+
+  users = await appDataSource.manager.find(User);
   console.log("Loaded users: ", users);
 
   console.log("You can setup and run express / fastify / any other framework.");

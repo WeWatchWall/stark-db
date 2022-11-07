@@ -1,22 +1,20 @@
 import { DataSource } from 'typeorm';
 import { User } from '../../entity/user';
 
-import { DB_IDENTIFIER } from './constants';
+import { ADMIN_USER, DB_IDENTIFIER } from './constants';
 
 export class DBUtils {
   static async readyAdminDB(db: DataSource): Promise<void> {
     if (await DBUtils.isInitCheck(db)) { return; }
 
     const user = new User({
-      userName: 'admin',
+      userName: ADMIN_USER,
       password: '',
       salt: ''
     });
     await db.manager.save(user);
 
-    console.log("Loading users from the database...");
-    const users = await db.manager.find(User);
-    console.log("Loaded users: ", users);
+    
 
     // Set the DB user_version flag as initialized.
     await DBUtils.isInitSet(db);
