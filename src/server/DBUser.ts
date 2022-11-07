@@ -1,5 +1,5 @@
-import { DBUtils } from '../shared/utils/DB';
-import { LazyValidator } from '../shared/utils/lazyValidator';
+import { DBUtils } from '../utils/DB';
+import { LazyValidator } from '../utils/lazyValidator';
 import { PersistentDB, PersistentDBArg } from './DBPersistent';
 
 export class UserDB extends PersistentDB {

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import copy from 'fast-copy';
 
-import { Script } from '../src/shared/objects/script';
-import { ParseType, Statement } from '../src/shared/objects/statement';
+import { Script } from '../src/objects/script';
+import { ParseType, Statement } from '../src/objects/statement';
 
 const loadTests = [
   {

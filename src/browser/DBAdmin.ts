@@ -1,5 +1,5 @@
 import { User } from "../entity/user";
-import { LazyValidator } from "../shared/utils/lazyValidator";
+import { LazyValidator } from "../utils/lazyValidator";
 import { PersistentDB, PersistentDBArg } from "./DBPersistent";
 
 export class AdminDB extends PersistentDB {

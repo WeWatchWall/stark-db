@@ -2,8 +2,8 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import path from 'path';
 import { DataSource } from 'typeorm';
 
-import { IDB } from '../shared/objects/IDB';
-import { LazyValidator } from '../shared/utils/lazyValidator';
+import { IDB } from '../objects/IDB';
+import { LazyValidator } from '../utils/lazyValidator';
 
 export class PersistentDBArg {
   name: string;

@@ -4,8 +4,8 @@ import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm';
 import { SqljsEntityManager } from 'typeorm/entity-manager/SqljsEntityManager';
 
-import { IDB } from '../shared/objects/IDB';
-import { LazyValidator } from '../shared/utils/lazyValidator';
+import { IDB } from '../objects/IDB';
+import { LazyValidator } from '../utils/lazyValidator';
 
 const MIN_INTERVAL = 0.5e3;
 const DEFAULT_INTERVAL = 10e3;

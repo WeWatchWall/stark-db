@@ -1,12 +1,14 @@
 import { DataSource } from 'typeorm';
-import { User } from '../../entity/user';
+import { User } from '../entity/user';
 
 import { ADMIN_USER, DB_IDENTIFIER } from './constants';
 
 export class DBUtils {
   static async readyAdminDB(db: DataSource): Promise<void> {
+    // Skip if the DB is already initialized.
     if (await DBUtils.isInitCheck(db)) { return; }
 
+    // Create the admin user.
     const user = new User({
       userName: ADMIN_USER,
       password: '',
