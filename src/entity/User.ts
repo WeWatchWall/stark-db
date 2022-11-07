@@ -14,15 +14,15 @@ export class User {
   }
 
   @PrimaryGeneratedColumn()
-  id: number
+  id: number;
 
   @Column()
-  userName: string
+  userName: string;
 
   @Column()
-  password: string
+  password: string;
 
   @Column()
-  salt: string
+  salt: string;
 
 }

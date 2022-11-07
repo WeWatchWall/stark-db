@@ -61,7 +61,7 @@ const PersistentDBInit = new ObjectModel({
   path: String,
   entities: ArrayModel(Any),
 }).defaultTo({
-  path: '',
+  path: './',
   entities: [],
 });
 /* #endregion */

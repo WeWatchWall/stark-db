@@ -1,8 +1,9 @@
 import { User } from "../entity/user";
 import { LazyValidator } from "../utils/lazyValidator";
 import { PersistentDB, PersistentDBArg } from "./DBPersistent";
+import { IAdminDB } from "../objects/IDB";
 
-export class AdminDB extends PersistentDB {
+export class AdminDB extends PersistentDB implements IAdminDB {
   validator: LazyValidator;
 
   constructor(init: PersistentDBArg) {

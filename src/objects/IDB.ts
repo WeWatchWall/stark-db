@@ -15,3 +15,6 @@ export interface IDB {
   save(): Promise<void>;
   destroy(): Promise<void>;
 }
+
+export interface IAdminDB extends IDB { }
+export interface IUserDB extends IDB { }

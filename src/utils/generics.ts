@@ -1,0 +1,1 @@
+export type CtorType<T> = T extends { new (...args: infer Args): infer Ret } ? { new (...args: Args): Ret } : never;

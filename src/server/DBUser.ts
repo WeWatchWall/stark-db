@@ -1,8 +1,9 @@
+import { IUserDB } from '../objects/IDB';
 import { DBUtils } from '../utils/DB';
 import { LazyValidator } from '../utils/lazyValidator';
 import { PersistentDB, PersistentDBArg } from './DBPersistent';
 
-export class UserDB extends PersistentDB {
+export class UserDB extends PersistentDB implements IUserDB {
   validator: LazyValidator;
 
   constructor(init: PersistentDBArg) {
