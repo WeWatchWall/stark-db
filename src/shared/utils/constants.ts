@@ -5,4 +5,4 @@ export const DELIMITER = ';';
 export const NEWLINE = '\n';
 
 export const ADMIN_DB = 'stark-admin.db';
-export const IDENTIFIER = 1663328354;
+export const DB_IDENTIFIER = 1663328354;

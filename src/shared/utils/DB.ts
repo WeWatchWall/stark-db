@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { User } from '../../entity/user';
 
-import { IDENTIFIER } from './constants';
+import { DB_IDENTIFIER } from './constants';
 
 export class DBUtils {
   static async readyAdminDB(db: DataSource): Promise<void> {
@@ -17,16 +17,17 @@ export class DBUtils {
     const users = await db.manager.find(User);
     console.log("Loaded users: ", users);
 
-    // TODO: Enable setting this flag at the end.
-    // await DBUtils.isInitSet(db);
+    // Set the DB user_version flag as initialized.
+    await DBUtils.isInitSet(db);
   }
 
   static async readyUserDB(db: DataSource): Promise<void> {
+    // Skip if the DB is already initialized.
     if (await DBUtils.isInitCheck(db)) { return; }
 
 
-    // TODO: Enable setting this flag at the end.
-    // await DBUtils.isInitSet(db);
+    // Set the DB user_version flag as initialized.
+    await DBUtils.isInitSet(db);
   }
 
   /**
@@ -37,7 +38,7 @@ export class DBUtils {
   private static async isInitCheck(db: DataSource): Promise<boolean> {
     const result = await db.query(`PRAGMA user_version;`);
 
-    return result[0][`user_version`] === IDENTIFIER;
+    return result[0][`user_version`] === DB_IDENTIFIER;
   }
 
   /**
@@ -45,8 +46,8 @@ export class DBUtils {
    * @param db @type {DataSource} The database. 
    * @returns @type {void}
    */
-  // private static async isInitSet(db: DataSource): Promise<void> {
-  //   // This query doesn't work with parameters.
-  //   await db.query(`PRAGMA user_version = ${IDENTIFIER};`);
-  // }
+  private static async isInitSet(db: DataSource): Promise<void> {
+    // This query doesn't work with parameters.
+    await db.query(`PRAGMA user_version = ${DB_IDENTIFIER};`);
+  }
 }
