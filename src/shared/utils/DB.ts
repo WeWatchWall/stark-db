@@ -7,10 +7,11 @@ export class DBUtils {
   static async readyAdminDB(db: DataSource): Promise<void> {
     if (await DBUtils.isInitCheck(db)) { return; }
 
-    const user = new User();
-    user.firstName = "Admin";
-    user.lastName = "Admin";
-    user.age = 25;
+    const user = new User({
+      userName: 'admin',
+      password: '',
+      salt: ''
+    });
     await db.manager.save(user);
 
     console.log("Loading users from the database...");

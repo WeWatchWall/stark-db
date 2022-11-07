@@ -1,18 +1,28 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
+class UserData {
+  userName: string;
+  password: string;
+  salt: string;
+}
+
 @Entity()
 export class User {
+
+  constructor(init: UserData) {
+    Object.assign(this, init);
+  }
 
   @PrimaryGeneratedColumn()
   id: number
 
   @Column()
-  firstName: string
+  userName: string
 
   @Column()
-  lastName: string
+  password: string
 
   @Column()
-  age: number
+  salt: string
 
 }
