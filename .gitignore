@@ -107,3 +107,4 @@ dist
 # Fuzzer file
 *fuzzInstances.json
 test/test.db
+test/stark-admin.db

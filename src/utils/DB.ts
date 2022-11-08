@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
-import { User } from '../entity/user';
 
+import { User } from '../entity/user';
+import { StarkVariable } from '../entity/variable';
 import { ADMIN_USER, DB_IDENTIFIER } from './constants';
 
 export class DBUtils {
@@ -16,10 +17,6 @@ export class DBUtils {
     });
     await db.manager.save(user);
 
-    // TODO: remove
-    const users = await db.manager.find(User);
-    console.log("Loaded users: ", users);
-
     // Set the DB user_version flag as initialized.
     await DBUtils.isInitSet(db);
   }
@@ -28,6 +25,38 @@ export class DBUtils {
     // Skip if the DB is already initialized.
     if (await DBUtils.isInitCheck(db)) { return; }
 
+    /* #region  Add helper variables. */
+    const tablesVar = new StarkVariable({
+      name: 'tables',
+      value: JSON.stringify([])
+    });
+
+    const isWALVar = new StarkVariable({
+      name: 'isWAL',
+      value: false
+    });
+
+    const memoryVar = new StarkVariable({
+      name: 'memory',
+      value: JSON.stringify([])
+    });
+
+    const isMemoryVar = new StarkVariable({
+      name: 'isMemory',
+      value: true
+    });
+
+    const lastAccess = new StarkVariable({
+      name: 'lastAccess',
+      value: Date.now()
+    });
+
+    await db.manager.save(tablesVar);
+    await db.manager.save(isWALVar);
+    await db.manager.save(memoryVar);
+    await db.manager.save(isMemoryVar);
+    await db.manager.save(lastAccess);
+    /* #endregion */
 
     // Set the DB user_version flag as initialized.
     await DBUtils.isInitSet(db);

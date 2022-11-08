@@ -22,7 +22,6 @@ describe('DB Manager.', function () {
       typeID: 'server'
     });
 
-    // NOOP
     await dbManager.validator.readyAsync();
 
     expect(true).to.be.equal(true);

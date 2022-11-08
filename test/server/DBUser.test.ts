@@ -1,12 +1,13 @@
 import { expect } from 'chai';
 import { existsSync, rmSync } from 'fs';
 
-import { AdminDB } from '../../src/server/DBAdmin';
+import { StarkVariable } from '../../src/entity/variable';
+import { UserDB } from '../../src/server/DBUser';
 
 const DB_PATH = `./test`;
 const DB_FILE = 'test.db';
 
-describe('Admin DB.', function () {
+describe('User DB.', function () {
   this.timeout(600e3);
 
   this.beforeAll(async () => {
@@ -17,9 +18,10 @@ describe('Admin DB.', function () {
   });
 
   it(`Hello world.`, async () => {
-    const adminDB = new AdminDB({
+    const adminDB = new UserDB({
       name: DB_FILE,
       path: DB_PATH,
+      entities: [StarkVariable]
     });
 
     await adminDB.validator.readyAsync();
