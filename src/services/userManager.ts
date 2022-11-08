@@ -6,7 +6,7 @@ import { IAdminDB } from '../objects/IDB';
 import { AdminDB as AdminDBServer } from '../server/DBAdmin';
 import { LazyValidator } from '../utils/lazyValidator';
 
-export class UserManagerArg {
+class UserManagerArg {
   adminDB: IAdminDB
 }
 

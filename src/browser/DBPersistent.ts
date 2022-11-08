@@ -12,9 +12,10 @@ const DEFAULT_INTERVAL = 10e3;
 
 export class PersistentDBArg {
   name: string;
-  path: string;
-  saveInterval?: number;
+  path?: string;
+
   entities?: any[];
+  saveInterval?: number;
 }
 
 export abstract class PersistentDB implements IDB {
@@ -23,9 +24,10 @@ export abstract class PersistentDB implements IDB {
   name: string;
   path: string;
   fileName: string;
-  entities?: any[];
+
+  entities: any[];
+  saveInterval: number;
   db: DataSource;
-  saveInterval?: number;
 
   private interval: ReturnType<typeof setInterval>;
   private static driver: any;
@@ -33,7 +35,10 @@ export abstract class PersistentDB implements IDB {
   protected validate(): void {
     new PersistentDBInit(this);
 
+    // Set the defaults.
     this.entities = this.entities || [];
+    this.path = this.path || './';
+    this.saveInterval = this.saveInterval || DEFAULT_INTERVAL;
   }
 
   protected async ready(): Promise<void> {
@@ -93,12 +98,9 @@ const PositiveInteger = Integer
   .as("PositiveInteger");
 const PersistentDBInit = new ObjectModel({
   name: String,
-  path: String,
-  entities: ArrayModel(Any),
+  path: [String],
+
+  entities: [ArrayModel(Any)],
   saveInterval: [PositiveInteger],
-}).defaultTo({
-  path: '',
-  entities: [],
-  saveInterval: DEFAULT_INTERVAL
 });
 /* #endregion */

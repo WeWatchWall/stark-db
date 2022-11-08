@@ -16,7 +16,9 @@ export class DBUtils {
     });
     await db.manager.save(user);
 
-    
+    // TODO: remove
+    const users = await db.manager.find(User);
+    console.log("Loaded users: ", users);
 
     // Set the DB user_version flag as initialized.
     await DBUtils.isInitSet(db);

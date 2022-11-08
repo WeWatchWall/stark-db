@@ -1,9 +1,9 @@
 import { expect } from 'chai';
-import { existsSync,rmSync } from 'fs';
+import { existsSync, rmSync } from 'fs';
 
-import { AdminDB } from '../src/server/DBAdmin';
+import { AdminDB } from '../../src/server/DBAdmin';
 
-describe('Server DB.', function () {
+describe('Admin DB.', function () {
   this.timeout(600e3);
 
   this.beforeAll(async () => {

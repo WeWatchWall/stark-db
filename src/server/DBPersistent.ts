@@ -7,7 +7,7 @@ import { LazyValidator } from '../utils/lazyValidator';
 
 export class PersistentDBArg {
   name: string;
-  path: string;
+  path?: string;
   entities?: any[];
 }
 
@@ -17,13 +17,16 @@ export abstract class PersistentDB implements IDB {
   name: string;
   path: string;
   fileName: string;
-  entities?: any[];
+
+  entities: any[];
   db: DataSource;
 
   protected validate(): void {
     new PersistentDBInit(this);
 
+    // Set the defaults.
     this.entities = this.entities || [];
+    this.path = this.path || './';
   }
 
   protected async ready(): Promise<void> {
@@ -58,10 +61,8 @@ export abstract class PersistentDB implements IDB {
 /* #region  Use schema to check the properties. */
 const PersistentDBInit = new ObjectModel({
   name: String,
-  path: String,
-  entities: ArrayModel(Any),
-}).defaultTo({
-  path: './',
-  entities: [],
+  path: [String],
+
+  entities: [ArrayModel(Any)],
 });
 /* #endregion */

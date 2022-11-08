@@ -1,4 +1,4 @@
-import { Any, FunctionModel, ObjectModel } from 'objectmodel';
+import { ObjectModel } from 'objectmodel';
 
 import { AdminDB as AdminDBBrowser } from '../browser/DBAdmin';
 import { UserDB as UserDBBrowser } from '../browser/DBUser';
@@ -9,7 +9,9 @@ import { ADMIN_DB } from '../utils/constants';
 import { CtorType } from '../utils/generics';
 import { LazyValidator } from '../utils/lazyValidator';
 
-/* #region  Constructor types for the generics. */
+/* #region  Browser and server types. */
+type typeID = 'browser' | 'server';
+
 type adminDBTypes =
   CtorType<typeof AdminDBBrowser> |
   CtorType<typeof AdminDBServer>;
@@ -20,20 +22,13 @@ type userDBTypes =
 /* #endregion */
 
 /* #region  Argument type for the type below. */
-export class DBManagerArg<
-  T extends adminDBTypes,
-  U extends userDBTypes
-> {
-  adminType: T;
-  userType: U;
+class DBManagerArg {
+  typeID: typeID;
   path?: string;
 }
 /* #endregion */
 
-export class DatabaseManager<
-  T extends adminDBTypes,
-  U extends userDBTypes
-> {
+export class DatabaseManager {
   static adminDB: IAdminDB;
 
   /**
@@ -42,24 +37,22 @@ export class DatabaseManager<
    * @param [init] The 
    * @returns init 
    */
-  static async init<
-    T extends adminDBTypes,
-    U extends userDBTypes
-  >(init: DBManagerArg<T, U>): Promise<DatabaseManager<T, U>> {
-    const result = new DatabaseManager<T, U>(init);
+  static async init(init: DBManagerArg): Promise<DatabaseManager> {
+    const result = new DatabaseManager(init);
 
     await result.ready();
 
     return result;
   }
 
+  typeID: typeID;
   path: string;
   validator: LazyValidator;
 
-  private adminDBType: T;
-  protected userDBType: U; // TODO: make private;
+  private adminDBType: adminDBTypes;
+  protected userDBType: userDBTypes; // TODO: make private;
 
-  constructor(init?: DBManagerArg<T, U>) {
+  constructor(init?: DBManagerArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])
@@ -74,6 +67,23 @@ export class DatabaseManager<
 
   protected validate(): void {
     new DBManagerInit(this);
+
+    // Set the defaults.
+    this.path = this.path || './';
+
+    // Avoids ambiguous validation.
+    switch (this.typeID) {
+      case 'browser':
+        this.adminDBType = AdminDBBrowser;
+        this.userDBType = UserDBBrowser;
+        break;
+      case 'server':
+        this.adminDBType = AdminDBServer;
+        this.userDBType = UserDBServer;
+        break;
+      default:
+        throw new Error(`Critical error: should not happen due to validation.`);
+    }
   }
 
   protected async ready() {
@@ -104,23 +114,6 @@ export class DatabaseManager<
 }
 
 const DBManagerInit = new ObjectModel({
-  adminType: [
-    ObjectModel({
-      constructor: FunctionModel(Any).return(AdminDBBrowser)
-    }),
-    ObjectModel({
-      constructor: FunctionModel(Any).return(AdminDBServer)
-    })
-  ],
-  userType: [
-    ObjectModel({
-      constructor: FunctionModel(Any).return(UserDBBrowser)
-    }),
-    ObjectModel({
-      constructor: FunctionModel(Any).return(UserDBServer)
-    })    
-  ],
+  typeID: ['browser', 'server'],
   path: [String],
-}).defaultTo({
-  path: './',
 });
