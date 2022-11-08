@@ -1,9 +1,9 @@
 import { ObjectModel } from 'objectmodel';
 import { DataSource } from 'typeorm';
 
-import { AdminDB as AdminDBBrowser } from '../browser/DBAdmin';
+import { AdminDB as AdminDBBrowser } from '../browser/objects/DBAdmin';
 import { IAdminDB } from '../objects/IDB';
-import { AdminDB as AdminDBServer } from '../server/DBAdmin';
+import { AdminDB as AdminDBServer } from '../server/objects/DBAdmin';
 import { LazyValidator } from '../utils/lazyValidator';
 
 class UserManagerArg {

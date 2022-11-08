@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { existsSync, rmSync } from 'fs';
 
 import { StarkVariable } from '../../src/entity/variable';
-import { UserDB } from '../../src/server/DBUser';
+import { UserDB } from '../../src/server/objects/DBUser';
 
 const DB_PATH = `./test`;
 const DB_FILE = 'test.db';

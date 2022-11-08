@@ -1,5 +1,6 @@
-import { IUserDB } from '../objects/IDB';
-import { LazyValidator } from '../utils/lazyValidator';
+import { IUserDB } from '../../objects/IDB';
+import { DBUtils } from '../../utils/DB';
+import { LazyValidator } from '../../utils/lazyValidator';
 import { PersistentDB, PersistentDBArg } from './DBPersistent';
 
 export class UserDB extends PersistentDB implements IUserDB {
@@ -22,7 +23,6 @@ export class UserDB extends PersistentDB implements IUserDB {
 
   protected async ready(): Promise<void> {
     await super.ready();
-
-    // Check if the database is already initialized.
+    await DBUtils.readyUserDB(this.db);
   }
 }

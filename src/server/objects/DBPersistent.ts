@@ -2,10 +2,10 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import path from 'path';
 import { DataSource } from 'typeorm';
 
-import { IDB } from '../objects/IDB';
-import { LazyValidator } from '../utils/lazyValidator';
+import { IDB, IDBArg } from '../../objects/IDB';
+import { LazyValidator } from '../../utils/lazyValidator';
 
-export class PersistentDBArg {
+export class PersistentDBArg implements IDBArg {
   name: string;
   path?: string;
   entities?: any[];
@@ -27,10 +27,10 @@ export abstract class PersistentDB implements IDB {
     // Set the defaults.
     this.entities = this.entities || [];
     this.path = this.path || './';
+    this.fileName = path.resolve(this.path, this.name);
   }
 
   protected async ready(): Promise<void> {
-    this.fileName = path.resolve(this.path, this.name);
 
     await this.load();
   }

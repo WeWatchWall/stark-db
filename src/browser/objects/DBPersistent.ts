@@ -4,13 +4,13 @@ import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm';
 import { SqljsEntityManager } from 'typeorm/entity-manager/SqljsEntityManager';
 
-import { IDB } from '../objects/IDB';
-import { LazyValidator } from '../utils/lazyValidator';
+import { IDB, IDBArg } from '../../objects/IDB';
+import { LazyValidator } from '../../utils/lazyValidator';
 
 const MIN_INTERVAL = 0.5e3;
 const DEFAULT_INTERVAL = 10e3;
 
-export class PersistentDBArg {
+export class PersistentDBArg implements IDBArg {
   name: string;
   path?: string;
 
@@ -38,6 +38,8 @@ export abstract class PersistentDB implements IDB {
     // Set the defaults.
     this.entities = this.entities || [];
     this.path = this.path || './';
+    this.fileName = `${this.path}/${this.name}`;
+
     this.saveInterval = this.saveInterval || DEFAULT_INTERVAL;
   }
 
@@ -48,8 +50,6 @@ export abstract class PersistentDB implements IDB {
         locateFile: (_path: string) => `sql-wasm.wasm`
       });
     }
-
-    this.fileName = this.path + this.name;
 
     // Open the database.
     await this.load();

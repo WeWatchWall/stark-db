@@ -1,7 +1,9 @@
-import { User } from "../entity/user";
-import { LazyValidator } from "../utils/lazyValidator";
-import { PersistentDB, PersistentDBArg } from "./DBPersistent";
-import { IAdminDB } from "../objects/IDB";
+import { Database } from '../../entity/DB';
+import { User } from '../../entity/user';
+import { IAdminDB } from '../../objects/IDB';
+import { DBUtils } from '../../utils/DB';
+import { LazyValidator } from '../../utils/lazyValidator';
+import { PersistentDB, PersistentDBArg } from './DBPersistent';
 
 export class AdminDB extends PersistentDB implements IAdminDB {
   validator: LazyValidator;
@@ -17,14 +19,13 @@ export class AdminDB extends PersistentDB implements IAdminDB {
     // Copy the properties.
     if (init !== undefined) {
       Object.assign(this, init);
-      this.entities = [User];
+      this.entities = [Database, User];
       this.validator.valid();
     }
   }
 
   protected async ready(): Promise<void> {
     await super.ready();
-
-    // Check if the database is already initialized.
+    await DBUtils.readyAdminDB(this.db);
   }
 }

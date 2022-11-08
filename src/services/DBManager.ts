@@ -1,10 +1,13 @@
 import { ObjectModel } from 'objectmodel';
 
-import { AdminDB as AdminDBBrowser } from '../browser/DBAdmin';
-import { UserDB as UserDBBrowser } from '../browser/DBUser';
+import { AdminDB as AdminDBBrowser } from '../browser/objects/DBAdmin';
+import { UserDB as UserDBBrowser } from '../browser/objects/DBUser';
+import { DBManager as DBManagerBrowser } from '../browser/utils/DBManager';
+import { DBManager as DBManagerServer } from '../server/utils/DBManager';
+import { Database, DBData } from '../entity/DB';
 import { IAdminDB } from '../objects/IDB';
-import { AdminDB as AdminDBServer } from '../server/DBAdmin';
-import { UserDB as UserDBServer } from '../server/DBUser';
+import { AdminDB as AdminDBServer } from '../server/objects/DBAdmin';
+import { UserDB as UserDBServer } from '../server/objects/DBUser';
 import { ADMIN_DB } from '../utils/constants';
 import { CtorType } from '../utils/generics';
 import { LazyValidator } from '../utils/lazyValidator';
@@ -98,11 +101,37 @@ export class DatabaseManager {
   }
 
   async add(): Promise<void> {
-    // TODO
+    // TODO: arg: IDBArg
   }
 
-  async delete(): Promise<void> {
-    // TODO
+  async delete(arg: DBData): Promise<void> {
+    // Get the DB to delete.
+    const DB = await DatabaseManager
+      .adminDB
+      .db
+      .manager
+      .findOne(Database, <any>arg); // TODO: remove cast.
+    
+    // Check if the DB exists.
+    if (DB === undefined) { return; }
+
+    // Delete the DB from the admin DB.
+    await DatabaseManager.adminDB.db.manager.delete(Database, arg);
+
+    // TODO: destroy the memory DB and any active
+    //   connections to the persistent DB.
+
+    // Delete the DB from the file system.
+    switch (this.typeID) {
+      case 'browser':
+        DBManagerBrowser.delete(DB);
+        break;
+      case 'server':
+        DBManagerServer.delete(DB);
+        break;
+      default:
+        throw new Error(`Critical error: should not happen due to validation.`);
+    }
   }
 
   async destroy(): Promise<void> {

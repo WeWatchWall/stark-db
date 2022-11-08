@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { existsSync, rmSync } from 'fs';
 
-import { AdminDB } from '../../src/server/DBAdmin';
+import { AdminDB } from '../../src/server/objects/DBAdmin';
 
 const DB_PATH = `./test`;
 const DB_FILE = 'test.db';

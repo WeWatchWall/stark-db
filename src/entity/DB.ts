@@ -1,8 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
-class DBData {
+export class DBData {
+  id?: number;
   name: string;
-  path: string;
+  path?: string;
 }
 
 @Entity()

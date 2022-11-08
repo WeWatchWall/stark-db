@@ -1,6 +1,12 @@
 import { DataSource } from 'typeorm';
 import { LazyValidator } from "../utils/lazyValidator";
 
+export interface IDBArg {
+  name: string;
+  path?: string;
+  entities?: any[];
+}
+
 export interface IDB {
   validator: LazyValidator;
 
