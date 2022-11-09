@@ -30,7 +30,10 @@ describe('Admin DB.', function () {
     await adminDB.validator.readyAsync();
 
     // Check the user exists in the table.
-    const users = await adminDB.db.manager.findBy(User, { userName: 'admin' });
+    const users = await adminDB
+      .db
+      .manager
+      .findBy(User, { userName: ADMIN_USER });
     expect(users.length).to.be.equal(1);
     const user = users[0];
     expect(user).to.be.deep.equal({
