@@ -1,9 +1,7 @@
 import { ObjectModel } from 'objectmodel';
 import { DataSource } from 'typeorm';
 
-import { AdminDB as AdminDBBrowser } from '../browser/objects/DBAdmin';
 import { IAdminDB } from '../objects/IDB';
-import { AdminDB as AdminDBServer } from '../server/objects/DBAdmin';
 import { LazyValidator } from '../utils/lazyValidator';
 
 class UserManagerArg {
@@ -30,7 +28,7 @@ export class UserManager {
   adminDB: IAdminDB;
   validator: LazyValidator;
 
-  constructor(init: UserManagerArg) {
+  constructor(init?: UserManagerArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])
@@ -71,5 +69,5 @@ export class UserManager {
 }
 
 const UserManagerInit = new ObjectModel({
-  adminDB: [AdminDBBrowser, AdminDBServer],
+  
 });
