@@ -2,7 +2,7 @@ import { Entity, PrimaryColumn, Column } from "typeorm"
 
 class StarkVariableData {
   name: string;
-  value: boolean | number | string;
+  value?: boolean | number | string;
 }
 
 @Entity()

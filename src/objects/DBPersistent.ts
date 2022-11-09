@@ -67,26 +67,38 @@ export abstract class PersistentDBBase implements IDB {
       value: false
     });
 
-    const memoryVar = new StarkVariable({
-      name: 'memory',
+    const memoryOnlyVar = new StarkVariable({
+      name: 'memoryOnly',
       value: JSON.stringify([])
     });
 
-    const isMemoryVar = new StarkVariable({
-      name: 'isMemory',
-      value: true
+    const isMemoryOnlyVar = new StarkVariable({
+      name: 'isMemoryOnly',
+      value: false
     });
 
-    const lastAccess = new StarkVariable({
+    const memoryPersistVar = new StarkVariable({
+      name: 'memoryPersist',
+      value: JSON.stringify([])
+    });
+
+    const isMemoryPersistVar = new StarkVariable({
+      name: 'isMemoryPersist',
+      value: false
+    });
+
+    const lastAccessVar = new StarkVariable({
       name: 'lastAccess',
       value: Date.now()
     });
 
     await db.manager.save(tablesVar);
     await db.manager.save(isWALVar);
-    await db.manager.save(memoryVar);
-    await db.manager.save(isMemoryVar);
-    await db.manager.save(lastAccess);
+    await db.manager.save(memoryOnlyVar);
+    await db.manager.save(isMemoryOnlyVar);
+    await db.manager.save(memoryPersistVar);
+    await db.manager.save(isMemoryPersistVar);
+    await db.manager.save(lastAccessVar);
     /* #endregion */
 
     // Set the DB user_version flag as initialized.

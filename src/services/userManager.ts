@@ -69,5 +69,4 @@ export class UserManager {
 }
 
 const UserManagerInit = new ObjectModel({
-  
 });

@@ -1,9 +1,10 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
 class UserData {
-  userName: string;
-  password: string;
-  salt: string;
+  id?: number;
+  userName?: string;
+  password?: string;
+  salt?: string;
 }
 
 @Entity()
