@@ -40,7 +40,8 @@ export abstract class PersistentDBBase implements IDB {
 
   protected static async readyAdminDB(
     db: DataSource,
-    path: string
+    name?: string,
+    path?: string,
   ): Promise<void> {
     // Skip if the DB is already initialized.
     if (await PersistentDBBase.isInitCheck(db)) { return; }
@@ -55,8 +56,8 @@ export abstract class PersistentDBBase implements IDB {
 
     // Create the admin database.
     const database = new Database({
-      name: ADMIN_DB,
-      path,
+      name: name || ADMIN_DB,
+      path: path || '',
     });
     await db.manager.save(database);
 
