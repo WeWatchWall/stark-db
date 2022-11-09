@@ -1,13 +1,44 @@
-import { DataSource } from 'typeorm';
+import { DataSource } from "typeorm";
+import { User } from "../entity/user";
+import { StarkVariable } from "../entity/variable";
+import { ADMIN_USER, DB_IDENTIFIER } from "../utils/constants";
+import { LazyValidator } from "../utils/lazyValidator";
+import { IDB, IDBArg } from "./IDB";
 
-import { User } from '../entity/user';
-import { StarkVariable } from '../entity/variable';
-import { ADMIN_USER, DB_IDENTIFIER } from './constants';
+export abstract class PersistentDBArgBase implements IDBArg {
+  name: string;
+  path?: string;
 
-export class DBUtils {
-  static async readyAdminDB(db: DataSource): Promise<void> {
+  entities?: any[];
+}
+
+export abstract class PersistentDBBase implements IDB {
+  validator: LazyValidator;
+
+  name: string;
+  path: string;
+  fileName: string;
+
+  entities: any[];
+  db: DataSource;
+
+  constructor(_init: IDBArg) {
+    this.validator = new LazyValidator(
+      () => this.validate.apply(this, []),
+      () => this.ready.apply(this, [])
+    );
+  }
+
+  abstract load(): Promise<void>;
+  abstract save(): Promise<void>;
+  abstract destroy(): Promise<void>;
+
+  protected abstract validate(): void;
+  protected abstract ready(): Promise<void>;
+
+  protected static async readyAdminDB(db: DataSource): Promise<void> {
     // Skip if the DB is already initialized.
-    if (await DBUtils.isInitCheck(db)) { return; }
+    if (await PersistentDBBase.isInitCheck(db)) { return; }
 
     // Create the admin user.
     const user = new User({
@@ -18,12 +49,12 @@ export class DBUtils {
     await db.manager.save(user);
 
     // Set the DB user_version flag as initialized.
-    await DBUtils.isInitSet(db);
+    await PersistentDBBase.isInitSet(db);
   }
 
-  static async readyUserDB(db: DataSource): Promise<void> {
+  protected static async readyUserDB(db: DataSource): Promise<void> {
     // Skip if the DB is already initialized.
-    if (await DBUtils.isInitCheck(db)) { return; }
+    if (await PersistentDBBase.isInitCheck(db)) { return; }
 
     /* #region  Add helper variables. */
     const tablesVar = new StarkVariable({
@@ -59,7 +90,7 @@ export class DBUtils {
     /* #endregion */
 
     // Set the DB user_version flag as initialized.
-    await DBUtils.isInitSet(db);
+    await PersistentDBBase.isInitSet(db);
   }
 
   /**
@@ -67,7 +98,7 @@ export class DBUtils {
    * @param db @type {DataSource} The database. 
    * @returns isInit @type {boolean} True if the database is initialized.
    */
-  private static async isInitCheck(db: DataSource): Promise<boolean> {
+   private static async isInitCheck(db: DataSource): Promise<boolean> {
     const result = await db.query(`PRAGMA user_version;`);
 
     return result[0][`user_version`] === DB_IDENTIFIER;

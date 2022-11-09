@@ -4,30 +4,20 @@ import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm';
 import { SqljsEntityManager } from 'typeorm/entity-manager/SqljsEntityManager';
 
-import { IDB, IDBArg } from '../../objects/IDB';
-import { LazyValidator } from '../../utils/lazyValidator';
+import {
+  PersistentDBArgBase,
+  PersistentDBBase
+} from '../../objects/DBPersistent';
 
 const MIN_INTERVAL = 0.5e3;
 const DEFAULT_INTERVAL = 10e3;
 
-export class PersistentDBArg implements IDBArg {
-  name: string;
-  path?: string;
-
-  entities?: any[];
+export class PersistentDBArg extends PersistentDBArgBase {
   saveInterval?: number;
 }
 
-export abstract class PersistentDB implements IDB {
-  validator: LazyValidator;
-
-  name: string;
-  path: string;
-  fileName: string;
-
-  entities: any[];
+export abstract class PersistentDB extends PersistentDBBase {
   saveInterval: number;
-  db: DataSource;
 
   private interval: ReturnType<typeof setInterval>;
   private static driver: any;
@@ -86,6 +76,7 @@ export abstract class PersistentDB implements IDB {
 
     await this.save();
     await this.db.destroy();
+    delete this.db;
   }
 }
 

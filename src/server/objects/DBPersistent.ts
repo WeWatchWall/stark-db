@@ -2,24 +2,14 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import path from 'path';
 import { DataSource } from 'typeorm';
 
-import { IDB, IDBArg } from '../../objects/IDB';
-import { LazyValidator } from '../../utils/lazyValidator';
+import {
+  PersistentDBArgBase,
+  PersistentDBBase
+} from '../../objects/DBPersistent';
 
-export class PersistentDBArg implements IDBArg {
-  name: string;
-  path?: string;
-  entities?: any[];
-}
+export class PersistentDBArg extends PersistentDBArgBase {}
 
-export abstract class PersistentDB implements IDB {
-  validator: LazyValidator;
-
-  name: string;
-  path: string;
-  fileName: string;
-
-  entities: any[];
-  db: DataSource;
+export abstract class PersistentDB extends PersistentDBBase {
 
   protected validate(): void {
     new PersistentDBInit(this);
@@ -31,7 +21,6 @@ export abstract class PersistentDB implements IDB {
   }
 
   protected async ready(): Promise<void> {
-
     await this.load();
   }
 
@@ -55,6 +44,7 @@ export abstract class PersistentDB implements IDB {
 
   async destroy(): Promise<void> {
     await this.db.destroy();
+    delete this.db;
   }
 }
 
