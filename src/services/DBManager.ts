@@ -36,9 +36,24 @@ export abstract class DatabaseManagerBase {
 
   protected abstract ready(): Promise<void>;
 
-  async add(): Promise<void> {
-    // TODO: arg: IDBArg
-  }
+  abstract add(arg: DBData): Promise<void>;
+
+  protected async addInternal(arg: DBData): Promise<boolean> {
+    // Check if the DB already exists.
+    let DB = await DatabaseManagerBase
+      .adminDB
+      .db
+      .manager
+      .findOne(Database, <any>arg); // TODO: remove cast.
+    
+    if (DB !== undefined) { return false; }
+
+    // Add the DB to the admin DB.
+    DB = new Database(arg);
+    await DatabaseManagerBase.adminDB.db.manager.save(DB);
+
+    return true;
+  };
 
   abstract delete(arg: DBData): Promise<void>;
 

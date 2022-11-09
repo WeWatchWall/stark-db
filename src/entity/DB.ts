@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
 export class DBData {
   id?: number;
-  name: string;
+  name?: string;
   path?: string;
 }
 

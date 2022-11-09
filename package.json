@@ -1,6 +1,6 @@
 {
    "name": "stark-db",
-   "version": "0.5.6",
+   "version": "0.6.0",
    "description": "Persistent SQL engine with TypeScript APIs for quick and easy production apps.",
    "main": "./dist/src/stark-db.js",
    "types": "./dist/src/stark-db.d.ts",
@@ -18,7 +18,6 @@
    },
    "keywords": [
       "database",
-      "ORM",
       "typescript"
    ],
    "author": "Adrian Burlacu <adrian.burlacu@live.com>",

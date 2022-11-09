@@ -1,17 +1,18 @@
 import localforage from 'localforage';
 
 import { DBData } from '../../entity/DB';
+import { StarkVariable } from '../../entity/variable';
 import { DatabaseManagerBase, DBManagerArg } from '../../services/DBManager';
 import { ADMIN_DB } from '../../utils/constants';
 import { AdminDB } from '../objects/DBAdmin';
+import { UserDB } from '../objects/DBUser';
 
 export class DatabaseManager extends DatabaseManagerBase {
 
   /**
    * Inits a database manager.
-   * @template T The type of AdminDB. Options: browser or server.
-   * @param [init] The 
-   * @returns init 
+   * @param [init] @type {DBManagerArg} The argument object. 
+   * @returns init @type {Promise<DatabaseManager>} The database manager.
    */
   static async init(init: DBManagerArg): Promise<DatabaseManager> {
     const result = new DatabaseManager(init);
@@ -32,8 +33,17 @@ export class DatabaseManager extends DatabaseManagerBase {
     await DatabaseManager.adminDB.validator.readyAsync();
   }
 
-  async add(): Promise<void> {
-    // TODO: arg: IDBArg
+  async add(arg: DBData): Promise<void> {
+    if (!super.addInternal(arg)) { return; }
+
+    const userDB = new UserDB({
+      name: arg.name,
+      path: arg.path || this.path,
+      entities: [StarkVariable],
+    });
+
+    await userDB.validator.readyAsync();
+    await userDB.destroy();
   }
 
   async delete(arg: DBData): Promise<void> {
