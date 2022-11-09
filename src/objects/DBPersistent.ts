@@ -1,4 +1,5 @@
 import { DataSource } from "typeorm";
+import { Database } from "../entity/DB";
 import { User } from "../entity/user";
 import { StarkVariable } from "../entity/variable";
 import { ADMIN_USER, DB_IDENTIFIER } from "../utils/constants";
@@ -36,7 +37,10 @@ export abstract class PersistentDBBase implements IDB {
   protected abstract validate(): void;
   protected abstract ready(): Promise<void>;
 
-  protected static async readyAdminDB(db: DataSource): Promise<void> {
+  protected static async readyAdminDB(
+    db: DataSource,
+    path: string
+  ): Promise<void> {
     // Skip if the DB is already initialized.
     if (await PersistentDBBase.isInitCheck(db)) { return; }
 
@@ -47,6 +51,13 @@ export abstract class PersistentDBBase implements IDB {
       salt: ''
     });
     await db.manager.save(user);
+
+    // Create the admin database.
+    const database = new Database({
+      name: ADMIN_USER,
+      path,
+    });
+    await db.manager.save(database);
 
     // Set the DB user_version flag as initialized.
     await PersistentDBBase.isInitSet(db);

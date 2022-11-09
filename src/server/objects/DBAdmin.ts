@@ -21,6 +21,6 @@ export class AdminDB extends PersistentDB implements IAdminDB {
 
   protected async ready(): Promise<void> {
     await super.ready();
-    await PersistentDBBase.readyAdminDB(this.db);
+    await PersistentDBBase.readyAdminDB(this.db, this.path);
   }
 }
