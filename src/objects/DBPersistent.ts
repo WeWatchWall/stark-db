@@ -1,10 +1,11 @@
-import { DataSource } from "typeorm";
-import { Database } from "../entity/DB";
-import { User } from "../entity/user";
-import { StarkVariable } from "../entity/variable";
-import { ADMIN_USER, DB_IDENTIFIER } from "../utils/constants";
-import { LazyValidator } from "../utils/lazyValidator";
-import { IDB, IDBArg } from "./IDB";
+import { DataSource } from 'typeorm';
+
+import { Database } from '../entity/DB';
+import { User } from '../entity/user';
+import { StarkVariable } from '../entity/variable';
+import { ADMIN_DB, ADMIN_USER, DB_IDENTIFIER } from '../utils/constants';
+import { LazyValidator } from '../utils/lazyValidator';
+import { IDB, IDBArg } from './IDB';
 
 export abstract class PersistentDBArgBase implements IDBArg {
   name: string;
@@ -54,7 +55,7 @@ export abstract class PersistentDBBase implements IDB {
 
     // Create the admin database.
     const database = new Database({
-      name: ADMIN_USER,
+      name: ADMIN_DB,
       path,
     });
     await db.manager.save(database);

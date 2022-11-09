@@ -44,7 +44,7 @@ export abstract class DatabaseManagerBase {
       .adminDB
       .db
       .manager
-      .findOne(Database, <any>arg); // TODO: remove cast.
+      .findOneBy(Database, arg);
     
     if (DB !== undefined) { return false; }
 
@@ -63,7 +63,7 @@ export abstract class DatabaseManagerBase {
       .adminDB
       .db
       .manager
-      .findOne(Database, <any>arg); // TODO: remove cast.
+      .findOneBy(Database, arg);
     
     // Check if the DB exists.
     if (DB === undefined) { return DB; }
