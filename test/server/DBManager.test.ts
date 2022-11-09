@@ -1,12 +1,11 @@
 import { expect } from 'chai';
 import { existsSync, rmSync } from 'fs';
-
-import { DatabaseManager } from '../../src/services/DBManager';
+import { DatabaseManager } from '../../src/server/services/DBManager';
 
 const DB_PATH = `./test`;
 const DB_FILE = `${DB_PATH}/stark-admin.db`;
 
-describe('DB Manager.', function () {
+describe('Server DB Manager.', function () {
   this.timeout(600e3);
 
   this.beforeAll(async () => {
@@ -19,7 +18,6 @@ describe('DB Manager.', function () {
   it(`Hello world.`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
-      typeID: 'server'
     });
 
     await dbManager.validator.readyAsync();
