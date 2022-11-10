@@ -5,7 +5,10 @@ import { User } from '../entity/user';
 import { StarkVariable } from '../entity/variable';
 import { ADMIN_DB, ADMIN_USER, DB_IDENTIFIER } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
+import { Variables } from '../utils/variables';
 import { IDB, IDBArg } from './IDB';
+
+const PRAGMA = 'user_version';
 
 export abstract class PersistentDBArgBase implements IDBArg {
   name: string;
@@ -71,37 +74,37 @@ export abstract class PersistentDBBase implements IDB {
 
     /* #region  Add helper variables. */
     const tablesVar = new StarkVariable({
-      name: 'tables',
+      name: Variables[Variables.tables],
       value: JSON.stringify([])
     });
 
     const isWALVar = new StarkVariable({
-      name: 'isWAL',
+      name: Variables[Variables.isWAL],
       value: false
     });
 
     const memoryOnlyVar = new StarkVariable({
-      name: 'memoryOnly',
+      name: Variables[Variables.memoryOnly],
       value: JSON.stringify([])
     });
 
     const isMemoryOnlyVar = new StarkVariable({
-      name: 'isMemoryOnly',
+      name: Variables[Variables.isMemoryOnly],
       value: false
     });
 
     const memoryPersistVar = new StarkVariable({
-      name: 'memoryPersist',
+      name: Variables[Variables.memoryPersist],
       value: JSON.stringify([])
     });
 
     const isMemoryPersistVar = new StarkVariable({
-      name: 'isMemoryPersist',
+      name: Variables[Variables.isMemoryPersist],
       value: false
     });
 
     const lastAccessVar = new StarkVariable({
-      name: 'lastAccess',
+      name: Variables[Variables.lastAccess],
       value: Date.now()
     });
 
@@ -124,9 +127,9 @@ export abstract class PersistentDBBase implements IDB {
    * @returns isInit @type {boolean} True if the database is initialized.
    */
    private static async isInitCheck(db: DataSource): Promise<boolean> {
-    const result = await db.query(`PRAGMA user_version;`);
+    const result = await db.query(`PRAGMA ${PRAGMA};`);
 
-    return result[0][`user_version`] === DB_IDENTIFIER;
+    return result[0][PRAGMA] === DB_IDENTIFIER;
   }
 
   /**
@@ -136,6 +139,6 @@ export abstract class PersistentDBBase implements IDB {
    */
   private static async isInitSet(db: DataSource): Promise<void> {
     // This query doesn't work with parameters.
-    await db.query(`PRAGMA user_version = ${DB_IDENTIFIER};`);
+    await db.query(`PRAGMA ${PRAGMA} = ${DB_IDENTIFIER};`);
   }
 }
