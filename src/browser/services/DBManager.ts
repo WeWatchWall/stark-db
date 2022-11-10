@@ -52,7 +52,11 @@ export class DatabaseManager extends DatabaseManagerBase {
   }
 
   async delete(arg: DBData): Promise<void> {
-    const DB = await super.deleteInternal(arg);
+    // Add the defaults.
+    const oldDB = Object.assign({
+      path: this.path,
+    }, arg);
+    const DB = await super.deleteInternal(oldDB);
 
     if (DB == undefined) { return; }
 
