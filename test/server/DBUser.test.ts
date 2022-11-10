@@ -8,7 +8,7 @@ import { UserDB } from '../../src/server/objects/DBUser';
 const DB_PATH = `./test`;
 const DB_FILE = 'test.db';
 
-describe('User DB.', function () {
+describe('Server: User DB.', function () {
   // this.timeout(600e3);
 
   this.beforeAll(async () => {

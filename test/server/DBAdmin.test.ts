@@ -10,7 +10,7 @@ import { ADMIN_USER } from '../../src/utils/constants';
 const ADMIN_DB_TEST = `stark-admin-test.db`;
 const DB_PATH = `./test`;
 
-describe('Admin DB.', function () {
+describe('Server: Admin DB.', function () {
   // this.timeout(600e3);
 
   this.beforeAll(async () => {
