@@ -9,7 +9,7 @@ class UserManagerArg {
 }
 
 export class UserManager {
-  static adminDBsource: DataSource;
+  static DB: DataSource;
 
   /**
    * Inits a database manager.
@@ -46,10 +46,10 @@ export class UserManager {
   }
 
   protected async ready() {
-    if (UserManager.adminDBsource != undefined) { return; }
+    if (UserManager.DB != undefined) { return; }
 
     await this.adminDB.validator.readyAsync();
-    UserManager.adminDBsource = this.adminDB.DB;
+    UserManager.DB = this.adminDB.DB;
   }
 
   async add(): Promise<void> {
@@ -61,10 +61,10 @@ export class UserManager {
   }
 
   async destroy(): Promise<void> {
-    if (UserManager.adminDBsource == undefined) { return; }
+    if (UserManager.DB == undefined) { return; }
 
-    UserManager.adminDBsource.destroy();
-    delete UserManager.adminDBsource;
+    UserManager.DB.destroy();
+    delete UserManager.DB;
   }
 }
 
