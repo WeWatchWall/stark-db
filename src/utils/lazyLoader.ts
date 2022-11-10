@@ -31,12 +31,12 @@ export class LazyLoader {
       ],
       methods: {
         onLoad: function () {
-          if (load !== undefined) {
+          if (load != undefined) {
             return load();
           }
         },
         onSave: function () {
-          if (save !== undefined) {
+          if (save != undefined) {
             return save();
           }
         }

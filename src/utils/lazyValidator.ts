@@ -34,7 +34,7 @@ export class LazyValidator {
           validate();
         },
         onReady: function () {
-          if (ready !== undefined) {
+          if (ready != undefined) {
             return ready();
           }
         }

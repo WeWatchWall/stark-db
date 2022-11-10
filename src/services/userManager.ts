@@ -35,7 +35,7 @@ export class UserManager {
     );
 
     // Copy the properties.
-    if (init !== undefined) {
+    if (init != undefined) {
       Object.assign(this, init);
       this.validator.valid();
     }
@@ -46,7 +46,7 @@ export class UserManager {
   }
 
   protected async ready() {
-    if (UserManager.adminDBsource !== undefined) { return; }
+    if (UserManager.adminDBsource != undefined) { return; }
 
     await this.adminDB.validator.readyAsync();
     UserManager.adminDBsource = this.adminDB.DB;
@@ -61,7 +61,7 @@ export class UserManager {
   }
 
   async destroy(): Promise<void> {
-    if (UserManager.adminDBsource === undefined) { return; }
+    if (UserManager.adminDBsource == undefined) { return; }
 
     UserManager.adminDBsource.destroy();
     delete UserManager.adminDBsource;

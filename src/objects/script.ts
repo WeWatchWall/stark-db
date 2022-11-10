@@ -31,7 +31,7 @@ export class Script {
     );
 
     // Apply the arguments and load the script.
-    if (init !== undefined) {
+    if (init != undefined) {
       Object.assign(this, init);
       this.script = this.script?.trim();
 

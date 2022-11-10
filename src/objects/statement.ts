@@ -78,7 +78,7 @@ export class Statement {
     );
 
     // Copy the properties.
-    if (init !== undefined) {
+    if (init != undefined) {
       Object.assign(this, init);
       this.statement = this.statement?.trim();
       this.validator.valid();

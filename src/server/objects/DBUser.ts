@@ -10,7 +10,7 @@ export class UserDB extends PersistentDB implements IUserDB {
     super(init);
 
     // Copy the properties.
-    if (init !== undefined) {
+    if (init != undefined) {
       Object.assign(this, init);
       this.validator.valid();
     }

@@ -23,33 +23,38 @@ export class DatabaseManager extends DatabaseManagerBase {
   }
 
   protected async ready() {
-    if (DatabaseManager.adminDB !== undefined) { return; }
+    if (DatabaseManagerBase.adminDB != undefined) { return; }
 
-    DatabaseManager.adminDB = new AdminDB({
+    DatabaseManagerBase.adminDB = new AdminDB({
       name: ADMIN_DB,
       path: this.path,
     });
 
-    await DatabaseManager.adminDB.validator.readyAsync();
+    await DatabaseManagerBase.adminDB.validator.readyAsync();
   }
 
   async add(arg: DBData): Promise<void> {
-    if (!super.addInternal(arg)) { return; }
+    // Add the defaults.
+    const newDB = Object.assign({
+      path: this.path,
+    }, arg);
 
+    if (!await super.addInternal(newDB)) { return; }
+
+    // Create the new DB file.
     const userDB = new UserDB({
-      name: arg.name,
-      path: arg.path || this.path,
+      name: newDB.name,
+      path: newDB.path,
       entities: [StarkVariable],
     });
-
     await userDB.validator.readyAsync();
     await userDB.destroy();
   }
 
   async delete(arg: DBData): Promise<void> {
-    const DB = super.deleteInternal(arg);
+    const DB = await super.deleteInternal(arg);
 
-    if (DB === undefined) { return; }
+    if (DB == undefined) { return; }
 
     const filePath = `${arg.path}/${arg.name}`;
     await localforage.removeItem(filePath);

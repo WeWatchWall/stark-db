@@ -21,7 +21,7 @@ export abstract class DatabaseManagerBase {
     );
 
     // Copy the properties.
-    if (init !== undefined) {
+    if (init != undefined) {
       Object.assign(this, init);
       this.validator.valid();
     }
@@ -46,7 +46,7 @@ export abstract class DatabaseManagerBase {
       .manager
       .findOneBy(Database, arg);
     
-    if (DB !== undefined) { return false; }
+    if (DB != undefined) { return false; }
 
     // Add the DB to the admin DB.
     DB = new Database(arg);
@@ -66,7 +66,7 @@ export abstract class DatabaseManagerBase {
       .findOneBy(Database, arg);
     
     // Check if the DB exists.
-    if (DB === undefined) { return DB; }
+    if (DB == undefined) { return DB; }
 
     // Delete the DB from the admin DB.
     await DatabaseManagerBase.adminDB.DB.manager.delete(Database, arg);
@@ -75,7 +75,7 @@ export abstract class DatabaseManagerBase {
   }
 
   async destroy(): Promise<void> {
-    if (DatabaseManagerBase.adminDB === undefined) { return; }
+    if (DatabaseManagerBase.adminDB == undefined) { return; }
 
     await DatabaseManagerBase.adminDB.destroy();
     delete DatabaseManagerBase.adminDB;

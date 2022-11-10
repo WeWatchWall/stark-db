@@ -13,7 +13,7 @@ export class AdminDB extends PersistentDB implements IAdminDB {
     super(init);
 
     // Copy the properties.
-    if (init !== undefined) {
+    if (init != undefined) {
       Object.assign(this, init);
       this.entities = [Database, User];
       this.validator.valid();

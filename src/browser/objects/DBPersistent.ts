@@ -35,7 +35,7 @@ export abstract class PersistentDB extends PersistentDBBase {
 
   protected async ready(): Promise<void> {
     // Lazy initialization of the driver.
-    if (PersistentDB.driver === undefined) {
+    if (PersistentDB.driver == undefined) {
       PersistentDB.driver = await initSqlJs({
         locateFile: (_path: string) => `sql-wasm.wasm`
       });
