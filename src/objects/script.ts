@@ -5,7 +5,7 @@ import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { ParseType, Statement } from './statement';
 
-export class ScriptData {
+export class ScriptArg {
   script?: string;
   statements?: Statement[];
 }
@@ -23,7 +23,7 @@ export class Script {
    * Creates an instance of a SQL script.
    * @param [init] @type {StatementData} The initial values.
    */
-  constructor(init: ScriptData) {
+  constructor(init: ScriptArg) {
     // Hook up the loader.
     this.loader = new LazyLoader(
       () => this.load.apply(this, []),

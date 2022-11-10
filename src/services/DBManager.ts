@@ -1,6 +1,6 @@
 import { ObjectModel } from 'objectmodel';
 
-import { Database, DBData } from '../entity/DB';
+import { Database, DBArg } from '../entity/DB';
 import { IAdminDB } from '../objects/IDB';
 import { LazyValidator } from '../utils/lazyValidator';
 import { IService, IServiceArg } from './IService';
@@ -37,9 +37,9 @@ export abstract class DatabaseManagerBase implements IService {
 
   protected abstract ready(): Promise<void>;
 
-  abstract add(arg: DBData): Promise<Database>;
+  abstract add(arg: DBArg): Promise<Database>;
 
-  protected async addInternal(arg: DBData): Promise<[boolean, Database]> {
+  protected async addInternal(arg: DBArg): Promise<[boolean, Database]> {
     if (arg.id != undefined || arg.name === DatabaseManagerBase.adminDB.name) {
       return [false, undefined];
     }
@@ -60,9 +60,9 @@ export abstract class DatabaseManagerBase implements IService {
     return [true, DB];
   };
 
-  abstract delete(arg: DBData): Promise<Database>;
+  abstract delete(arg: DBArg): Promise<Database>;
 
-  protected async deleteInternal(arg: DBData): Promise<Database> {
+  protected async deleteInternal(arg: DBArg): Promise<Database> {
     if (arg.id == 1 || arg.name === DatabaseManagerBase.adminDB.name) {
       return undefined;
     }

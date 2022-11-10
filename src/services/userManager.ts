@@ -1,6 +1,6 @@
 import { ObjectModel } from 'objectmodel';
 
-import { User, UserData } from '../entity/user';
+import { User, UserArg } from '../entity/user';
 import { IAdminDB } from '../objects/IDB';
 import { ADMIN_USER } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
@@ -54,7 +54,7 @@ export class UserManager implements IService {
     UserManager.adminDB = this.DB;
   }
 
-  async add(arg: UserData): Promise<User> {
+  async add(arg: UserArg): Promise<User> {
     if (arg.id != undefined || arg.userName === ADMIN_USER) {
       return undefined;
     }
@@ -78,7 +78,7 @@ export class UserManager implements IService {
     return user;
   }
 
-  async delete(arg: UserData): Promise<User> {
+  async delete(arg: UserArg): Promise<User> {
     if (arg.id === 1 || arg.userName === ADMIN_USER) {
       return undefined;
     }

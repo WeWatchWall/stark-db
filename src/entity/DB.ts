@@ -1,8 +1,8 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-import { IEntity, IEntityData } from './IEntity';
+import { IEntity, IEntityArg } from './IEntity';
 
-export class DBData implements IEntityData {
+export class DBArg implements IEntityArg {
   id?: number;
   name?: string;
   path?: string;
@@ -11,7 +11,7 @@ export class DBData implements IEntityData {
 @Entity()
 export class Database implements IEntity {
 
-  constructor(init: DBData) {
+  constructor(init: DBArg) {
     Object.assign(this, init);
   }
 

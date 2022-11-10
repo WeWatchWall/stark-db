@@ -1,8 +1,8 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { IEntity, IEntityData } from './IEntity';
+import { IEntity, IEntityArg } from './IEntity';
 
-class StarkVariableData  implements IEntityData {
+class StarkVariableArg implements IEntityArg {
   name: string;
   value?: boolean | number | string;
 }
@@ -10,7 +10,7 @@ class StarkVariableData  implements IEntityData {
 @Entity()
 export class StarkVariable implements IEntity {
 
-  constructor(init: StarkVariableData) {
+  constructor(init: StarkVariableArg) {
     Object.assign(this, init);
   }
 

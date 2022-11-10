@@ -1,2 +1,2 @@
-export interface IEntityData {}
+export interface IEntityArg {}
 export interface IEntity {}

@@ -40,7 +40,7 @@ enum StatementType {
   delete = 11,
 }
 
-class StatementData {
+class StatementArg {
   index: number;
   statement: string;
 }
@@ -69,9 +69,9 @@ export class Statement {
 
   /**
    * Creates an instance of a SQL statement.
-   * @param [init] @type {StatementData} The initial values.
+   * @param [init] @type {StatementArg} The initial values.
    */
-  constructor(init?: StatementData) {
+  constructor(init?: StatementArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])

@@ -1,10 +1,10 @@
-import { IEntity, IEntityData } from "../entity/IEntity";
+import { IEntity, IEntityArg } from "../entity/IEntity";
 
 export interface IServiceArg {};
 
 export interface IService {
-  add(arg: IEntityData): Promise<IEntity>;
-  delete(arg: IEntityData): Promise<IEntity>;
+  add(arg: IEntityArg): Promise<IEntity>;
+  delete(arg: IEntityArg): Promise<IEntity>;
 
   destroy(): Promise<void>;
 }

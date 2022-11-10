@@ -1,7 +1,7 @@
 import { unlinkSync } from 'fs';
 import path from 'path';
 
-import { Database, DBData } from '../../entity/DB';
+import { Database, DBArg } from '../../entity/DB';
 import { StarkVariable } from '../../entity/variable';
 import { DatabaseManagerBase, DBManagerArg } from '../../services/DBManager';
 import { ADMIN_DB } from '../../utils/constants';
@@ -34,7 +34,7 @@ export class DatabaseManager extends DatabaseManagerBase {
     await DatabaseManagerBase.adminDB.validator.readyAsync();
   }
 
-  async add(arg: DBData): Promise<Database> {
+  async add(arg: DBArg): Promise<Database> {
     // Add the defaults.
     const newDB = Object.assign({
       path: this.path,
@@ -55,7 +55,7 @@ export class DatabaseManager extends DatabaseManagerBase {
     return DB;
   }
 
-  async delete(arg: DBData): Promise<Database> {
+  async delete(arg: DBArg): Promise<Database> {
     // Add the defaults.
     const oldDB = Object.assign({
       path: this.path,
