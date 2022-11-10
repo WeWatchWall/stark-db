@@ -1,6 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-export class UserData {
+import { IEntity, IEntityData } from './IEntity';
+
+export class UserData implements IEntityData {
   id?: number;
   userName?: string;
   password?: string;
@@ -8,7 +10,7 @@ export class UserData {
 }
 
 @Entity()
-export class User {
+export class User implements IEntity {
 
   constructor(init: UserData) {
     Object.assign(this, init);

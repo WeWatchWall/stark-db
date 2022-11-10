@@ -3,12 +3,13 @@ import { ObjectModel } from 'objectmodel';
 import { Database, DBData } from '../entity/DB';
 import { IAdminDB } from '../objects/IDB';
 import { LazyValidator } from '../utils/lazyValidator';
+import { IService, IServiceArg } from './IService';
 
-export class DBManagerArg {
+export class DBManagerArg implements IServiceArg {
   path?: string;
 }
 
-export abstract class DatabaseManagerBase {
+export abstract class DatabaseManagerBase implements IService {
   static adminDB: IAdminDB;
 
   path: string;
@@ -39,6 +40,10 @@ export abstract class DatabaseManagerBase {
   abstract add(arg: DBData): Promise<Database>;
 
   protected async addInternal(arg: DBData): Promise<[boolean, Database]> {
+    if (arg.id != undefined || arg.name === DatabaseManagerBase.adminDB.name) {
+      return [false, undefined];
+    }
+
     // Check if the DB already exists.
     let DB = await DatabaseManagerBase
       .adminDB
@@ -58,6 +63,10 @@ export abstract class DatabaseManagerBase {
   abstract delete(arg: DBData): Promise<Database>;
 
   protected async deleteInternal(arg: DBData): Promise<Database> {
+    if (arg.id == 1 || arg.name === DatabaseManagerBase.adminDB.name) {
+      return undefined;
+    }
+
     // Get the DB to delete.
     const DB = await DatabaseManagerBase
       .adminDB

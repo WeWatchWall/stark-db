@@ -1,12 +1,14 @@
-import { Entity, PrimaryColumn, Column } from "typeorm"
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-class StarkVariableData {
+import { IEntity, IEntityData } from './IEntity';
+
+class StarkVariableData  implements IEntityData {
   name: string;
   value?: boolean | number | string;
 }
 
 @Entity()
-export class StarkVariable {
+export class StarkVariable implements IEntity {
 
   constructor(init: StarkVariableData) {
     Object.assign(this, init);

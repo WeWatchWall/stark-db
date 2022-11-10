@@ -1,15 +1,16 @@
 import { ObjectModel } from 'objectmodel';
-import { User, UserData } from '../entity/user';
 
+import { User, UserData } from '../entity/user';
 import { IAdminDB } from '../objects/IDB';
 import { ADMIN_USER } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
+import { IService } from './IService';
 
 class UserManagerArg {
   DB: IAdminDB
 }
 
-export class UserManager {
+export class UserManager implements IService {
   static adminDB: IAdminDB;
 
   /**

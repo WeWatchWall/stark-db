@@ -70,7 +70,7 @@ describe('Server: User Manager.', function () {
       .manager
       .count(User);
     
-    expect(numUsersPost).to.be.equal(2);
+    expect(numUsersPost).to.be.equal(numUsersPre + 1);
   });
 
   it(`User Manager: add admin fail`, async () => {

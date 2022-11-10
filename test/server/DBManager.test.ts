@@ -51,6 +51,7 @@ describe('Server: DB Manager.', function () {
       path: DB_PATH,
     });
 
+    // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
     
     const numDBsPre = await DatabaseManagerBase
@@ -73,7 +74,7 @@ describe('Server: DB Manager.', function () {
       .manager
       .count(Database);
     
-    expect(numDBsPost).to.be.equal(2);
+    expect(numDBsPost).to.be.equal(numDBsPre + 1);
 
     const DB = await DatabaseManagerBase
       .adminDB
@@ -91,11 +92,71 @@ describe('Server: DB Manager.', function () {
     });
   });
 
+  it(`DB Manager: add admin fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await dbManager.validator.readyAsync();
+    
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    const newDB = await dbManager.add({
+      name: ADMIN_DB_FILE,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+    
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+
+  it(`DB Manager: add admin id fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await dbManager.validator.readyAsync();
+    
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    const newDB = await dbManager.add({
+      id: 1,
+      name: DB_FILE,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+    
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+
   it(`DB Manager: delete`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
 
+    // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
     
     const numDBsPre = await DatabaseManagerBase
@@ -118,7 +179,7 @@ describe('Server: DB Manager.', function () {
       .DB
       .manager
       .count(Database);
-    expect(numDBsPost).to.be.equal(1);
+    expect(numDBsPost).to.be.equal(numDBsPre - 1);
 
     // Check the current database is deleted.
     numDBsPost = await DatabaseManagerBase
