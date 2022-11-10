@@ -5,11 +5,11 @@ import { IAdminDB } from '../objects/IDB';
 import { LazyValidator } from '../utils/lazyValidator';
 
 class UserManagerArg {
-  adminDB: IAdminDB
+  DB: IAdminDB
 }
 
 export class UserManager {
-  static DB: DataSource;
+  static adminDB: IAdminDB;
 
   /**
    * Inits a database manager.
@@ -25,8 +25,8 @@ export class UserManager {
     return result;
   }
 
-  adminDB: IAdminDB;
   validator: LazyValidator;
+  private DB: IAdminDB;
 
   constructor(init?: UserManagerArg) {
     this.validator = new LazyValidator(
@@ -46,10 +46,10 @@ export class UserManager {
   }
 
   protected async ready() {
-    if (UserManager.DB != undefined) { return; }
+    if (UserManager.adminDB != undefined) { return; }
 
-    await this.adminDB.validator.readyAsync();
-    UserManager.DB = this.adminDB.DB;
+    await this.DB.validator.readyAsync();
+    UserManager.adminDB = this.DB;
   }
 
   async add(): Promise<void> {
@@ -61,10 +61,10 @@ export class UserManager {
   }
 
   async destroy(): Promise<void> {
-    if (UserManager.DB == undefined) { return; }
+    if (UserManager.adminDB == undefined) { return; }
 
-    UserManager.DB.destroy();
-    delete UserManager.DB;
+    await UserManager.adminDB.destroy();
+    delete UserManager.adminDB;
   }
 }
 

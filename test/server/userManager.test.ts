@@ -32,19 +32,19 @@ describe('Server: User Manager.', function () {
 
   it(`User Manager: init`, async () => {
     await UserManager.init({
-      adminDB: global.adminDB,
+      DB: global.adminDB,
     });
 
-    expect(!!UserManager.DB).to.be.equal(true);
+    expect(!!UserManager.adminDB).to.be.equal(true);
   });
 
   // NOTE: This test has to be last.
   it(`User Manager: destroy`, async () => {
     const userManager = await UserManager.init({
-      adminDB: global.adminDB,
+      DB: global.adminDB,
     });
     await userManager.destroy();
 
-    expect(!UserManager.DB).to.be.equal(true);
+    expect(!UserManager.adminDB).to.be.equal(true);
   });
 });
