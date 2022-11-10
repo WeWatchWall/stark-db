@@ -1,6 +1,6 @@
 import localforage from 'localforage';
 
-import { DBData } from '../../entity/DB';
+import { Database, DBData } from '../../entity/DB';
 import { StarkVariable } from '../../entity/variable';
 import { DatabaseManagerBase, DBManagerArg } from '../../services/DBManager';
 import { ADMIN_DB } from '../../utils/constants';
@@ -33,13 +33,14 @@ export class DatabaseManager extends DatabaseManagerBase {
     await DatabaseManagerBase.adminDB.validator.readyAsync();
   }
 
-  async add(arg: DBData): Promise<void> {
+  async add(arg: DBData): Promise<Database> {
     // Add the defaults.
     const newDB = Object.assign({
       path: this.path,
     }, arg);
 
-    if (!await super.addInternal(newDB)) { return; }
+    const [isNew, DB] = await super.addInternal(newDB);
+    if (!isNew) { return DB; }
 
     // Create the new DB file.
     const userDB = new UserDB({
@@ -49,18 +50,22 @@ export class DatabaseManager extends DatabaseManagerBase {
     });
     await userDB.validator.readyAsync();
     await userDB.destroy();
+
+    return DB;
   }
 
-  async delete(arg: DBData): Promise<void> {
+  async delete(arg: DBData): Promise<Database> {
     // Add the defaults.
     const oldDB = Object.assign({
       path: this.path,
     }, arg);
     const DB = await super.deleteInternal(oldDB);
 
-    if (DB == undefined) { return; }
+    if (DB == undefined) { return DB; }
 
     const filePath = `${arg.path}/${arg.name}`;
     await localforage.removeItem(filePath);
+
+    return DB;
   }
 }

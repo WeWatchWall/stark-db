@@ -61,9 +61,11 @@ describe('Server: DB Manager.', function () {
 
     expect(numDBsPre).to.be.equal(1);
 
-    await dbManager.add({
+    const newDB = await dbManager.add({
       name: DB_FILE,
     });
+
+    expect(newDB.id).to.be.equal(2);
 
     const numDBsPost = await DatabaseManagerBase
       .adminDB
@@ -104,9 +106,11 @@ describe('Server: DB Manager.', function () {
 
     expect(numDBsPre).to.be.equal(2);
 
-    await dbManager.delete({
+    const oldDB = await dbManager.delete({
       name: DB_FILE,
     });
+
+    expect(oldDB.id).to.be.equal(2);
 
     // Check the admin database still exists.
     let numDBsPost = await DatabaseManagerBase
