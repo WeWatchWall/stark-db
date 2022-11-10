@@ -1,5 +1,4 @@
 import { ObjectModel } from 'objectmodel';
-import { DataSource } from 'typeorm';
 
 import { IAdminDB } from '../objects/IDB';
 import { LazyValidator } from '../utils/lazyValidator';
