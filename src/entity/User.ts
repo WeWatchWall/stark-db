@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm"
 
-class UserData {
+export class UserData {
   id?: number;
   userName?: string;
   password?: string;
