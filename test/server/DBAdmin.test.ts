@@ -32,7 +32,7 @@ describe('Admin DB.', function () {
 
     // Check the user exists in the table.
     const users = await adminDB
-      .db
+      .DB
       .manager
       .findBy(User, { userName: ADMIN_USER });
     expect(users.length).to.be.equal(1);
@@ -46,7 +46,7 @@ describe('Admin DB.', function () {
 
     // Check the database exists in the table.
     const DBs = await adminDB
-      .db
+      .DB
       .manager
       .findBy(Database, { name: ADMIN_DB_TEST });
     expect(DBs.length).to.be.equal(1);
@@ -68,14 +68,14 @@ describe('Admin DB.', function () {
 
     // Check the user is the only one in the table.
     const users = await adminDB
-      .db
+      .DB
       .manager
       .findBy(User, { userName: ADMIN_USER });
     expect(users.length).to.be.equal(1);
 
     // Check the database is the only one in the table.
     const DBs = await adminDB
-      .db
+      .DB
       .manager
       .findBy(Database, { name: ADMIN_DB_TEST });
     expect(DBs.length).to.be.equal(1);

@@ -53,7 +53,7 @@ export abstract class PersistentDB extends PersistentDBBase {
   async load(): Promise<void> {
     const database: Uint8Array = await localforage.getItem(this.fileName);
 
-    this.db = new DataSource({
+    this.DB = new DataSource({
       database,
       type: "sqljs",
       driver: PersistentDB.driver,
@@ -62,11 +62,11 @@ export abstract class PersistentDB extends PersistentDBBase {
       entities: this.entities,
     });
 
-    await this.db.initialize();
+    await this.DB.initialize();
   }
 
   async save(): Promise<void> {
-    const dbData = (<SqljsEntityManager>this.db.manager).exportDatabase();
+    const dbData = (<SqljsEntityManager>this.DB.manager).exportDatabase();
     await localforage.setItem(this.fileName, dbData);
   }
 
@@ -75,8 +75,8 @@ export abstract class PersistentDB extends PersistentDBBase {
     delete this.interval;
 
     await this.save();
-    await this.db.destroy();
-    delete this.db;
+    await this.DB.destroy();
+    delete this.DB;
   }
 }
 

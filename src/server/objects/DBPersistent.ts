@@ -26,7 +26,7 @@ export abstract class PersistentDB extends PersistentDBBase {
 
   async load(): Promise<void> {
     // Open the database.
-    this.db = new DataSource({
+    this.DB = new DataSource({
       type: "sqlite",
       database: this.fileName,
       cache: true,
@@ -35,7 +35,7 @@ export abstract class PersistentDB extends PersistentDBBase {
       entities: this.entities,
     });
 
-    await this.db.initialize();
+    await this.DB.initialize();
   }
 
   async save(): Promise<void> {
@@ -43,8 +43,8 @@ export abstract class PersistentDB extends PersistentDBBase {
   }
 
   async destroy(): Promise<void> {
-    await this.db.destroy();
-    delete this.db;
+    await this.DB.destroy();
+    delete this.DB;
   }
 }
 

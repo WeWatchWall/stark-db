@@ -49,7 +49,7 @@ export class UserManager {
     if (UserManager.adminDBsource !== undefined) { return; }
 
     await this.adminDB.validator.readyAsync();
-    UserManager.adminDBsource = this.adminDB.db;
+    UserManager.adminDBsource = this.adminDB.DB;
   }
 
   async add(): Promise<void> {

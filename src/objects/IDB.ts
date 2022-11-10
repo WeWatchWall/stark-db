@@ -15,7 +15,7 @@ export interface IDB {
   fileName: string;
   saveInterval?: number;
 
-  db: DataSource;
+  DB: DataSource;
 
   load(): Promise<void>;
   save(): Promise<void>;

@@ -18,6 +18,6 @@ export class UserDB extends PersistentDB implements IUserDB {
 
   protected async ready(): Promise<void> {
     await super.ready();
-    await PersistentDBBase.readyUserDB(this.db);
+    await PersistentDBBase.readyUserDB(this.DB);
   }
 }

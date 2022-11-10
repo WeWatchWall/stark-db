@@ -22,7 +22,7 @@ export abstract class PersistentDBBase implements IDB {
   fileName: string;
 
   entities: any[];
-  db: DataSource;
+  DB: DataSource;
 
   constructor(_init: IDBArg) {
     this.validator = new LazyValidator(

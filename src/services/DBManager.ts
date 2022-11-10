@@ -42,7 +42,7 @@ export abstract class DatabaseManagerBase {
     // Check if the DB already exists.
     let DB = await DatabaseManagerBase
       .adminDB
-      .db
+      .DB
       .manager
       .findOneBy(Database, arg);
     
@@ -50,7 +50,7 @@ export abstract class DatabaseManagerBase {
 
     // Add the DB to the admin DB.
     DB = new Database(arg);
-    await DatabaseManagerBase.adminDB.db.manager.save(DB);
+    await DatabaseManagerBase.adminDB.DB.manager.save(DB);
 
     return true;
   };
@@ -61,7 +61,7 @@ export abstract class DatabaseManagerBase {
     // Get the DB to delete.
     const DB = await DatabaseManagerBase
       .adminDB
-      .db
+      .DB
       .manager
       .findOneBy(Database, arg);
     
@@ -69,7 +69,7 @@ export abstract class DatabaseManagerBase {
     if (DB === undefined) { return DB; }
 
     // Delete the DB from the admin DB.
-    await DatabaseManagerBase.adminDB.db.manager.delete(Database, arg);
+    await DatabaseManagerBase.adminDB.DB.manager.delete(Database, arg);
 
     return DB;
   }
