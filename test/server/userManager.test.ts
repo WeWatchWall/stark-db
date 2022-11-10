@@ -38,11 +38,12 @@ describe('Server: User Manager.', function () {
     expect(!!UserManager.adminDB).to.be.equal(true);
   });
 
+  /* #region  Add tests. */
   it(`User Manager: add`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-    
+
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
 
@@ -59,7 +60,7 @@ describe('Server: User Manager.', function () {
       password: `password`,
       salt: `salt`,
     };
-    
+
     const newUser = await userManager.add(newUserData);
 
     expect(newUser).to.be.deep.equal(Object.assign({ id: 2 }, newUserData));
@@ -69,7 +70,7 @@ describe('Server: User Manager.', function () {
       .DB
       .manager
       .count(User);
-    
+
     expect(numUsersPost).to.be.equal(numUsersPre + 1);
   });
 
@@ -77,7 +78,7 @@ describe('Server: User Manager.', function () {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-    
+
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
 
@@ -92,7 +93,7 @@ describe('Server: User Manager.', function () {
       password: `password`,
       salt: `salt`,
     };
-    
+
     const newUser = await userManager.add(newUserData);
 
     expect(newUser).to.be.equal(undefined);
@@ -102,7 +103,7 @@ describe('Server: User Manager.', function () {
       .DB
       .manager
       .count(User);
-    
+
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
@@ -110,7 +111,7 @@ describe('Server: User Manager.', function () {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-    
+
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
 
@@ -126,7 +127,7 @@ describe('Server: User Manager.', function () {
       password: `password`,
       salt: `salt`,
     };
-    
+
     const newUser = await userManager.add(newUserData);
 
     expect(newUser).to.be.equal(undefined);
@@ -136,15 +137,17 @@ describe('Server: User Manager.', function () {
       .DB
       .manager
       .count(User);
-    
+
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
+  /* #endregion */
 
+  /* #region  Delete tests. */
   it(`User Manager: delete`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-    
+
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
 
@@ -163,7 +166,7 @@ describe('Server: User Manager.', function () {
       .DB
       .manager
       .count(User);
-    
+
     expect(numUsersPre).to.be.equal(numUsersPost + 1);
   });
 
@@ -171,7 +174,7 @@ describe('Server: User Manager.', function () {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-    
+
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
 
@@ -190,7 +193,7 @@ describe('Server: User Manager.', function () {
       .DB
       .manager
       .count(User);
-    
+
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
@@ -198,7 +201,7 @@ describe('Server: User Manager.', function () {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-    
+
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
 
@@ -217,7 +220,7 @@ describe('Server: User Manager.', function () {
       .DB
       .manager
       .count(User);
-    
+
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
@@ -230,4 +233,5 @@ describe('Server: User Manager.', function () {
 
     expect(!UserManager.adminDB).to.be.equal(true);
   });
+  /* #endregion */
 });

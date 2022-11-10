@@ -45,7 +45,8 @@ describe('Server: DB Manager.', function () {
 
     expect(!DatabaseManagerBase.adminDB).to.be.equal(true);
   });
-  
+
+  /* #region  Add tests. */
   it(`DB Manager: add`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
@@ -53,7 +54,7 @@ describe('Server: DB Manager.', function () {
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
-    
+
     const numDBsPre = await DatabaseManagerBase
       .adminDB
       .DB
@@ -73,7 +74,7 @@ describe('Server: DB Manager.', function () {
       .DB
       .manager
       .count(Database);
-    
+
     expect(numDBsPost).to.be.equal(numDBsPre + 1);
 
     const DB = await DatabaseManagerBase
@@ -99,7 +100,7 @@ describe('Server: DB Manager.', function () {
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
-    
+
     const numDBsPre = await DatabaseManagerBase
       .adminDB
       .DB
@@ -117,7 +118,7 @@ describe('Server: DB Manager.', function () {
       .DB
       .manager
       .count(Database);
-    
+
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
@@ -128,7 +129,7 @@ describe('Server: DB Manager.', function () {
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
-    
+
     const numDBsPre = await DatabaseManagerBase
       .adminDB
       .DB
@@ -147,10 +148,12 @@ describe('Server: DB Manager.', function () {
       .DB
       .manager
       .count(Database);
-    
+
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
+  /* #endregion */
 
+  /* #region  Delete tests. */
   it(`DB Manager: delete`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
@@ -158,7 +161,7 @@ describe('Server: DB Manager.', function () {
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
-    
+
     const numDBsPre = await DatabaseManagerBase
       .adminDB
       .DB
@@ -199,7 +202,7 @@ describe('Server: DB Manager.', function () {
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
-    
+
     const numDBsPre = await DatabaseManagerBase
       .adminDB
       .DB
@@ -228,7 +231,7 @@ describe('Server: DB Manager.', function () {
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
-    
+
     const numDBsPre = await DatabaseManagerBase
       .adminDB
       .DB
@@ -249,4 +252,5 @@ describe('Server: DB Manager.', function () {
       .count(Database);
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
+  /* #endregion */
 });
