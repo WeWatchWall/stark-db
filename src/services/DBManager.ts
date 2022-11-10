@@ -63,7 +63,11 @@ export abstract class DatabaseManagerBase implements IService {
   abstract delete(arg: DBArg): Promise<Database>;
 
   protected async deleteInternal(arg: DBArg): Promise<Database> {
-    if (arg.id == 1 || arg.name === DatabaseManagerBase.adminDB.name) {
+    if (
+      (arg.id == undefined && arg.name == undefined) ||
+      arg.id == 1 ||
+      arg.name === DatabaseManagerBase.adminDB.name
+    ) {
       return undefined;
     }
 

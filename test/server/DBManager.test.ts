@@ -153,6 +153,39 @@ describe('Server: DB Manager.', function () {
   });
   /* #endregion */
 
+  
+  /* #region  Delete tests. */
+  it(`DB Manager: delete no id fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await dbManager.validator.readyAsync();
+
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    expect(numDBsPre).to.be.equal(2);
+
+    const oldDB = await dbManager.delete({
+      path: DB_PATH,
+    });
+
+    expect(oldDB).to.be.equal(undefined);
+
+    // Check the admin database still exists.
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+
   /* #region  Delete tests. */
   it(`DB Manager: delete`, async () => {
     const dbManager = await DatabaseManager.init({

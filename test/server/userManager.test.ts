@@ -143,6 +143,36 @@ describe('Server: User Manager.', function () {
   /* #endregion */
 
   /* #region  Delete tests. */
+  it(`User Manager: delete no id fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await userManager.validator.readyAsync();
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    const deleteResult = await userManager.delete({
+      password: `password`,
+      salt: `salt`,
+    });
+
+    expect(deleteResult).to.be.equal(undefined);
+
+    const numUsersPost = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(numUsersPost);
+  });
+
   it(`User Manager: delete`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,

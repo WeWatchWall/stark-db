@@ -79,7 +79,11 @@ export class UserManager implements IService {
   }
 
   async delete(arg: UserArg): Promise<User> {
-    if (arg.id === 1 || arg.userName === ADMIN_USER) {
+    if (
+      (arg.id == undefined && arg.userName == undefined) ||
+      arg.id === 1 ||
+      arg.userName === ADMIN_USER
+    ) {
       return undefined;
     }
 
