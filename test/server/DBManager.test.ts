@@ -191,4 +191,62 @@ describe('Server: DB Manager.', function () {
       });
     expect(numDBsPost).to.be.equal(0);
   });
+
+  it(`DB Manager: delete admin fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await dbManager.validator.readyAsync();
+    
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    const oldDB = await dbManager.delete({
+      name: ADMIN_DB_FILE,
+    });
+
+    expect(oldDB).to.be.equal(undefined);
+
+    // Check the admin database still exists.
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+
+  it(`DB Manager: delete admin fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await dbManager.validator.readyAsync();
+    
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    const oldDB = await dbManager.delete({
+      id: 1,
+    });
+
+    expect(oldDB).to.be.equal(undefined);
+
+    // Check the admin database still exists.
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
 });
