@@ -22,7 +22,7 @@ describe('Server: Admin DB.', function () {
     }
   });
 
-  it(`Inits DB.`, async () => {
+  it(`Admin DB: init`, async () => {
     // Create the admin database.
     const adminDB = new AdminDB({
       name: ADMIN_DB_TEST,
@@ -58,7 +58,7 @@ describe('Server: Admin DB.', function () {
     });
   });
 
-  it(`Avoids double initialization.`, async () => {
+  it(`Admin DB: double init`, async () => {
     // Create the admin database.
     const adminDB = new AdminDB({
       name: ADMIN_DB_TEST,

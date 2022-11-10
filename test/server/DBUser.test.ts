@@ -22,7 +22,7 @@ describe('Server: User DB.', function () {
     global.numVars = 0;
   });
 
-  it(`Inits DB.`, async () => {
+  it(`User DB: init`, async () => {
     const userDB = new UserDB({
       name: DB_FILE,
       path: DB_PATH,
@@ -40,7 +40,7 @@ describe('Server: User DB.', function () {
     global.numVars = vars.length;
   });
 
-  it(`Avoids double initialization.`, async () => {
+  it(`User DB: double init`, async () => {
     const userDB = new UserDB({
       name: DB_FILE,
       path: DB_PATH,
