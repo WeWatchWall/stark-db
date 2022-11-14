@@ -8,6 +8,7 @@ import { DatabaseManagerBase } from '../../src/services/DBManager';
 const DB_PATH = `./test`;
 const ADMIN_DB_FILE = `stark-admin.db`;
 const DB_FILE = `test.db`;
+const DB_FILE2 = `test2.db`;
 
 describe('Server: DB Manager.', function () {
   // this.timeout(600e3);
@@ -23,6 +24,12 @@ describe('Server: DB Manager.', function () {
     if (existsSync(DB_FILE_PATH)) {
       rmSync(DB_FILE_PATH);
     }
+
+    // Should be optional...in case the set test fails in the wrong spot.
+    const DB_FILE_PATH2 = resolve(DB_PATH, DB_FILE2);
+    if (existsSync(DB_FILE_PATH2)) {
+      rmSync(DB_FILE_PATH2);
+    }
   });
 
   it(`DB Manager: init`, async () => {
@@ -30,9 +37,10 @@ describe('Server: DB Manager.', function () {
       path: DB_PATH,
     });
 
+    // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
 
-    expect(!!DatabaseManagerBase.adminDB).to.be.equal(true);
+    expect(DatabaseManagerBase.adminDB).to.not.be.equal(undefined);
   });
 
   it(`DB Manager: destroy`, async () => {
@@ -43,7 +51,7 @@ describe('Server: DB Manager.', function () {
     await dbManager.validator.readyAsync();
     await dbManager.destroy();
 
-    expect(!DatabaseManagerBase.adminDB).to.be.equal(true);
+    expect(DatabaseManagerBase.adminDB).to.be.equal(undefined);
   });
 
   /* #region  Add tests. */
@@ -51,9 +59,6 @@ describe('Server: DB Manager.', function () {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -96,13 +101,40 @@ describe('Server: DB Manager.', function () {
     });
   });
 
-  it(`DB Manager: add admin fail`, async () => {
+  it(`DB Manager: add duplicate fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
 
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    let error: any;
+    try {
+      await dbManager.add({
+        name: DB_FILE,
+      });
+    } catch (err) {
+      error = err;
+    }
+    expect(error).to.not.be.equal(undefined);
+
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+
+  it(`DB Manager: add id fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -111,7 +143,8 @@ describe('Server: DB Manager.', function () {
       .count(Database);
 
     const newDB = await dbManager.add({
-      name: ADMIN_DB_FILE,
+      id: 3,
+      name: `something.db`,
     });
 
     expect(newDB).to.be.equal(undefined);
@@ -129,9 +162,6 @@ describe('Server: DB Manager.', function () {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -154,17 +184,39 @@ describe('Server: DB Manager.', function () {
 
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
-  /* #endregion */
 
-  
-  /* #region  Delete tests. */
-  it(`DB Manager: delete no id fail`, async () => {
+  it(`DB Manager: add admin name fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
 
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    const newDB = await dbManager.add({
+      name: ADMIN_DB_FILE,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+  /* #endregion */
+
+  /* #region  Set tests. */
+  it(`DB Manager: set`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -174,29 +226,138 @@ describe('Server: DB Manager.', function () {
 
     expect(numDBsPre).to.be.equal(2);
 
-    const oldDB = await dbManager.del({
-      path: DB_PATH,
+    const newDB = await dbManager.set({
+      id: 2,
+      name: DB_FILE2,
     });
 
-    expect(oldDB).to.be.equal(undefined);
+    expect(newDB.id).to.be.equal(2);
+    expect(newDB.userDB).to.not.be.undefined;
 
-    // Check the admin database still exists.
+    await newDB.userDB.destroy();
+
     const numDBsPost = await DatabaseManagerBase
       .adminDB
       .DB
       .manager
       .count(Database);
+
     expect(numDBsPost).to.be.equal(numDBsPre);
+
+    const DB = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .findOneBy(Database, {
+        id: 2,
+        name: DB_FILE2,
+      });
+
+    expect(DB).to.be.deep.equal({
+      id: 2,
+      name: DB_FILE2,
+      path: DB_PATH,
+    });
+
+    // Reset DB_FILE2 -> DB_FILE.
+    const newDB2 = await dbManager.set({
+      id: 2,
+      name: DB_FILE,
+    });
+    await newDB2.userDB.destroy();
   });
 
-  /* #region  Delete tests. */
-  it(`DB Manager: delete`, async () => {
+  it(`DB Manager: set no id fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    const newDB = await dbManager.set({
+      path: DB_PATH,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+  });
+
+  it(`DB Manager: set admin id fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    const newDB = await dbManager.set({
+      id: 1,
+      name: `something.db`,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+  });
+
+  it(`DB Manager: set admin name fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
 
     // Optional because it is already called and is idemnpotent.
     await dbManager.validator.readyAsync();
+
+    const newDB = await dbManager.set({
+      id: 2,
+      name: ADMIN_DB_FILE,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+  });
+  /* #endregion */
+
+  /* #region  Get tests. */
+  it(`DB Manager: get`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    const newDB = await dbManager.get({
+      name: DB_FILE,
+    });
+
+    expect(newDB).to.not.be.equal(undefined);
+    expect(newDB.userDB).to.not.be.equal(undefined);
+
+    await newDB.userDB.destroy();
+  });
+
+  it(`DB Manager: get admin`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    const newDB = await dbManager.get({
+      name: ADMIN_DB_FILE,
+    });
+
+    expect(newDB).to.not.be.equal(undefined);
+    expect(newDB.userDB).to.not.be.equal(undefined);
+
+    await newDB.userDB.destroy();
+  });
+
+  it(`DB Manager: get no id fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    const newDB = await dbManager.get({
+      path: DB_PATH,
+    });
+
+    expect(newDB).to.be.equal(undefined);
+  });
+  /* #endregion */
+
+  /* #region  Delete tests. */
+  it(`DB Manager: delete`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -231,13 +392,10 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(0);
   });
 
-  it(`DB Manager: delete admin fail`, async () => {
+  it(`DB Manager: delete no id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -246,7 +404,7 @@ describe('Server: DB Manager.', function () {
       .count(Database);
 
     const oldDB = await dbManager.del({
-      name: ADMIN_DB_FILE,
+      path: DB_PATH,
     });
 
     expect(oldDB).to.be.equal(undefined);
@@ -260,13 +418,10 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
-  it(`DB Manager: delete admin fail`, async () => {
+  it(`DB Manager: delete admin id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
 
     const numDBsPre = await DatabaseManagerBase
       .adminDB
@@ -276,6 +431,32 @@ describe('Server: DB Manager.', function () {
 
     const oldDB = await dbManager.del({
       id: 1,
+    });
+
+    expect(oldDB).to.be.equal(undefined);
+
+    // Check the admin database still exists.
+    const numDBsPost = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+    expect(numDBsPost).to.be.equal(numDBsPre);
+  });
+
+  it(`DB Manager: delete admin name fail`, async () => {
+    const dbManager = await DatabaseManager.init({
+      path: DB_PATH,
+    });
+
+    const numDBsPre = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .count(Database);
+
+    const oldDB = await dbManager.del({
+      name: ADMIN_DB_FILE,
     });
 
     expect(oldDB).to.be.equal(undefined);

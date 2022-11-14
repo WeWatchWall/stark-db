@@ -54,7 +54,11 @@ export abstract class DatabaseManagerBase implements IService {
   abstract set(arg: DBArg): Promise<Database>;
 
   protected async setInternal(arg: DBArg): Promise<Database> {
-    if (arg.id == undefined || arg.name === DatabaseManagerBase.adminDB.name) {
+    if (
+      arg.id == undefined ||
+      arg.id == 1 ||
+      arg.name === DatabaseManagerBase.adminDB.name
+    ) {
       return undefined;
     }
 
