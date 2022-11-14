@@ -1,7 +1,6 @@
 import localforage from 'localforage';
 
 import { Database, DBArg } from '../../entity/DB';
-import { StarkVariable } from '../../entity/variable';
 import { DatabaseManagerBase, DBManagerArg } from '../../services/DBManager';
 import { ADMIN_DB } from '../../utils/constants';
 import { AdminDB } from '../objects/DBAdmin';
@@ -43,7 +42,6 @@ export class DatabaseManager extends DatabaseManagerBase {
     const userDB = new UserDB({
       name: DB.name,
       path: DB.path,
-      entities: [StarkVariable],
     });
     await userDB.validator.readyAsync();
     DB.userDB = userDB;
@@ -80,7 +78,6 @@ export class DatabaseManager extends DatabaseManagerBase {
     const userDB = new UserDB({
       name: DB.name,
       path: DB.path,
-      entities: [StarkVariable],
     });
     await userDB.validator.readyAsync();
     DB.userDB = userDB;
@@ -97,7 +94,6 @@ export class DatabaseManager extends DatabaseManagerBase {
     const userDB = new UserDB({
       name: DB.name,
       path: DB.path,
-      entities: [StarkVariable],
     });
     await userDB.validator.readyAsync();
     DB.userDB = userDB;

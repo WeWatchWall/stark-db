@@ -67,7 +67,11 @@ export class UserManager implements IService {
   }
 
   async set(arg: UserArg): Promise<User> {
-    if (arg.id == undefined) {
+    if (
+      arg.id == undefined ||
+      arg.id === 1 ||
+      arg.userName === ADMIN_USER
+    ) {
       return undefined;
     }
 
@@ -98,10 +102,7 @@ export class UserManager implements IService {
       .adminDB
       .DB
       .manager
-      .findOneBy(User, {
-        id: arg.id,
-        userName: arg.userName,
-      });
+      .findOneBy(User, arg);
   }
 
   async del(arg: UserArg): Promise<User> {
@@ -118,10 +119,7 @@ export class UserManager implements IService {
       .adminDB
       .DB
       .manager
-      .findOneBy(User, {
-        id: arg.id,
-        userName: arg.userName,
-      });
+      .findOneBy(User, arg);
     
     if (user == undefined) { return user; }
 

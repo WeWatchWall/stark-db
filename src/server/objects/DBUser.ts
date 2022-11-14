@@ -1,3 +1,4 @@
+import { StarkVariable } from '../../entity/variable';
 import { PersistentDBBase } from '../../objects/DBPersistent';
 import { IUserDB } from '../../objects/IDB';
 import { LazyValidator } from '../../utils/lazyValidator';
@@ -12,6 +13,7 @@ export class UserDB extends PersistentDB implements IUserDB {
     // Copy the properties.
     if (init != undefined) {
       Object.assign(this, init);
+      this.entities = [StarkVariable];
       this.validator.valid();
     }
   }

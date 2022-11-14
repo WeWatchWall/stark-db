@@ -127,7 +127,7 @@ describe('Server: User Manager.', function () {
       .count(User);
 
     const newUserData = {
-      userName: `admin`,
+      userName: ADMIN_USER,
       password: `password`,
       salt: `salt`,
     };

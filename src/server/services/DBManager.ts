@@ -2,7 +2,6 @@ import { existsSync, mkdirSync, renameSync, unlinkSync } from 'fs';
 import path from 'path';
 
 import { Database, DBArg } from '../../entity/DB';
-import { StarkVariable } from '../../entity/variable';
 import { DatabaseManagerBase, DBManagerArg } from '../../services/DBManager';
 import { ADMIN_DB } from '../../utils/constants';
 import { AdminDB } from '../objects/DBAdmin';
@@ -47,7 +46,6 @@ export class DatabaseManager extends DatabaseManagerBase {
     const userDB = new UserDB({
       name: newDB.name,
       path: newDB.path,
-      entities: [StarkVariable],
     });
     await userDB.validator.readyAsync();
     
@@ -90,7 +88,6 @@ export class DatabaseManager extends DatabaseManagerBase {
     const userDB = new UserDB({
       name: DB.name,
       path: DB.path,
-      entities: [StarkVariable],
     });
     await userDB.validator.readyAsync();
     DB.userDB = userDB;
@@ -104,13 +101,21 @@ export class DatabaseManager extends DatabaseManagerBase {
     if (DB == undefined) { return DB; }
 
     // Create the new DB.
-    const userDB = new UserDB({
-      name: DB.name,
-      path: DB.path,
-      entities: [StarkVariable],
-    });
-    await userDB.validator.readyAsync();
-    DB.userDB = userDB;
+    if (DB.name === DatabaseManagerBase.adminDB.name) {
+      const adminDB = new AdminDB({
+        name: DB.name,
+        path: DB.path,
+      });
+      await adminDB.validator.readyAsync();
+      DB.userDB = adminDB;
+    } else {
+      const userDB = new UserDB({
+        name: DB.name,
+        path: DB.path,
+      });
+      await userDB.validator.readyAsync();
+      DB.userDB = userDB;
+    }
 
     return DB;
   }

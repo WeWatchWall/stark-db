@@ -26,7 +26,6 @@ describe('Server: User DB.', function () {
     const userDB = new UserDB({
       name: DB_FILE,
       path: DB_PATH,
-      entities: [StarkVariable]
     });
 
     await userDB.validator.readyAsync();
@@ -44,7 +43,6 @@ describe('Server: User DB.', function () {
     const userDB = new UserDB({
       name: DB_FILE,
       path: DB_PATH,
-      entities: [StarkVariable]
     });
 
     await userDB.validator.readyAsync();
