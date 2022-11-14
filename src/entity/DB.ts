@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { IDB } from '../objects/IDB';
 
 import { IEntity, IEntityArg } from './IEntity';
 
@@ -23,5 +24,7 @@ export class Database implements IEntity {
 
   @Column()
   path: string;
+
+  userDB: IDB;
 
 }

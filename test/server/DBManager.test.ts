@@ -68,6 +68,9 @@ describe('Server: DB Manager.', function () {
     });
 
     expect(newDB.id).to.be.equal(2);
+    expect(newDB.userDB).to.not.be.undefined;
+
+    await newDB.userDB.destroy();
 
     const numDBsPost = await DatabaseManagerBase
       .adminDB

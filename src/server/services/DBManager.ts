@@ -50,7 +50,9 @@ export class DatabaseManager extends DatabaseManagerBase {
       entities: [StarkVariable],
     });
     await userDB.validator.readyAsync();
-    await userDB.destroy();
+    
+    // Add the new DB to the entity.
+    DB.userDB = userDB;
 
     return DB;
   }

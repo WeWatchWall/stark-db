@@ -14,3 +14,7 @@ npm install stark-db
 ```
 
 ## Usage and Options
+
+## Roadmap
+
+- Scaling tables & relations across nodes.
