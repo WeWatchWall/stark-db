@@ -39,28 +39,56 @@ export abstract class DatabaseManagerBase implements IService {
 
   abstract add(arg: DBArg): Promise<Database>;
 
-  protected async addInternal(arg: DBArg): Promise<[boolean, Database]> {
+  protected async addInternal(arg: DBArg): Promise<Database> {
     if (arg.id != undefined || arg.name === DatabaseManagerBase.adminDB.name) {
-      return [false, undefined];
+      return undefined;
     }
 
-    // Check if the DB already exists.
-    let DB = await DatabaseManagerBase
+    // Add the DB to the admin DB.
+    const DB = new Database(arg);
+    await DatabaseManagerBase.adminDB.DB.manager.save(DB);
+
+    return DB;
+  };
+
+  abstract set(arg: DBArg): Promise<Database>;
+
+  protected async setInternal(arg: DBArg): Promise<Database> {
+    if (arg.id == undefined || arg.name === DatabaseManagerBase.adminDB.name) {
+      return undefined;
+    }
+
+    // Get the DB to update.
+    const DB = await DatabaseManagerBase
+      .adminDB
+      .DB
+      .manager
+      .findOneBy(Database, { id: arg.id });
+    
+    // Check if the DB exists.
+    if (DB == undefined) { return DB; }
+
+    Object.assign(DB, arg);
+
+    // Update the DB in the admin DB.
+    await DatabaseManagerBase.adminDB.DB.manager.save(Database, DB);
+
+    return DB;
+  }
+
+  abstract get(arg: DBArg): Promise<Database>;
+
+  protected async getInternal(arg: DBArg): Promise<Database> {
+    if (arg.id == undefined && arg.name == undefined) { return undefined; }
+
+    return await DatabaseManagerBase
       .adminDB
       .DB
       .manager
       .findOneBy(Database, arg);
-    
-    if (DB != undefined) { return [false, DB]; }
+  }
 
-    // Add the DB to the admin DB.
-    DB = new Database(arg);
-    await DatabaseManagerBase.adminDB.DB.manager.save(DB);
-
-    return [true, DB];
-  };
-
-  abstract delete(arg: DBArg): Promise<Database>;
+  abstract del(arg: DBArg): Promise<Database>;
 
   protected async deleteInternal(arg: DBArg): Promise<Database> {
     if (

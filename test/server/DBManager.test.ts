@@ -174,7 +174,7 @@ describe('Server: DB Manager.', function () {
 
     expect(numDBsPre).to.be.equal(2);
 
-    const oldDB = await dbManager.delete({
+    const oldDB = await dbManager.del({
       path: DB_PATH,
     });
 
@@ -206,7 +206,7 @@ describe('Server: DB Manager.', function () {
 
     expect(numDBsPre).to.be.equal(2);
 
-    const oldDB = await dbManager.delete({
+    const oldDB = await dbManager.del({
       name: DB_FILE,
     });
 
@@ -245,7 +245,7 @@ describe('Server: DB Manager.', function () {
       .manager
       .count(Database);
 
-    const oldDB = await dbManager.delete({
+    const oldDB = await dbManager.del({
       name: ADMIN_DB_FILE,
     });
 
@@ -274,7 +274,7 @@ describe('Server: DB Manager.', function () {
       .manager
       .count(Database);
 
-    const oldDB = await dbManager.delete({
+    const oldDB = await dbManager.del({
       id: 1,
     });
 

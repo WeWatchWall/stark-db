@@ -19,7 +19,7 @@ export class User implements IEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   userName: string;
 
   @Column()

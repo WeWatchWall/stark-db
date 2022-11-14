@@ -59,6 +59,18 @@ export class UserManager implements IService {
       return undefined;
     }
 
+    // Add the user to the admin DB.
+    const user = new User(arg);
+    await UserManager.adminDB.DB.manager.save(user);
+
+    return user;
+  }
+
+  async set(arg: UserArg): Promise<User> {
+    if (arg.id == undefined) {
+      return undefined;
+    }
+
     // Check if the user already exists.
     let user = await UserManager
       .adminDB
@@ -66,19 +78,33 @@ export class UserManager implements IService {
       .manager
       .findOneBy(User, {
         id: arg.id,
-        userName: arg.userName,
       });
 
-    if (user != undefined) { return user; }
+    if (user == undefined) { return user; }
 
-    // Add the user to the admin DB.
+    // Update the user in the admin DB.
     user = new User(arg);
     await UserManager.adminDB.DB.manager.save(user);
 
     return user;
   }
 
-  async delete(arg: UserArg): Promise<User> {
+  async get(arg: UserArg): Promise<User> {
+    if (arg.id == undefined && arg.userName == undefined) {
+      return undefined;
+    }
+
+    return UserManager
+      .adminDB
+      .DB
+      .manager
+      .findOneBy(User, {
+        id: arg.id,
+        userName: arg.userName,
+      });
+  }
+
+  async del(arg: UserArg): Promise<User> {
     if (
       (arg.id == undefined && arg.userName == undefined) ||
       arg.id === 1 ||

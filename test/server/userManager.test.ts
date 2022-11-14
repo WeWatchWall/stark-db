@@ -74,6 +74,44 @@ describe('Server: User Manager.', function () {
     expect(numUsersPost).to.be.equal(numUsersPre + 1);
   });
 
+  it(`User Manager: add duplicate fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    // Optional because it is already called and is idemnpotent.
+    await userManager.validator.readyAsync();
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    const newUserData = {
+      userName: `test`,
+      password: `password`,
+      salt: `salt`,
+    };
+
+    let error: any;
+    try {
+      await userManager.add(newUserData);
+    } catch (err) {
+      error = err;
+    }
+
+    expect(error).to.not.be.equal(undefined);
+
+    const numUsersPost = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(numUsersPost);
+  });
+
   it(`User Manager: add admin fail`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
@@ -157,7 +195,7 @@ describe('Server: User Manager.', function () {
       .manager
       .count(User);
 
-    const deleteResult = await userManager.delete({
+    const deleteResult = await userManager.del({
       password: `password`,
       salt: `salt`,
     });
@@ -187,7 +225,7 @@ describe('Server: User Manager.', function () {
       .manager
       .count(User);
 
-    const deleteResult = await userManager.delete({ id: 2 });
+    const deleteResult = await userManager.del({ id: 2 });
 
     expect(deleteResult.id).to.be.equal(2);
 
@@ -214,7 +252,7 @@ describe('Server: User Manager.', function () {
       .manager
       .count(User);
 
-    const deleteResult = await userManager.delete({ userName: ADMIN_USER });
+    const deleteResult = await userManager.del({ userName: ADMIN_USER });
 
     expect(deleteResult).to.be.equal(undefined);
 
@@ -241,7 +279,7 @@ describe('Server: User Manager.', function () {
       .manager
       .count(User);
 
-    const deleteResult = await userManager.delete({ id: 1 });
+    const deleteResult = await userManager.del({ id: 1 });
 
     expect(deleteResult).to.be.equal(undefined);
 

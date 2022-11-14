@@ -1,4 +1,4 @@
-import { unlinkSync } from 'fs';
+import { existsSync, mkdirSync, renameSync, unlinkSync } from 'fs';
 import path from 'path';
 
 import { Database, DBArg } from '../../entity/DB';
@@ -40,10 +40,10 @@ export class DatabaseManager extends DatabaseManagerBase {
       path: this.path,
     }, arg);
 
-    const [isNew, DB] = await super.addInternal(newDB);
-    if (!isNew) { return DB; }
+    const DB = await super.addInternal(newDB);
+    if (DB == undefined) { return DB; }
 
-    // Create the new DB file.
+    // Create the new DB.
     const userDB = new UserDB({
       name: newDB.name,
       path: newDB.path,
@@ -57,16 +57,70 @@ export class DatabaseManager extends DatabaseManagerBase {
     return DB;
   }
 
-  async delete(arg: DBArg): Promise<Database> {
-    // Add the defaults.
-    const oldDB = Object.assign({
-      path: this.path,
-    }, arg);
-    const DB = await super.deleteInternal(oldDB);
+  async set(arg: DBArg): Promise<Database> {
+    const oldDB = await super.getInternal({ id: arg.id });
+    if (oldDB == undefined) { return oldDB; }
 
+    // Check if this is a NOOP.
+    if (
+      (arg.name === oldDB.name && arg.path === oldDB.path) ||
+      (arg.name === oldDB.name && arg.path == undefined) ||
+      (arg.name == undefined && arg.path === oldDB.path)
+    ) {
+      return this.get(arg);
+    }
+
+    // Set the new DB info in the admin DB.
+    const DB = await super.setInternal(arg);
     if (DB == undefined) { return DB; }
 
-    const filePath = path.resolve(oldDB.path, oldDB.name);
+    const oldPath = path.resolve(oldDB.path, oldDB.name);
+    const newDir = path.resolve(DB.path);
+    const newPath = path.resolve(DB.path, DB.name);
+
+    // Make sure the directory exists.
+    if (!existsSync(newDir)){
+      mkdirSync(newDir, { recursive: true });
+    }
+
+    // Move the file.
+    renameSync(oldPath, newPath);
+
+    // Create the new DB.
+    const userDB = new UserDB({
+      name: DB.name,
+      path: DB.path,
+      entities: [StarkVariable],
+    });
+    await userDB.validator.readyAsync();
+    DB.userDB = userDB;
+
+    return DB;
+  }
+
+  async get(arg: DBArg): Promise<Database> {
+    // Get the info from the Admin DB.
+    const DB = await super.getInternal(arg);
+    if (DB == undefined) { return DB; }
+
+    // Create the new DB.
+    const userDB = new UserDB({
+      name: DB.name,
+      path: DB.path,
+      entities: [StarkVariable],
+    });
+    await userDB.validator.readyAsync();
+    DB.userDB = userDB;
+
+    return DB;
+  }
+
+  async del(arg: DBArg): Promise<Database> {
+    // Delete the info from the Admin DB.
+    const DB = await super.deleteInternal(arg);
+    if (DB == undefined) { return DB; }
+
+    const filePath = path.resolve(DB.path, DB.name);
     unlinkSync(filePath);
 
     return DB;
