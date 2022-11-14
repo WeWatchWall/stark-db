@@ -32,7 +32,7 @@ describe('Server: DB Manager.', function () {
     }
   });
 
-  it(`DB Manager: init`, async () => {
+  it(`Init`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -43,7 +43,7 @@ describe('Server: DB Manager.', function () {
     expect(DatabaseManagerBase.adminDB).to.not.be.equal(undefined);
   });
 
-  it(`DB Manager: destroy`, async () => {
+  it(`Destroy`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -55,7 +55,7 @@ describe('Server: DB Manager.', function () {
   });
 
   /* #region  Add tests. */
-  it(`DB Manager: add`, async () => {
+  it(`Add`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -101,7 +101,7 @@ describe('Server: DB Manager.', function () {
     });
   });
 
-  it(`DB Manager: add duplicate fail`, async () => {
+  it(`Add: duplicate fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -131,7 +131,7 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
-  it(`DB Manager: add id fail`, async () => {
+  it(`Add: id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -158,7 +158,7 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
-  it(`DB Manager: add admin id fail`, async () => {
+  it(`Add: admin id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -185,7 +185,7 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
-  it(`DB Manager: add admin name fail`, async () => {
+  it(`Add: admin name fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -213,7 +213,7 @@ describe('Server: DB Manager.', function () {
   /* #endregion */
 
   /* #region  Set tests. */
-  it(`DB Manager: set`, async () => {
+  it(`Set`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -267,7 +267,7 @@ describe('Server: DB Manager.', function () {
     await newDB2.userDB.destroy();
   });
 
-  it(`DB Manager: set no id fail`, async () => {
+  it(`Set: no id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -279,7 +279,7 @@ describe('Server: DB Manager.', function () {
     expect(newDB).to.be.equal(undefined);
   });
 
-  it(`DB Manager: set admin id fail`, async () => {
+  it(`Set: admin id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -292,7 +292,7 @@ describe('Server: DB Manager.', function () {
     expect(newDB).to.be.equal(undefined);
   });
 
-  it(`DB Manager: set admin name fail`, async () => {
+  it(`Set: admin name fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -310,7 +310,7 @@ describe('Server: DB Manager.', function () {
   /* #endregion */
 
   /* #region  Get tests. */
-  it(`DB Manager: get`, async () => {
+  it(`Get`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -325,7 +325,7 @@ describe('Server: DB Manager.', function () {
     await newDB.userDB.destroy();
   });
 
-  it(`DB Manager: get admin`, async () => {
+  it(`Get: admin`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -340,7 +340,7 @@ describe('Server: DB Manager.', function () {
     await newDB.userDB.destroy();
   });
 
-  it(`DB Manager: get no id fail`, async () => {
+  it(`Get: no id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -354,7 +354,7 @@ describe('Server: DB Manager.', function () {
   /* #endregion */
 
   /* #region  Delete tests. */
-  it(`DB Manager: delete`, async () => {
+  it(`Delete`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -392,7 +392,7 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(0);
   });
 
-  it(`DB Manager: delete no id fail`, async () => {
+  it(`Delete: no id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -418,7 +418,7 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
-  it(`DB Manager: delete admin id fail`, async () => {
+  it(`Delete: admin id fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });
@@ -444,7 +444,7 @@ describe('Server: DB Manager.', function () {
     expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
-  it(`DB Manager: delete admin name fail`, async () => {
+  it(`Delete: admin name fail`, async () => {
     const dbManager = await DatabaseManager.init({
       path: DB_PATH,
     });

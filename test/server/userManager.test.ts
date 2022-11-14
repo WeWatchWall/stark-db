@@ -30,22 +30,22 @@ describe('Server: User Manager.', function () {
     await global.adminDB.validator.readyAsync();
   });
 
-  it(`User Manager: init`, async () => {
-    await UserManager.init({
-      DB: global.adminDB,
-    });
-
-    expect(!!UserManager.adminDB).to.be.equal(true);
-  });
-
-  /* #region  Add tests. */
-  it(`User Manager: add`, async () => {
+  it(`Init`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
 
     // Optional because it is already called and is idemnpotent.
     await userManager.validator.readyAsync();
+
+    expect(!!UserManager.adminDB).to.be.equal(true);
+  });
+
+  /* #region  Add tests. */
+  it(`Add`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
 
     const numUsersPre = await UserManager
       .adminDB
@@ -74,13 +74,10 @@ describe('Server: User Manager.', function () {
     expect(numUsersPost).to.be.equal(numUsersPre + 1);
   });
 
-  it(`User Manager: add duplicate fail`, async () => {
+  it(`Add: duplicate fail`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
 
     const numUsersPre = await UserManager
       .adminDB
@@ -112,13 +109,10 @@ describe('Server: User Manager.', function () {
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
-  it(`User Manager: add admin fail`, async () => {
+  it(`Add: id fail`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
 
     const numUsersPre = await UserManager
       .adminDB
@@ -127,7 +121,8 @@ describe('Server: User Manager.', function () {
       .count(User);
 
     const newUserData = {
-      userName: ADMIN_USER,
+      id: 3,
+      userName: `test`,
       password: `password`,
       salt: `salt`,
     };
@@ -145,13 +140,10 @@ describe('Server: User Manager.', function () {
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
-  it(`User Manager: add admin id fail`, async () => {
+  it(`Add: admin id fail`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
 
     const numUsersPre = await UserManager
       .adminDB
@@ -178,16 +170,239 @@ describe('Server: User Manager.', function () {
 
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
-  /* #endregion */
 
-  /* #region  Delete tests. */
-  it(`User Manager: delete no id fail`, async () => {
+  it(`Add: admin name fail`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
 
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    const newUserData = {
+      userName: ADMIN_USER,
+      password: `password`,
+      salt: `salt`,
+    };
+
+    const newUser = await userManager.add(newUserData);
+
+    expect(newUser).to.be.equal(undefined);
+
+    const numUsersPost = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(numUsersPost);
+  });
+  /* #endregion */
+
+  /* #region  Set tests */
+  it(`Set`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUserData = {
+      id: 2,
+      userName: `test1`,
+      password: `password1`,
+      salt: `salt1`,
+    };
+
+    const newUser = await userManager.set(newUserData);
+
+    expect(newUser).to.be.deep.equal(newUserData);
+
+    const numUsersPost = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPost).to.be.equal(numUsersPre);
+  });
+
+  it(`Set: no id fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUserData = {
+      userName: `test1`,
+      password: `password1`,
+      salt: `salt1`,
+    };
+
+    const newUser = await userManager.set(newUserData);
+
+    expect(newUser).to.be.undefined;
+  });
+
+  it(`Set: admin id fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUserData = {
+      id: 1,
+      userName: `test1`,
+      password: `password1`,
+      salt: `salt1`,
+    };
+
+    const newUser = await userManager.set(newUserData);
+
+    expect(newUser).to.be.undefined;
+  });
+
+  it(`Set: admin name fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUserData = {
+      id: 2,
+      userName: ADMIN_USER,
+      password: `password1`,
+      salt: `salt1`,
+    };
+
+    const newUser = await userManager.set(newUserData);
+
+    expect(newUser).to.be.undefined;
+  });
+  /* #endregion */
+
+  /* #region  Get tests. */
+  it(`Get`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUser = await userManager.get({
+      userName: `test1`,
+    });
+
+    expect(newUser).to.not.be.undefined;
+  });
+
+  it(`Get: admin`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUser = await userManager.get({
+      id: 1,
+    });
+
+    expect(newUser).to.not.be.undefined;
+  });
+
+  it(`Get: no id fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(2);
+
+    const newUser = await userManager.get({
+      password: `password1`,
+      salt: `salt1`,
+    });
+
+    expect(newUser).to.be.undefined;
+  });
+  /* #endregion */
+
+  /* #region  Delete tests. */
+  it(`Delete`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    const deleteResult = await userManager.del({ id: 2 });
+
+    expect(deleteResult.id).to.be.equal(2);
+
+    const numUsersPost = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(numUsersPost + 1);
+  });
+
+  it(`Delete: no id fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
 
     const numUsersPre = await UserManager
       .adminDB
@@ -211,67 +426,10 @@ describe('Server: User Manager.', function () {
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
-  it(`User Manager: delete`, async () => {
+  it(`Delete: admin id fail`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
-
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
-
-    const numUsersPre = await UserManager
-      .adminDB
-      .DB
-      .manager
-      .count(User);
-
-    const deleteResult = await userManager.del({ id: 2 });
-
-    expect(deleteResult.id).to.be.equal(2);
-
-    const numUsersPost = await UserManager
-      .adminDB
-      .DB
-      .manager
-      .count(User);
-
-    expect(numUsersPre).to.be.equal(numUsersPost + 1);
-  });
-
-  it(`User Manager: delete admin fail`, async () => {
-    const userManager = await UserManager.init({
-      DB: global.adminDB,
-    });
-
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
-
-    const numUsersPre = await UserManager
-      .adminDB
-      .DB
-      .manager
-      .count(User);
-
-    const deleteResult = await userManager.del({ userName: ADMIN_USER });
-
-    expect(deleteResult).to.be.equal(undefined);
-
-    const numUsersPost = await UserManager
-      .adminDB
-      .DB
-      .manager
-      .count(User);
-
-    expect(numUsersPre).to.be.equal(numUsersPost);
-  });
-
-  it(`User Manager: delete admin id fail`, async () => {
-    const userManager = await UserManager.init({
-      DB: global.adminDB,
-    });
-
-    // Optional because it is already called and is idemnpotent.
-    await userManager.validator.readyAsync();
 
     const numUsersPre = await UserManager
       .adminDB
@@ -292,8 +450,32 @@ describe('Server: User Manager.', function () {
     expect(numUsersPre).to.be.equal(numUsersPost);
   });
 
+  it(`Delete: admin name fail`, async () => {
+    const userManager = await UserManager.init({
+      DB: global.adminDB,
+    });
+
+    const numUsersPre = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    const deleteResult = await userManager.del({ userName: ADMIN_USER });
+
+    expect(deleteResult).to.be.equal(undefined);
+
+    const numUsersPost = await UserManager
+      .adminDB
+      .DB
+      .manager
+      .count(User);
+
+    expect(numUsersPre).to.be.equal(numUsersPost);
+  });
+
   // NOTE: This test has to be last.
-  it(`User Manager: destroy`, async () => {
+  it(`Destroy`, async () => {
     const userManager = await UserManager.init({
       DB: global.adminDB,
     });
