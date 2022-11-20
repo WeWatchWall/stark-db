@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 
 import { Database } from '../entity/DB';
 import { User } from '../entity/user';
-import { StarkVariable } from '../entity/variable';
+import { Variable } from '../entity/variable';
 import { ADMIN_DB, ADMIN_USER, DB_IDENTIFIER, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variables } from '../utils/variables';
@@ -72,17 +72,17 @@ export abstract class PersistentDBBase implements IDB {
     // Skip if the DB is already initialized.
     if (await PersistentDBBase.isInitCheck(db)) { return; }
 
-    const isWALVar = new StarkVariable({
+    const isWALVar = new Variable({
       name: Variables[Variables.isWAL],
       value: true
     });
 
-    const lastAccessVar = new StarkVariable({
+    const lastAccessVar = new Variable({
       name: Variables[Variables.lastAccess],
       value: Date.now()
     });
 
-    const numChangesVar = new StarkVariable({
+    const numChangesVar = new Variable({
       name: Variables[Variables.numChanges],
       value: ZERO
     });

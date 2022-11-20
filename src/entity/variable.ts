@@ -2,15 +2,15 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 import { IEntity, IEntityArg } from './IEntity';
 
-class StarkVariableArg implements IEntityArg {
+class VariableArg implements IEntityArg {
   name: string;
   value?: boolean | number | string;
 }
 
-@Entity()
-export class StarkVariable implements IEntity {
+@Entity({ name: '_stark_vars' })
+export class Variable implements IEntity {
 
-  constructor(init: StarkVariableArg) {
+  constructor(init: VariableArg) {
     Object.assign(this, init);
   }
 

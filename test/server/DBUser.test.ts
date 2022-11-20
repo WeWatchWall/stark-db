@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { existsSync, rmSync } from 'fs';
 import { resolve } from 'path';
 
-import { StarkVariable } from '../../src/entity/variable';
+import { Variable } from '../../src/entity/variable';
 import { UserDB } from '../../src/server/objects/DBUser';
 
 const DB_PATH = `./test`;
@@ -33,7 +33,7 @@ describe('Server: User DB.', function () {
     const vars = await userDB
       .DB
       .manager
-      .find(StarkVariable);
+      .find(Variable);
     
     expect(vars.length).to.be.greaterThan(1);
     global.numVars = vars.length;
@@ -50,7 +50,7 @@ describe('Server: User DB.', function () {
     const vars = await userDB
       .DB
       .manager
-      .find(StarkVariable);
+      .find(Variable);
     
     expect(vars.length).to.be.equal(global.numVars);
   });

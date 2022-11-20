@@ -8,8 +8,8 @@ export class TableArg implements IEntityArg {
   isPersist?: boolean;
 }
 
-@Entity()
-export class StarkTable implements IEntity {
+@Entity({name: '_stark_tables'})
+export class Table implements IEntity {
 
   constructor(init: TableArg) {
     Object.assign(this, init);
