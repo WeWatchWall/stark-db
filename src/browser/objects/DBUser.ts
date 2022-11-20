@@ -1,3 +1,4 @@
+import { StarkTable } from '../../entity/table';
 import { StarkVariable } from '../../entity/variable';
 import { PersistentDBBase } from '../../objects/DBPersistent';
 import { IUserDB } from '../../objects/IDB';
@@ -13,7 +14,7 @@ export class UserDB extends PersistentDB implements IUserDB {
     // Copy the properties.
     if (init != undefined) {
       Object.assign(this, init);
-      this.entities = [StarkVariable];
+      this.entities = [StarkTable, StarkVariable];
       this.validator.valid();
     }
   }

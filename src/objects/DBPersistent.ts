@@ -72,35 +72,9 @@ export abstract class PersistentDBBase implements IDB {
     // Skip if the DB is already initialized.
     if (await PersistentDBBase.isInitCheck(db)) { return; }
 
-    /* #region  Add helper variables. */
-    const tablesVar = new StarkVariable({
-      name: Variables[Variables.tables],
-      value: JSON.stringify([])
-    });
-
     const isWALVar = new StarkVariable({
       name: Variables[Variables.isWAL],
-      value: false
-    });
-
-    const memoryOnlyVar = new StarkVariable({
-      name: Variables[Variables.memoryOnly],
-      value: JSON.stringify([])
-    });
-
-    const isMemoryOnlyVar = new StarkVariable({
-      name: Variables[Variables.isMemoryOnly],
-      value: false
-    });
-
-    const memoryPersistVar = new StarkVariable({
-      name: Variables[Variables.memoryPersist],
-      value: JSON.stringify([])
-    });
-
-    const isMemoryPersistVar = new StarkVariable({
-      name: Variables[Variables.isMemoryPersist],
-      value: false
+      value: true
     });
 
     const lastAccessVar = new StarkVariable({
@@ -108,12 +82,7 @@ export abstract class PersistentDBBase implements IDB {
       value: Date.now()
     });
 
-    await db.manager.save(tablesVar);
     await db.manager.save(isWALVar);
-    await db.manager.save(memoryOnlyVar);
-    await db.manager.save(isMemoryOnlyVar);
-    await db.manager.save(memoryPersistVar);
-    await db.manager.save(isMemoryPersistVar);
     await db.manager.save(lastAccessVar);
     /* #endregion */
 
