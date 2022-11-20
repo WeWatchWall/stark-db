@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { Database } from '../entity/DB';
 import { User } from '../entity/user';
 import { StarkVariable } from '../entity/variable';
-import { ADMIN_DB, ADMIN_USER, DB_IDENTIFIER } from '../utils/constants';
+import { ADMIN_DB, ADMIN_USER, DB_IDENTIFIER, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variables } from '../utils/variables';
 import { IDB, IDBArg } from './IDB';
@@ -82,8 +82,14 @@ export abstract class PersistentDBBase implements IDB {
       value: Date.now()
     });
 
+    const numChangesVar = new StarkVariable({
+      name: Variables[Variables.numChanges],
+      value: ZERO
+    });
+
     await db.manager.save(isWALVar);
     await db.manager.save(lastAccessVar);
+    await db.manager.save(numChangesVar);
     /* #endregion */
 
     // Set the DB user_version flag as initialized.
