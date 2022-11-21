@@ -17,6 +17,9 @@ export class Table implements IEntity {
 
   @PrimaryColumn()
   name: string;
+  
+  @Column("simple-json")
+  keys: string[];
 
   @Column()
   isMemory: boolean;

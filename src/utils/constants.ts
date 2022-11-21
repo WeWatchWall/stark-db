@@ -10,3 +10,8 @@ export const ADMIN_DB = 'stark-admin.db';
 export const ADMIN_USER = 'system';
 
 export const LONG_COMMIT_DEFAULT = 200;
+
+export const THREAD_CHANNEL_PREFIX = 'stark-thread';
+export const MEMORY_CHANNEL = 'stark-memory';
+export const DB_CHANNEL = 'stark-db';
+export const RESULT_CHANNEL = 'stark-result';
