@@ -43,9 +43,9 @@ export class Result {
     };
   }
 
-  toIDs(): string[] {
+  toIDObject(): ResultArg {
     // Loop through the rows and return the IDs.
-    return this.rows.map((row) => {
+    const rows = this.rows.map((row) => {
       const result = {};
 
       // Each ID can be multiple columns.
@@ -54,8 +54,14 @@ export class Result {
       });
 
       // Use JSON to avoid any issues with the key values.
-      return JSON.stringify(result);
+      return result;
     });
+
+    return {
+      name: this.name,
+      keys: this.keys,
+      rows: rows,
+    };
   }
 }
 
