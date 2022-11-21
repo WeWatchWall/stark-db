@@ -53,7 +53,6 @@ export class Result {
         result[key] = row[key];
       });
 
-      // Use JSON to avoid any issues with the key values.
       return result;
     });
 
