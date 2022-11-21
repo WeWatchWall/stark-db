@@ -1,5 +1,6 @@
 export enum Variables {
-  isWAL,
-  lastAccess,
-  numChanges,
+  isChanged = 'isChanged',
+  isWAL = 'isWAL',
+  lastAccess = 'lastAccess',
+  numChanges = 'numChanges',
 }

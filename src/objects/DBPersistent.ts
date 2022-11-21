@@ -72,24 +72,31 @@ export abstract class PersistentDBBase implements IDB {
     // Skip if the DB is already initialized.
     if (await PersistentDBBase.isInitCheck(db)) { return; }
 
+    /* #region  Set up the variables. */
+    const isChanged = new Variable({
+      name: Variables.isChanged,
+      value: false
+    });
+
     const isWALVar = new Variable({
-      name: Variables[Variables.isWAL],
+      name: Variables.isWAL,
       value: true
     });
 
-    const lastAccessVar = new Variable({
-      name: Variables[Variables.lastAccess],
-      value: Date.now()
-    });
-
     const numChangesVar = new Variable({
-      name: Variables[Variables.numChanges],
+      name: Variables.numChanges,
       value: ZERO
     });
 
+    const lastAccessVar = new Variable({
+      name: Variables.lastAccess,
+      value: Date.now()
+    });
+
+    await db.manager.save(isChanged);
     await db.manager.save(isWALVar);
-    await db.manager.save(lastAccessVar);
     await db.manager.save(numChangesVar);
+    await db.manager.save(lastAccessVar);
     /* #endregion */
 
     // Set the DB user_version flag as initialized.
@@ -101,7 +108,7 @@ export abstract class PersistentDBBase implements IDB {
    * @param db @type {DataSource} The database. 
    * @returns isInit @type {boolean} True if the database is initialized.
    */
-   private static async isInitCheck(db: DataSource): Promise<boolean> {
+  private static async isInitCheck(db: DataSource): Promise<boolean> {
     const result = await db.query(`PRAGMA ${PRAGMA};`);
 
     return result[0][PRAGMA] === DB_IDENTIFIER;
