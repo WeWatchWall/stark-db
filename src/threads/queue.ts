@@ -1,11 +1,11 @@
 import { Results } from '../objects/results';
-import { target } from '../utils/constants';
+import { Target } from '../utils/constants';
 import { IQueue } from './IThreads';
 
 export abstract class QueueBase implements IQueue {
-  target: target;
+  target: Target;
 
-  constructor(target: target) {
+  constructor(target: Target) {
     this.target = target;
   }
 
@@ -19,15 +19,15 @@ export abstract class QueueBase implements IQueue {
     throw new Error("Method not implemented.");
   }
 
-  async add(_id: number, _target: target, _results: Results): Promise<void> {
+  async add(_id: number, _target: Target, _results: Results): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async set(_id: number, _target: target, _results: Results): Promise<void> {
+  async set(_id: number, _target: Target, _results: Results): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async del(_id: number, _target: target): Promise<void> {
+  async del(_id: number, _target: Target): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

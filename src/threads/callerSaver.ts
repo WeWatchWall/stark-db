@@ -1,13 +1,13 @@
 import { Results } from '../objects/results';
-import { target } from '../utils/constants';
+import { Target } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { ICaller, ISaver } from './IThreads';
 
 export class SaverCallerBase implements ICaller, ISaver {
-  target: target;
+  target: Target;
   worker: any;
 
-  constructor(target: target) {
+  constructor(target: Target) {
     this.target = target;
   }
 
@@ -20,7 +20,7 @@ export class SaverCallerBase implements ICaller, ISaver {
 
   async add(
     id: number,
-    target: target,
+    target: Target,
     results: Results
   ): Promise<void> {
     await this.worker.run({

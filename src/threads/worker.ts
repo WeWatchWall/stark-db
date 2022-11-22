@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 
 import { Results } from '../objects/results';
-import { target } from '../utils/constants';
+import { Target } from '../utils/constants';
 import { IEngine, IWorker } from './IThreads';
 
 export abstract class WorkerBase implements IWorker, IEngine {
@@ -18,7 +18,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
     throw new Error("Method not implemented.");
   }
 
-  async pause(_id: number, _target: target): Promise<void> {
+  async pause(_id: number, _target: Target): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

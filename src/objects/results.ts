@@ -1,13 +1,12 @@
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
-import { target } from '../utils/constants';
+import { Target } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Targets } from '../utils/targets';
 
 /* #region  Multiple results. */
 class ResultsArg {
   id: number;
-  target: target;
+  target: Target;
   isLong: boolean;
   results?: Result[];
 }
@@ -16,7 +15,7 @@ export class Results {
   validator: LazyValidator;
 
   id: number;
-  target: target;
+  target: Target;
   isLong: boolean;
   results?: Result[];
 
@@ -53,7 +52,7 @@ export class Results {
 /* #region  Use schema to check the properties. */
 const ResultsInitArg = new ObjectModel({
   id: Number,
-  target: [Targets.DB, Targets.mem],
+  target: [Target.DB, Target.mem],
   isLong: Boolean,
   rows: ArrayModel(Any),
 });

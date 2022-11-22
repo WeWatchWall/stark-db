@@ -5,7 +5,7 @@ import { WorkerBase } from '../../threads/worker';
 export class Worker extends WorkerBase {
   async init(): Promise<void> {
     // TODO:
-    // Init DataSource: this.target === targets.DB ? this.DB = ...
+    // Init DataSource: this.DB = this.target === targets.DB ? ... : ...
     // Setup Broadcast Channel(s)
     throw new Error("Method not implemented.");
   }
@@ -22,7 +22,7 @@ export class Queue extends QueueBase {
 export class Saver extends SaverBase {
   async init(): Promise<void> {
     // TODO:
-    // Init DataSource: this.target === targets.DB ? this.DB = ...
+    // Init DataSource: this.DB = this.target === targets.DB ? ... : ...
     // Setup Broadcast Channel(s)
     throw new Error("Method not implemented.");
   }
