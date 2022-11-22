@@ -1,25 +1,30 @@
-export enum DBCall {
+export enum QCall {
   init = 'init',
 
-  // Transaction queue thread.
-  resize = 'resize', // Update the number of Broadcast Channels to use.
-  get = 'get', // Get a transaction ID from the queue.
-  add = 'add', // Add to the queue.
+  // Queue: Update the number of Broadcast Channels to use.
+  // Saver: NOOP.
+  resize = 'resize',
 
-  // DB thread.
-  set = 'set', // Update the DB.
-}
+  // Queue: Get a transaction ID through a Broadcast Channel.
+  // Saver: NOOP.
+  get = 'get',
 
-export enum MemCall {
-  init = 'init',
+  // Queue: add a transaction to the queue.
+  // Saver: add a transaction to the DB.
+  add = 'add',
 
-  // Transaction queue thread.
-  resize = 'resize', // Update the number of Broadcast Channels to use.
-  get = 'get', // Get a transaction ID from the queue.
-  add = 'add', // Add to the queue.
+  // Queue: Update the threads with new WAL entries.
+  //   Gets called only internally. Also on outbound messages.
+  // Saver: NOOP.
+  set = 'set',
+  
+  // Queue: Delete from the short WAL.
+  //   Gets called only internally. Also on outbound messages.
+  // Saver: NOOP.
+  del = 'del',
 
-  // DB thread.
-  set = 'set', // Update the DB.
+  // Finish all the transactions and destroy all the resources.
+  destroy = 'destroy',
 }
 
 export enum WorkerCall {

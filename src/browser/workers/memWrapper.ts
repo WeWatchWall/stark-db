@@ -1,22 +1,36 @@
 import Multee from 'multee-browser';
 
-import { MemCall } from '../../utils/threadCalls';
+import { QCall } from '../../utils/threadCalls';
+import { MemSaver } from '../../workers/memSaver';
 
 const multee = Multee();
+
+let instance: MemSaver;
 
 const job = multee.createHandler(
   'job',
   async (callArgs: {
-    name: MemCall,
+    name: QCall,
     args: any[]
   }): Promise<any> => {
     switch (callArgs.name) {
-      case MemCall.init:
-        return;
-      case MemCall.set:
-        return;
-    }
+      case QCall.init:
+        instance = new MemSaver();
+        return await instance.init();
+      
+      // Add is not usually called this way...
+      //   instead, it is called through the Broadcast Channel.
+      //   This is just for testing.
+      case QCall.add:
+        return await instance.add(
+          callArgs.args[0],
+          callArgs.args[1],
+          callArgs.args[2],
+        );
 
+      case QCall.destroy:
+        return await instance.destroy();
+    }
   }
 );
 

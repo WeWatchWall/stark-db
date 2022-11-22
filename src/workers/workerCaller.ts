@@ -1,0 +1,52 @@
+import { Results } from '../objects/results';
+import { target } from '../utils/constants';
+import { WorkerCall } from '../utils/threadCalls';
+import { ICaller, IWorker } from './IThreads';
+
+export class WorkerCallerBase implements ICaller, IWorker {
+  id: number;
+  worker: any;
+
+  constructor(id: number) {
+    this.id = id;
+  }
+
+  async init(): Promise<void> {
+    return await this.worker.run({
+      name: WorkerCall.init,
+      args: []
+    });
+  }
+
+  async run(query: string, args: any[]): Promise<Results> {
+    return await this.worker.run({
+      name: WorkerCall.run,
+      args: [
+        query,
+        args,
+      ]
+    });
+  }
+
+  async pause(id: number, target: target): Promise<void> {
+    return await this.worker.run({
+      name: WorkerCall.pause,
+      args: [
+        id,
+        target,
+      ]
+    });
+  }
+
+  async destroy(): Promise<void> {
+    if (!this.worker) { return; }
+
+    await this.worker.run({
+      name: WorkerCall.stop,
+      args: []
+    });
+
+    await this.worker.worker.terminate();
+    delete this.worker;
+  }
+}
