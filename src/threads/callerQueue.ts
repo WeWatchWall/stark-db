@@ -1,28 +1,33 @@
 import { Results } from '../objects/results';
 import { target } from '../utils/constants';
-import { QCall } from '../utils/threadCalls';
-import { ICaller, IQueue, ISaver } from './IThreads';
+import { PersistCall } from '../utils/threadCalls';
+import { ICaller, IQueue } from './IThreads';
 
-export class MemQCallerBase implements ICaller, IQueue {
+export class QueueCallerBase implements ICaller, IQueue {
+  target: target;
   worker: any;
+
+  constructor(target: target) {
+    this.target = target;
+  }
 
   async init(): Promise<void> {
     await this.worker.run({
-      name: QCall.init,
+      name: PersistCall.init,
       args: []
     });
   }
 
   async resize(size: number): Promise<void> {
     await this.worker.run({
-      name: QCall.resize,
+      name: PersistCall.resize,
       args: [size]
     });
   }
 
   async get(): Promise<number> {
     return await this.worker.run({
-      name: QCall.get,
+      name: PersistCall.get,
       args: []
     });
   }
@@ -33,7 +38,7 @@ export class MemQCallerBase implements ICaller, IQueue {
     results: Results,
   ): Promise<void> {
     await this.worker.run({
-      name: QCall.add,
+      name: PersistCall.add,
       args: [
         id,
         target,
@@ -48,7 +53,7 @@ export class MemQCallerBase implements ICaller, IQueue {
     results: Results,
   ): Promise<void> {
     await this.worker.run({
-      name: QCall.set,
+      name: PersistCall.set,
       args: [
         id,
         target,
@@ -62,7 +67,7 @@ export class MemQCallerBase implements ICaller, IQueue {
     target: target,
   ): Promise<void> {
     await this.worker.run({
-      name: QCall.del,
+      name: PersistCall.del,
       args: [
         id,
         target,
@@ -74,45 +79,7 @@ export class MemQCallerBase implements ICaller, IQueue {
     if (!this.worker) { return; }
 
     await this.worker.run({
-      name: QCall.destroy,
-      args: []
-    });
-
-    await this.worker.worker.terminate();
-    delete this.worker;
-  }
-}
-
-export class MemSaverCallerBase implements ICaller, ISaver {
-  worker: any;
-
-  async init(): Promise<void> {
-    await this.worker.run({
-      name: QCall.init,
-      args: []
-    });
-  }
-
-  async add(
-    id: number,
-    target: target,
-    results: Results
-  ): Promise<void> {
-    await this.worker.run({
-      name: QCall.add,
-      args: [
-        id,
-        target,
-        results,
-      ]
-    });
-  }
-
-  async destroy(): Promise<void> {
-    if (!this.worker) { return; }
-
-    await this.worker.run({
-      name: QCall.destroy,
+      name: PersistCall.destroy,
       args: []
     });
 

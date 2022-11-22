@@ -1,3 +1,5 @@
+import { Targets } from "./targets";
+
 export const ZERO = 0;
 export const ONE = 1;
 
@@ -11,7 +13,7 @@ export const ADMIN_USER = 'system';
 
 export const LONG_COMMIT_DEFAULT = 200;
 
-export type target = 'DB' | 'mem';
+export type target = Targets.DB | Targets.mem;
 
 export const WORKER_CHANNEL_PREFIX = 'stark-worker-';
 export const MEMORY_CHANNEL = 'stark-memory';

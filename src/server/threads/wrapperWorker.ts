@@ -1,7 +1,7 @@
 import Multee from 'multee';
 
 import { WorkerCall } from '../../utils/threadCalls';
-import { Worker } from '../../workers/worker';
+import { Worker } from './threads';
 
 const multee = Multee('worker');
 
@@ -15,7 +15,7 @@ const job = multee.createHandler(
   }): Promise<any> => {
     switch (callArgs.name) {
       case WorkerCall.init:
-        instance = new Worker();
+        instance = new Worker(callArgs.args[0]);
         return await instance.init();
       case WorkerCall.run:
         return await instance.run(
@@ -38,7 +38,7 @@ const job = multee.createHandler(
   }
 );
 
-export const workerInit = () => {
+export function workerInit() {
   const worker = multee.start(__filename);
   return {
     run: job(worker),

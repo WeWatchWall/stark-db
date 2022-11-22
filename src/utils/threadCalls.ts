@@ -1,4 +1,4 @@
-export enum QCall {
+export enum PersistCall {
   init = 'init',
 
   // Queue: Update the number of Broadcast Channels to use.

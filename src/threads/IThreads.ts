@@ -1,3 +1,4 @@
+import { DataSource } from 'typeorm';
 import { Results } from '../objects/results';
 import { target } from '../utils/constants';
 
@@ -10,7 +11,13 @@ export interface IThread {
   destroy(): Promise<void>;
 }
 
+export interface IEngine {
+  DB: DataSource;
+}
+
 export interface IQueue extends IThread {
+  target: target;
+ 
   resize(size: number): Promise<void>;
   get(): Promise<number>;
   add(id: number, target: target, results: Results): Promise<void>;
@@ -19,6 +26,8 @@ export interface IQueue extends IThread {
 }
 
 export interface ISaver extends IThread {
+  target: target;
+
   add(id: number, target: target, results: Results): Promise<void>;
 }
 

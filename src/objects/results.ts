@@ -1,14 +1,15 @@
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
-import { target } from '../utils/constants';
 
+import { target } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
+import { Targets } from '../utils/targets';
 
 /* #region  Multiple results. */
 class ResultsArg {
   id: number;
   target: target;
   isLong: boolean;
-  results: Result[];
+  results?: Result[];
 }
 
 export class Results {
@@ -17,7 +18,7 @@ export class Results {
   id: number;
   target: target;
   isLong: boolean;
-  results: Result[];
+  results?: Result[];
 
   /**
    * Creates an instance of a SQL results.
@@ -52,7 +53,7 @@ export class Results {
 /* #region  Use schema to check the properties. */
 const ResultsInitArg = new ObjectModel({
   id: Number,
-  target: ['DB', 'mem'],
+  target: [Targets.DB, Targets.mem],
   isLong: Boolean,
   rows: ArrayModel(Any),
 });

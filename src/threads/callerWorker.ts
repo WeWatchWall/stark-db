@@ -14,7 +14,7 @@ export class WorkerCallerBase implements ICaller, IWorker {
   async init(): Promise<void> {
     return await this.worker.run({
       name: WorkerCall.init,
-      args: []
+      args: [this.id]
     });
   }
 
