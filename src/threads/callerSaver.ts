@@ -14,7 +14,7 @@ export class SaverCallerBase implements ICaller, ISaver {
   async init(): Promise<void> {
     await this.worker.run({
       name: PersistCall.init,
-      args: []
+      args: [this.target]
     });
   }
 
