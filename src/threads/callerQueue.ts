@@ -14,7 +14,7 @@ export class QueueCallerBase implements ICaller, IQueue {
   async init(): Promise<void> {
     await this.worker.run({
       name: PersistCall.init,
-      args: []
+      args: [this.target]
     });
   }
 
