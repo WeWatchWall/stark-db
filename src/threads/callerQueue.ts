@@ -36,44 +36,34 @@ export class QueueCallerBase implements ICaller, IQueue {
   }
 
   async add(
-    id: number,
-    target: Target,
     results: Results,
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.add,
       args: [
-        id,
-        target,
-        results,
+        results.toObject(),
       ]
     });
   }
 
   async set(
-    id: number,
-    target: Target,
     results: Results,
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.set,
       args: [
-        id,
-        target,
-        results,
+        results.toObject(),
       ]
     });
   }
 
   async del(
-    id: number,
-    target: Target,
+    IDs: number[],
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.del,
       args: [
-        id,
-        target,
+        IDs,
       ]
     });
   }

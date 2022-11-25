@@ -21,15 +21,15 @@ export abstract class QueueBase implements IQueue {
     throw new Error("Method not implemented.");
   }
 
-  async add(_id: number, _target: Target, _results: Results): Promise<void> {
+  async add(_results: Results): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async set(_id: number, _target: Target, _results: Results): Promise<void> {
+  async set(_results: Results): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async del(_id: number, _target: Target): Promise<void> {
+  async del(_IDs: number[]): Promise<void> {
     throw new Error("Method not implemented.");
   }
 

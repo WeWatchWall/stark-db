@@ -22,16 +22,12 @@ export class SaverCallerBase implements ICaller, ISaver {
   }
 
   async add(
-    id: number,
-    target: Target,
     results: Results
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.add,
       args: [
-        id,
-        target,
-        results,
+        results.toObject(),
       ]
     });
   }

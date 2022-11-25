@@ -27,8 +27,6 @@ const job = multee.createHandler(
       case PersistCall.add:
         return await instance.add(
           callArgs.args[0],
-          callArgs.args[1],
-          callArgs.args[2],
         );
 
       case PersistCall.destroy:

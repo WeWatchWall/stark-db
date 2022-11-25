@@ -1,4 +1,5 @@
 import Multee from 'multee';
+import { Results } from '../../objects/results';
 
 import { PersistCall } from '../../utils/threadCalls';
 import { Queue } from './threads';
@@ -30,9 +31,7 @@ const job = multee.createHandler(
         return await instance.get();
       case PersistCall.add:
         return await instance.add(
-          callArgs.args[0],
-          callArgs.args[1],
-          callArgs.args[2],
+          Results.init(callArgs.args[0]),
         );
       
       // These following methods are not called directly or through the
@@ -40,14 +39,11 @@ const job = multee.createHandler(
       //   workers thorugh the BC. This is just for testing.
       case PersistCall.set:
         return await instance.set(
-          callArgs.args[0],
-          callArgs.args[1],
-          callArgs.args[2],
+          Results.init(callArgs.args[0]),
         );
       case PersistCall.del:
         return await instance.del(
           callArgs.args[0],
-          callArgs.args[1],
         );
       
       case PersistCall.destroy:

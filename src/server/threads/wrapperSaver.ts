@@ -1,5 +1,6 @@
 import Multee from 'multee';
 
+import { Results } from '../../objects/results';
 import { PersistCall } from '../../utils/threadCalls';
 import { Saver } from './threads';
 
@@ -26,9 +27,7 @@ const job = multee.createHandler(
       //   This is just for testing.
       case PersistCall.add:
         return await instance.add(
-          callArgs.args[0],
-          callArgs.args[1],
-          callArgs.args[2],
+          Results.init(callArgs.args[0]),
         );
 
       case PersistCall.destroy:

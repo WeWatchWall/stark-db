@@ -1,7 +1,15 @@
 import { DataSource } from 'typeorm';
+import { BroadcastChannel } from 'worker_threads';
 
 import { Results } from '../objects/results';
-import { Target } from '../utils/constants';
+import {
+  PARAMETER_TOKEN,
+  STATEMENT_DELIMITER,
+  Target,
+  VALUE_DELIMITER,
+  ZERO
+} from '../utils/constants';
+import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
 
 export abstract class SaverBase implements ISaver, IEngine {
@@ -9,6 +17,7 @@ export abstract class SaverBase implements ISaver, IEngine {
   target: Target;
 
   DB: DataSource;
+  channel: BroadcastChannel;
 
   constructor(name: string, target: Target) {
     this.name = name;
@@ -17,11 +26,60 @@ export abstract class SaverBase implements ISaver, IEngine {
 
   abstract init(): Promise<void>;
 
-  add(_id: number, _target: Target, _results: Results): Promise<void> {
-    throw new Error("Method not implemented.");
+  async add(results: Results): Promise<void> {
+    if (!results.isWrite || results.isLong) { return; }
+
+    for (const result of results.results) {
+      const queryParts: string[] = [
+        `INSERT OR REPLACE INTO ${result.name} VALUES `,
+      ];
+      const queryParams: any[] = [];
+
+      let rowKeys: string[];
+      for (let index = 0; index <result.rows.length; index++) {
+        const row = result.rows[index];
+        if (rowKeys == undefined) { rowKeys = Object.keys(row); }
+        const rowParts: string[] = [];
+
+        for (const key of rowKeys) {
+          rowParts.push(PARAMETER_TOKEN);
+          queryParams.push(row[key]);
+        }
+
+        const rowDelimiter = index === ZERO ? `` : VALUE_DELIMITER;
+        queryParts.push(`${rowDelimiter}(${rowParts.join(VALUE_DELIMITER)})`);
+      }
+
+      queryParts.push(STATEMENT_DELIMITER);
+
+      await this.DB.query(queryParts.join(''), queryParams);
+    }
   }
 
-  destroy(): Promise<void> {
-    throw new Error("Method not implemented.");
+  async destroy(): Promise<void> {
+    if (this.channel == undefined) { return; }
+
+    // Clean up the Broadcast Channel.
+    this.channel.close();
+    delete this.channel;
+
+    // Clean up the DataSource.
+    await this.DB.destroy();
+    delete this.DB;
+  }
+
+  protected async callMethod(event: any): Promise<any> {
+    const { name, args }: {
+      name: PersistCall, args: any[]
+    } = event.data;
+
+    switch (name) {
+      case PersistCall.add:
+        return await this.add(Results.init(args[0]));
+      case PersistCall.destroy:
+        return await this.destroy();
+      default:
+        break;
+    }
   }
 }

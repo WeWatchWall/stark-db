@@ -1,8 +1,13 @@
 export const ZERO = 0;
 export const ONE = 1;
 
-export const DELIMITER = ';';
 export const NEWLINE = '\n';
+export const PARAMETER_TOKEN = '?';
+export const STATEMENT_DELIMITER = ';';
+export const VALUE_DELIMITER = ',';
+
+export const DB_DRIVER = 'sqlite';
+export const MESSAGE_EVENT = 'message';
 
 export const DB_IDENTIFIER = 1663328354;
 
@@ -13,7 +18,6 @@ export const LONG_COMMIT_DEFAULT = 200;
 
 export enum Target { DB = 'DB', mem = 'mem' }
 
-export const WORKER_CHANNEL_PREFIX = 'stark-worker-';
-export const MEMORY_CHANNEL = 'stark-memory';
-export const DB_CHANNEL = 'stark-db';
-export const QUEUE_SUFFIX = '-queue';
+export const WORKER_CHANNEL = 'stark-worker';
+export const QUEUE_CHANNEL = 'stark-queue';
+export const SAVER_CHANNEL = 'stark-saver';

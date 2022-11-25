@@ -31,8 +31,6 @@ const job = multee.createHandler(
       case PersistCall.add:
         return await instance.add(
           callArgs.args[0],
-          callArgs.args[1],
-          callArgs.args[2],
         );
       
       // These following methods are not called directly or through the
@@ -41,13 +39,10 @@ const job = multee.createHandler(
       case PersistCall.set:
         return await instance.set(
           callArgs.args[0],
-          callArgs.args[1],
-          callArgs.args[2],
         );
       case PersistCall.del:
         return await instance.del(
           callArgs.args[0],
-          callArgs.args[1],
         );
       
       case PersistCall.destroy:

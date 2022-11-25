@@ -1,6 +1,6 @@
 import { ArrayModel, ObjectModel } from 'objectmodel';
 
-import { DELIMITER, NEWLINE } from '../utils/constants';
+import { STATEMENT_DELIMITER, NEWLINE } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { ParseType, Statement } from './statement';
@@ -66,9 +66,9 @@ export class Script {
     // Split the script into statements.
     const statements = this
       .script
-      .split(DELIMITER)
+      .split(STATEMENT_DELIMITER)
       .filter((statement) => statement.trim() !== '')
-      .map((statement) => `${ statement.trim() }${ DELIMITER }`);
+      .map((statement) => `${ statement.trim() }${ STATEMENT_DELIMITER }`);
 
     // Parse the script statements.
     this.statements = statements.map((statement: string, index: number) => {
