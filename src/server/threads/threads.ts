@@ -27,9 +27,10 @@ export class Queue extends QueueBase {
 export class Saver extends SaverBase {
   async init(): Promise<void> {
     // Set up the Broadcast Channel.
+    const channelName = `${SAVER_CHANNEL}-${this.target}-${this.name}`;
     this.channel =
-      new BroadcastChannel(`${SAVER_CHANNEL}-${this.target}-${this.name}`);
-    this.channel.onmessage =  (message) => { this.callMethod(message) };
+      new BroadcastChannel(channelName);
+    this.channel.onmessage =  async (message) => this.callMethod(message);
 
     // Connect to the DataSource, based conditionally on target.
     switch (this.target) {

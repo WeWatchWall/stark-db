@@ -94,8 +94,12 @@ export class Results {
   results?: Result[];
 
   static init(obj: ResultsArg): Results {
-    obj.results = obj.results.map((result: ResultArg) => new Result(result));
-    return new Results(obj);
+    if (!obj) { return undefined; }
+
+    // Copy the arguments and parse the results property.
+    const arg = Object.assign({}, obj);
+    arg.results = arg.results?.map((result: ResultArg) => new Result(result));
+    return new Results(arg);
   }
 
   /**
@@ -124,7 +128,7 @@ export class Results {
       isWrite: this.isWrite,
       isLong: this.isLong,
       target: this.target,
-      results: this.results.map((result) => result.toObject()),
+      results: this.results?.map((result) => result.toObject()),
     };
   }
 }

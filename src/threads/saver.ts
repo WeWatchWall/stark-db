@@ -27,7 +27,15 @@ export abstract class SaverBase implements ISaver, IEngine {
   abstract init(): Promise<void>;
 
   async add(results: Results): Promise<void> {
-    if (!results.isWrite || results.isLong) { return; }
+    if (
+      !results ||
+      !results.isWrite ||
+      results.isLong ||
+      !results.results
+    ) {
+      await this.set(results);
+      return;
+    }
 
     for (const result of results.results) {
       const queryParts: string[] = [
@@ -52,8 +60,17 @@ export abstract class SaverBase implements ISaver, IEngine {
 
       queryParts.push(STATEMENT_DELIMITER);
 
-      await this.DB.query(queryParts.join(''), queryParams);
+      await this.DB.query(queryParts.join(``), queryParams);
     }
+
+    await this.set(results);
+  }
+
+  async set(results: Results): Promise<void> {
+    this.channel.postMessage({
+      name: PersistCall.set,
+      args: [results.id]
+    });
   }
 
   async destroy(): Promise<void> {

@@ -15,7 +15,7 @@ export enum PersistCall {
 
   // Queue: Update the threads with new WAL entries.
   //   Gets called only internally. Also on outbound messages.
-  // Saver: NOOP.
+  // Saver: Gets called internally when finished the DB update.
   set = 'set',
   
   // Queue: Delete from the short WAL.
