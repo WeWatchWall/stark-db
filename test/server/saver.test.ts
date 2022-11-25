@@ -165,22 +165,19 @@ describe('Server: Saver - DB Target.', function () {
       try {
         await saver.init();
 
+        // Invoke the saver.add method.
         const results = test.results ? Results.init(test.args) : undefined;
         await saver.add(results);
+
+        // Check the results.
+        for (const testResult of test.results) {
+          const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
+          expect(rows).to.deep.equal(testResult.rows);
+        }
       } catch (err) {
         error = err;
-      }
-      expect(error).to.be.undefined;
-
-      for (const testResult of test.results) {
-        const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
-        expect(rows).to.deep.equal(testResult.rows);
-      }
-
-      try {
+      } finally {
         await saver.destroy();
-      } catch (err) {
-        error = err;
       }
       expect(error).to.be.undefined;
     });
@@ -200,6 +197,7 @@ describe('Server: Saver - DB Target & BC.', function () {
       try {
         await saver.init();
 
+        /* #region  Invoke the saver.add method through the BC. */
         const channelName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;
         BC = new BroadcastChannel(channelName);
 
@@ -224,22 +222,18 @@ describe('Server: Saver - DB Target & BC.', function () {
         });
         const id = await promise.promise;
         expect(id).to.equal(test.id);
+        /* #endregion */
+
+        // Check the results.
+        for (const testResult of test.results) {
+          const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
+          expect(rows).to.deep.equal(testResult.rows);
+        }
       } catch (err) {
         error = err;
       } finally {
         BC.close();
-      }
-      expect(error).to.be.undefined;
-
-      for (const testResult of test.results) {
-        const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
-        expect(rows).to.deep.equal(testResult.rows);
-      }
-
-      try {
         await saver.destroy();
-      } catch (err) {
-        error = err;
       }
       expect(error).to.be.undefined;
     });
