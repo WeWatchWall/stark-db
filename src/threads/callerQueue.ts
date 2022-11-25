@@ -4,17 +4,20 @@ import { PersistCall } from '../utils/threadCalls';
 import { ICaller, IQueue } from './IThreads';
 
 export class QueueCallerBase implements ICaller, IQueue {
+  name: string;
   target: Target;
+
   worker: any;
 
-  constructor(target: Target) {
+  constructor(name: string, target: Target) {
+    this.name = name;
     this.target = target;
   }
 
   async init(): Promise<void> {
     await this.worker.run({
       name: PersistCall.init,
-      args: [this.target]
+      args: [this.name, this.target]
     });
   }
 

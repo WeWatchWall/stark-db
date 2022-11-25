@@ -7,6 +7,8 @@ export interface ICaller {
 }
 
 export interface IThread {
+  name: string;
+
   init(): Promise<void>;
   destroy(): Promise<void>;
 }
@@ -32,6 +34,8 @@ export interface ISaver extends IThread {
 }
 
 export interface IWorker extends IThread {
+  id: number;
+
   run(query: string, args: any[]): Promise<Results>;
   pause(id: number, target: Target): Promise<void>;
 }

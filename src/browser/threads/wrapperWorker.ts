@@ -15,7 +15,10 @@ const job = multee.createHandler(
   }): Promise<any> => {
     switch (callArgs.name) {
       case WorkerCall.init:
-        instance = new Worker(callArgs.args[0]);
+        instance = new Worker(
+          callArgs.args[0],
+          callArgs.args[1],
+        );
         return await instance.init();
       case WorkerCall.run:
         return await instance.run(

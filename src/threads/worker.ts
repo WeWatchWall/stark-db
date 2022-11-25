@@ -5,10 +5,13 @@ import { Target } from '../utils/constants';
 import { IEngine, IWorker } from './IThreads';
 
 export abstract class WorkerBase implements IWorker, IEngine {
+  name: string;
   id: number;
+
   DB: DataSource;
 
-  constructor(id: number) {
+  constructor(name: string, id: number) {
+    this.name = name;
     this.id = id;
   }
 

@@ -5,10 +5,13 @@ import { Target } from '../utils/constants';
 import { IEngine, ISaver } from './IThreads';
 
 export abstract class SaverBase implements ISaver, IEngine {
+  name: string;
   target: Target;
+
   DB: DataSource;
 
-  constructor(target: Target) {
+  constructor(name: string, target: Target) {
+    this.name = name;
     this.target = target;
   }
 

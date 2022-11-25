@@ -15,7 +15,10 @@ const job = multee.createHandler(
   }): Promise<any> => {
     switch (callArgs.name) {
       case PersistCall.init:
-        instance = new Queue(callArgs.args[0]);
+        instance = new Queue(
+          callArgs.args[0],
+          callArgs.args[1],
+        );
         return await instance.init();
 
       // The following methods are not usually called this way...

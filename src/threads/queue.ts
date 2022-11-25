@@ -3,9 +3,11 @@ import { Target } from '../utils/constants';
 import { IQueue } from './IThreads';
 
 export abstract class QueueBase implements IQueue {
+  name: string;
   target: Target;
 
-  constructor(target: Target) {
+  constructor(name: string, target: Target) {
+    this.name = name;
     this.target = target;
   }
 
