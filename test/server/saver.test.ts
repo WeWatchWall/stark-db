@@ -17,43 +17,6 @@ const DB_PATH_FILE = resolve(DB_PATH, DB_FILE);
 const TABLE1 = 'test_data1';
 const TABLE2 = 'test_data2';
 
-const beforeAll = async () => {
-  // Delete the database file if it exists.
-  if (existsSync(DB_PATH_FILE)) {
-    rmSync(DB_PATH_FILE);
-  }
-
-  const userDB = new UserDB({
-    name: DB_FILE,
-    path: DB_PATH,
-  });
-
-  await userDB.validator.readyAsync();
-
-  await userDB.DB.query(
-    `
-      CREATE TABLE IF NOT EXISTS "${TABLE1}"
-      (
-        "id" INTEGER PRIMARY KEY NOT NULL,
-        "value" VARCHAR NOT NULL
-      );
-    `
-  );
-
-  await userDB.DB.query(
-    `
-      CREATE TABLE IF NOT EXISTS "${TABLE2}"
-      (
-        "id" INTEGER PRIMARY KEY NOT NULL,
-        "value" VARCHAR NOT NULL
-      );
-    `
-  );
-
-  await userDB.destroy();
-}
-
-/* #region  File DB Target. */
 const tests = [
   {
     name: 'init',
@@ -153,10 +116,47 @@ const tests = [
   }
 ];
 
+/* #region  File DB Target. */
+const beforeAllDB = async () => {
+  // Delete the database file if it exists.
+  if (existsSync(DB_PATH_FILE)) {
+    rmSync(DB_PATH_FILE);
+  }
+
+  const userDB = new UserDB({
+    name: DB_FILE,
+    path: DB_PATH,
+  });
+
+  await userDB.validator.readyAsync();
+
+  await userDB.DB.query(
+    `
+      CREATE TABLE IF NOT EXISTS "${TABLE1}"
+      (
+        "id" INTEGER PRIMARY KEY NOT NULL,
+        "value" VARCHAR NOT NULL
+      );
+    `
+  );
+
+  await userDB.DB.query(
+    `
+      CREATE TABLE IF NOT EXISTS "${TABLE2}"
+      (
+        "id" INTEGER PRIMARY KEY NOT NULL,
+        "value" VARCHAR NOT NULL
+      );
+    `
+  );
+
+  await userDB.destroy();
+}
+
 describe('Server: Saver - DB Target.', function () {
   // this.timeout(600e3);
 
-  this.beforeAll(beforeAll);
+  this.beforeAll(beforeAllDB);
 
   for (const test of tests) {
     it(`Saver - DB Target: ${test.name}`, async () => {
@@ -187,7 +187,7 @@ describe('Server: Saver - DB Target.', function () {
 describe('Server: Saver - DB Target & BC.', function () {
   // this.timeout(600e3);
 
-  this.beforeAll(beforeAll);
+  this.beforeAll(beforeAllDB);
 
   for (const test of tests) {
     it(`Saver - DB Target & BC: ${test.name}`, async () => {
