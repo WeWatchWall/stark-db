@@ -17,7 +17,7 @@ const DB_PATH_FILE = resolve(DB_PATH, DB_FILE);
 const TABLE1 = 'test_data1';
 const TABLE2 = 'test_data2';
 
-const beforeAll = async () => { 
+const beforeAll = async () => {
   // Delete the database file if it exists.
   if (existsSync(DB_PATH_FILE)) {
     rmSync(DB_PATH_FILE);
@@ -53,6 +53,7 @@ const beforeAll = async () => {
   await userDB.destroy();
 }
 
+/* #region  File DB Target. */
 const tests = [
   {
     name: 'init',
@@ -163,7 +164,7 @@ describe('Server: Saver - DB Target.', function () {
       let error: unknown;
       try {
         await saver.init();
-  
+
         const results = test.results ? Results.init(test.args) : undefined;
         await saver.add(results);
       } catch (err) {
@@ -195,11 +196,12 @@ describe('Server: Saver - DB Target & BC.', function () {
     it(`Saver - DB Target & BC: ${test.name}`, async () => {
       const saver: Saver = new Saver(DB_PATH_FILE, Target.DB);
       let error: unknown;
+      let BC: BroadcastChannel;
       try {
         await saver.init();
 
         const channelName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;
-        const BC: BroadcastChannel = new BroadcastChannel(channelName);
+        BC = new BroadcastChannel(channelName);
 
         const promise = new FlatPromise();
         BC.onmessage = async (event: any) => {
@@ -224,6 +226,8 @@ describe('Server: Saver - DB Target & BC.', function () {
         expect(id).to.equal(test.id);
       } catch (err) {
         error = err;
+      } finally {
+        BC.close();
       }
       expect(error).to.be.undefined;
 
@@ -241,3 +245,4 @@ describe('Server: Saver - DB Target & BC.', function () {
     });
   }
 });
+/* #endregion */
