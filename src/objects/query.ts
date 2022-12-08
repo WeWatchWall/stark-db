@@ -2,12 +2,12 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
 import { LazyValidator } from '../utils/lazyValidator';
 
-export class UpdateArg {
+export class QueryArg {
   query: string;
   params: any[];
 }
 
-export class Update {
+export class Query {
   validator: LazyValidator;
 
   query: string;
@@ -15,9 +15,9 @@ export class Update {
 
   /**
    * Creates an instance of the class.
-   * @param [init] @type {UpdateArg} The initial value.
+   * @param [init] @type {QueryArg} The initial value.
    */
-  constructor(init?: UpdateArg) {
+  constructor(init?: QueryArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
     );
@@ -30,11 +30,11 @@ export class Update {
   }
 
   private validate(): void {
-    new UpdateInitArg(this);
+    new QueryInitArg(this);
   }
 }
 
-const UpdateInitArg = new ObjectModel({
+const QueryInitArg = new ObjectModel({
   query: String,
   params: ArrayModel(Any),
 });

@@ -8,7 +8,7 @@ import {
   ZERO
 } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Update } from './update';
+import { Query } from './query';
 
 /* #region  Single result. */
 class ResultArg {
@@ -72,7 +72,7 @@ export class Result {
     };
   }
 
-  toUpdate(): Update {
+  toUpdate(): Query {
     const queryParts: string[] = [
       `INSERT OR REPLACE INTO ${this.name} VALUES `,
     ];
@@ -95,7 +95,7 @@ export class Result {
 
     queryParts.push(STATEMENT_DELIMITER);
 
-    return new Update({
+    return new Query({
       query: queryParts.join(``),
       params: queryParams,
     });
@@ -183,7 +183,7 @@ export class Results {
     };
   }
 
-  toUpdate(): Update[] {
+  toUpdate(): Query[] {
     return this.results?.map((result) => result.toUpdate());
   }
 }
