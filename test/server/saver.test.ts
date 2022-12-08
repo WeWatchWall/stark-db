@@ -115,43 +115,7 @@ const tests = [
   }
 ];
 
-const beforeAllDB = async () => {
-  // Delete the database file if it exists.
-  if (existsSync(DB_PATH_FILE)) {
-    rmSync(DB_PATH_FILE);
-  }
-
-  const userDB = new UserDB({
-    name: DB_FILE,
-    path: DB_PATH,
-  });
-
-  await userDB.validator.readyAsync();
-
-  await userDB.DB.query(
-    `
-      CREATE TABLE IF NOT EXISTS "${TABLE1}"
-      (
-        "id" INTEGER PRIMARY KEY NOT NULL,
-        "value" VARCHAR NOT NULL
-      );
-    `
-  );
-
-  await userDB.DB.query(
-    `
-      CREATE TABLE IF NOT EXISTS "${TABLE2}"
-      (
-        "id" INTEGER PRIMARY KEY NOT NULL,
-        "value" VARCHAR NOT NULL
-      );
-    `
-  );
-
-  await userDB.destroy();
-}
-
-async function runDBTest(test: any, target: Target) {
+async function runTest(test: any, target: Target) {
   const saver: Saver = new Saver(DB_PATH_FILE, target);
   try {
     await saver.init();
@@ -173,7 +137,7 @@ async function runDBTest(test: any, target: Target) {
   }
 }
 
-async function runTestDBBC(test: any, target: Target) {
+async function runTestBC(test: any, target: Target) {
   const saver: Saver = new Saver(DB_PATH_FILE, target);
   let BC: BroadcastChannel;
   try {
@@ -222,6 +186,42 @@ async function runTestDBBC(test: any, target: Target) {
 }
 
 /* #region  File DB Target. */
+const beforeAllDB = async () => {
+  // Delete the database file if it exists.
+  if (existsSync(DB_PATH_FILE)) {
+    rmSync(DB_PATH_FILE);
+  }
+
+  const userDB = new UserDB({
+    name: DB_FILE,
+    path: DB_PATH,
+  });
+
+  await userDB.validator.readyAsync();
+
+  await userDB.DB.query(
+    `
+      CREATE TABLE IF NOT EXISTS "${TABLE1}"
+      (
+        "id" INTEGER PRIMARY KEY NOT NULL,
+        "value" VARCHAR NOT NULL
+      );
+    `
+  );
+
+  await userDB.DB.query(
+    `
+      CREATE TABLE IF NOT EXISTS "${TABLE2}"
+      (
+        "id" INTEGER PRIMARY KEY NOT NULL,
+        "value" VARCHAR NOT NULL
+      );
+    `
+  );
+
+  await userDB.destroy();
+}
+
 describe('Server: Saver - DB Target.', function () {
   // this.timeout(600e3);
 
@@ -229,7 +229,7 @@ describe('Server: Saver - DB Target.', function () {
 
   for (const test of tests) {
     it(`Saver - DB Target: ${test.name}`, async () => {
-      await runDBTest(test, Target.DB);
+      await runTest(test, Target.DB);
     });
   }
 });
@@ -241,7 +241,7 @@ describe('Server: Saver - DB Target & BC.', function () {
 
   for (const test of tests) {
     it(`Saver - DB Target & BC: ${test.name}`, async () => {
-      await runTestDBBC(test, Target.DB);
+      await runTestBC(test, Target.DB);
     });
   }
 });
@@ -302,7 +302,7 @@ describe('Server: Saver - Mem DB Target.', function () {
 
   for (const test of tests) {
     it(`Saver - DB Target: ${test.name}`, async () => {
-      await runDBTest(test, Target.mem);
+      await runTest(test, Target.mem);
     });
   }
 });
@@ -315,7 +315,7 @@ describe('Server: Saver - Mem DB Target & BC.', function () {
 
   for (const test of tests) {
     it(`Saver - DB Target & BC: ${test.name}`, async () => {
-      await runTestDBBC(test, Target.mem);
+      await runTestBC(test, Target.mem);
     });
   }
 });

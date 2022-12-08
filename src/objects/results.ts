@@ -117,7 +117,7 @@ class ResultsArg {
   target: Target;
   isWrite: boolean;
   isLong: boolean;
-  results: Result[] | ResultArg[];
+  results?: Result[] | ResultArg[];
 }
 
 export class Results {
@@ -169,7 +169,7 @@ export class Results {
       isWrite: this.isWrite,
       isLong: this.isLong,
       target: this.target,
-      results: this.results?.map((result) => result.toIDObject()) || [],
+      results: this.results.map((result) => result.toIDObject()),
     };
   }
 
@@ -179,12 +179,12 @@ export class Results {
       isWrite: this.isWrite,
       isLong: this.isLong,
       target: this.target,
-      results: this.results?.map((result) => result.toObject()) || [],
+      results: this.results?.map((result) => result.toObject()),
     };
   }
 
   toUpdate(): Update[] {
-    return this.results?.map((result) => result.toUpdate()) || [];
+    return this.results?.map((result) => result.toUpdate());
   }
 }
 
