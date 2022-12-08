@@ -14,6 +14,8 @@ import { Query } from './query';
 class ResultArg {
   name: string;
   keys: string[];
+
+  isLongQuery: boolean;
   rows: any[];
 }
 
@@ -22,6 +24,8 @@ export class Result {
 
   name: string;
   keys: string[];
+
+  isLongQuery: boolean;
   rows: any[];
 
   /**
@@ -60,6 +64,8 @@ export class Result {
     return {
       name: this.name,
       keys: this.keys,
+
+      isLongQuery: this.isLongQuery,
       rows: rows,
     };
   }
@@ -68,6 +74,8 @@ export class Result {
     return {
       name: this.name,
       keys: this.keys,
+
+      isLongQuery: this.isLongQuery,
       rows: this.rows,
     };
   }
@@ -106,6 +114,8 @@ export class Result {
 const ResultInitArg = new ObjectModel({
   name: String,
   keys: ArrayModel(String),
+
+  isLongQuery: Boolean,
   rows: ArrayModel(Any),
 });
 /* #endregion */
@@ -115,8 +125,10 @@ const ResultInitArg = new ObjectModel({
 class ResultsArg {
   id: number;
   target: Target;
+
   isWrite: boolean;
   isLong: boolean;
+  isLongQuery: boolean;
   results?: Result[] | ResultArg[];
 }
 
@@ -125,8 +137,10 @@ export class Results {
 
   id: number;
   target: Target;
+
   isWrite: boolean;
   isLong: boolean;
+  isLongQuery: boolean;
   results: Result[];
 
   static init(obj: ResultsArg): Results {
@@ -139,6 +153,15 @@ export class Results {
         .results
         ?.map((result: ResultArg) => new Result(result))
       || [];
+
+    // Check if any of the results are long queries.
+    arg.isLongQuery = false;
+    for (const result of arg.results) {
+      if (result.isLongQuery) {
+        arg.isLongQuery = true;
+        break;
+      }
+    }
 
     return new Results(arg);
   }
@@ -167,8 +190,10 @@ export class Results {
     return {
       id: this.id,
       isWrite: this.isWrite,
-      isLong: this.isLong,
       target: this.target,
+
+      isLong: this.isLong,
+      isLongQuery: this.isLongQuery,
       results: this.results.map((result) => result.toIDObject()),
     };
   }
@@ -177,14 +202,17 @@ export class Results {
     return {
       id: this.id,
       isWrite: this.isWrite,
-      isLong: this.isLong,
       target: this.target,
-      results: this.results?.map((result) => result.toObject()),
+
+      
+      isLong: this.isLong,
+      isLongQuery: this.isLongQuery,
+      results: this.results.map((result) => result.toObject()),
     };
   }
 
   toUpdate(): Query[] {
-    return this.results?.map((result) => result.toUpdate());
+    return this.results.map((result) => result.toUpdate());
   }
 }
 
@@ -192,8 +220,10 @@ export class Results {
 const ResultsInitArg = new ObjectModel({
   id: Number,
   target: [Target.DB, Target.mem],
+
   isWrite: Boolean,
   isLong: Boolean,
+  isLongQuery: Boolean,
   results: [ArrayModel(Result), ArrayModel(ResultArg)],
 });
 /* #endregion */

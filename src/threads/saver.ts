@@ -5,6 +5,7 @@ import { Results } from '../objects/results';
 import { Target, ZERO } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
+import { Commit } from '../entity/commit';
 
 export abstract class SaverBase implements ISaver, IEngine {
   name: string;
@@ -25,8 +26,10 @@ export abstract class SaverBase implements ISaver, IEngine {
       !results ||
       !results.isWrite ||
       results.isLong ||
+      results.isLongQuery ||
       results.results.length === ZERO
     ) {
+      await this.addCommit(results);
       await this.set(results);
       return;
     }
@@ -37,8 +40,25 @@ export abstract class SaverBase implements ISaver, IEngine {
       await this.DB.query(update.query, update.params);
     }
     this.DB.query(`COMMIT TRANSACTION;`);
+    // TODO: This isn't atomic!
+    await this.addCommit(results);
 
     await this.set(results);
+  }
+
+  private async addCommit(results: Results): Promise<void> {
+    if (!results) { return; }
+
+    // Save the transaction to the database.
+    if (this.target === Target.DB) {
+      const commit = new Commit({
+        id: results.id,
+        isLong: results.isLong,
+        isLongQuery: results.isLongQuery,
+      });
+
+      await this.DB.manager.save(commit);
+    }
   }
 
   async set(results: Results): Promise<void> {

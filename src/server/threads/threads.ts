@@ -2,6 +2,7 @@ import sqlite3 from 'sqlite3';
 import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
+import { Commit } from '../../entity/commit';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
@@ -39,9 +40,9 @@ export class Saver extends SaverBase {
           type: DB_DRIVER,
           database: this.name,
           cache: true,
-          synchronize: false,
+          synchronize: true, // TODO: should this be disabled?
           logging: false,
-          entities: [],
+          entities: [Commit],
           migrations: [],
           subscribers: [],
         });
@@ -57,9 +58,9 @@ export class Saver extends SaverBase {
             sqlite3.OPEN_READWRITE |
             sqlite3.OPEN_CREATE,
           cache: true,
-          synchronize: false,
+          synchronize: true, // TODO: should this be disabled?
           logging: false,
-          entities: [],
+          entities: [Commit],
           migrations: [],
           subscribers: [],
         });

@@ -41,6 +41,7 @@ const tests = [
         {
           name: TABLE1,
           keys: ['id'],
+          isLongQuery: false,
           rows: [
             { id: 1, value: 'test1' },
             { id: 2, value: 'test2' },
@@ -48,6 +49,7 @@ const tests = [
         }, {
           name: TABLE2,
           keys: ['id'],
+          isLongQuery: false,
           rows: [
             { id: 1, value: 'test3' },
             { id: 2, value: 'test4' },
@@ -81,6 +83,7 @@ const tests = [
         {
           name: TABLE1,
           keys: ['id'],
+          isLongQuery: false,
           rows: [
             { id: 1, value: 'test5' },
             { id: 2, value: 'test6' },
@@ -88,6 +91,7 @@ const tests = [
         }, {
           name: TABLE2,
           keys: ['id'],
+          isLongQuery: false,
           rows: [
             { id: 3, value: 'test7' },
             { id: 4, value: 'test8' },

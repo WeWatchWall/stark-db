@@ -2,7 +2,7 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
 import { LazyValidator } from '../utils/lazyValidator';
 
-export class QueryArg {
+class QueryArg {
   query: string;
   params: any[];
 }
@@ -31,6 +31,13 @@ export class Query {
 
   private validate(): void {
     new QueryInitArg(this);
+  }
+
+  toObject(): QueryArg {
+    return {
+      query: this.query,
+      params: this.params,
+    };
   }
 }
 
