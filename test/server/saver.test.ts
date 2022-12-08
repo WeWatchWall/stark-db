@@ -1,13 +1,15 @@
 import { expect } from 'chai';
-import { existsSync, rmSync } from 'fs';
 import FlatPromise from 'flat-promise';
+import { existsSync, rmSync } from 'fs';
 import { resolve } from 'path';
+import sqlite3 from 'sqlite3';
+import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Results } from '../../src/objects/results';
 import { UserDB } from '../../src/server/objects/DBUser';
 import { Saver } from '../../src/server/threads/threads';
-import { SAVER_CHANNEL, Target } from '../../src/utils/constants';
+import { DB_DRIVER, SAVER_CHANNEL, Target } from '../../src/utils/constants';
 import { PersistCall } from '../../src/utils/threadCalls';
 
 const DB_PATH = './test';
@@ -240,6 +242,80 @@ describe('Server: Saver - DB Target & BC.', function () {
   for (const test of tests) {
     it(`Saver - DB Target & BC: ${test.name}`, async () => {
       await runTestDBBC(test, Target.DB);
+    });
+  }
+});
+/* #endregion */
+
+/* #region  Memory DB Target. */
+let memDB: DataSource;
+
+const beforeAllMem = async () => {
+  memDB = new DataSource({
+    type: DB_DRIVER,
+    database: `file:${DB_PATH_FILE}?mode=memory`,
+    flags:
+      sqlite3.OPEN_URI |
+      sqlite3.OPEN_SHAREDCACHE |
+      sqlite3.OPEN_READWRITE |
+      sqlite3.OPEN_CREATE,
+    cache: true,
+    synchronize: false,
+    logging: false,
+    entities: [],
+    migrations: [],
+    subscribers: [],
+  });
+
+  await memDB.initialize();
+  
+  await memDB.query(
+    `
+      CREATE TABLE IF NOT EXISTS "${TABLE1}"
+      (
+        "id" INTEGER PRIMARY KEY NOT NULL,
+        "value" VARCHAR NOT NULL
+      );
+    `
+  );
+
+  await memDB.query(
+    `
+      CREATE TABLE IF NOT EXISTS "${TABLE2}"
+      (
+        "id" INTEGER PRIMARY KEY NOT NULL,
+        "value" VARCHAR NOT NULL
+      );
+    `
+  );
+};
+
+const afterAllMem = async () => {
+  await memDB.destroy();
+};
+
+describe('Server: Saver - Mem DB Target.', function () {
+  // this.timeout(600e3);
+
+  this.beforeAll(beforeAllMem);
+  this.afterAll(afterAllMem);
+
+  for (const test of tests) {
+    it(`Saver - DB Target: ${test.name}`, async () => {
+      await runDBTest(test, Target.mem);
+    });
+  }
+});
+
+describe('Server: Saver - Mem DB Target & BC.', function () {
+  // this.timeout(600e3);
+
+  this.beforeAll(beforeAllMem);
+  this.afterAll(afterAllMem);
+
+  for (const test of tests) {
+    it(`Saver - DB Target & BC: ${test.name}`, async () => {
+      await runTestDBBC(test, Target.mem);
     });
   }
 });

@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Results } from '../objects/results';
-import { Target } from '../utils/constants';
+import { Target, ZERO } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
 
@@ -25,13 +25,14 @@ export abstract class SaverBase implements ISaver, IEngine {
       !results ||
       !results.isWrite ||
       results.isLong ||
-      !results.results
+      results.results.length === ZERO
     ) {
       await this.set(results);
       return;
     }
 
     for (const update of results.toUpdate()) {
+      if (update.params.length == ZERO) { continue; }
       await this.DB.query(update.query, update.params);
     }
 
