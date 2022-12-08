@@ -33,14 +33,20 @@ describe('Server: DB Manager.', function () {
   });
 
   it(`Init`, async () => {
-    const dbManager = await DatabaseManager.init({
-      path: DB_PATH,
-    });
-
-    // Optional because it is already called and is idemnpotent.
-    await dbManager.validator.readyAsync();
-
-    expect(DatabaseManagerBase.adminDB).to.not.be.equal(undefined);
+    let dbManager: DatabaseManager;
+    
+    try {
+	    dbManager = await DatabaseManager.init({
+	      path: DB_PATH,
+	    });
+	
+	    // Optional because it is already called and is idemnpotent.
+	    await dbManager.validator.readyAsync();
+	
+	    expect(DatabaseManagerBase.adminDB).to.not.be.equal(undefined);
+    } finally {
+      await dbManager.destroy();
+    }
   });
 
   it(`Destroy`, async () => {
@@ -56,79 +62,91 @@ describe('Server: DB Manager.', function () {
 
   /* #region  Add tests. */
   it(`Add`, async () => {
-    const dbManager = await DatabaseManager.init({
-      path: DB_PATH,
-    });
+    let dbManager: DatabaseManager;
 
-    const numDBsPre = await DatabaseManagerBase
-      .adminDB
-      .DB
-      .manager
-      .count(Database);
-
-    expect(numDBsPre).to.be.equal(1);
-
-    const newDB = await dbManager.add({
-      name: DB_FILE,
-    });
-
-    expect(newDB.id).to.be.equal(2);
-    expect(newDB.userDB).to.not.be.undefined;
-
-    await newDB.userDB.destroy();
-
-    const numDBsPost = await DatabaseManagerBase
-      .adminDB
-      .DB
-      .manager
-      .count(Database);
-
-    expect(numDBsPost).to.be.equal(numDBsPre + 1);
-
-    const DB = await DatabaseManagerBase
-      .adminDB
-      .DB
-      .manager
-      .findOneBy(Database, {
-        id: 2,
-        name: DB_FILE,
-      });
-
-    expect(DB).to.be.deep.equal({
-      id: 2,
-      name: DB_FILE,
-      path: DB_PATH,
-    });
+    try {
+	    dbManager = await DatabaseManager.init({
+	      path: DB_PATH,
+	    });
+	
+	    const numDBsPre = await DatabaseManagerBase
+	      .adminDB
+	      .DB
+	      .manager
+	      .count(Database);
+	
+	    expect(numDBsPre).to.be.equal(1);
+	
+	    const newDB = await dbManager.add({
+	      name: DB_FILE,
+	    });
+	
+	    expect(newDB.id).to.be.equal(2);
+	    expect(newDB.userDB).to.not.be.undefined;
+	
+	    await newDB.userDB.destroy();
+	
+	    const numDBsPost = await DatabaseManagerBase
+	      .adminDB
+	      .DB
+	      .manager
+	      .count(Database);
+	
+	    expect(numDBsPost).to.be.equal(numDBsPre + 1);
+	
+	    const DB = await DatabaseManagerBase
+	      .adminDB
+	      .DB
+	      .manager
+	      .findOneBy(Database, {
+	        id: 2,
+	        name: DB_FILE,
+	      });
+	
+	    expect(DB).to.be.deep.equal({
+	      id: 2,
+	      name: DB_FILE,
+	      path: DB_PATH,
+	    });
+    } finally {
+      await dbManager.destroy();
+    }
   });
 
   it(`Add: duplicate fail`, async () => {
-    const dbManager = await DatabaseManager.init({
-      path: DB_PATH,
-    });
-
-    const numDBsPre = await DatabaseManagerBase
-      .adminDB
-      .DB
-      .manager
-      .count(Database);
-
-    let error: any;
+    let dbManager: DatabaseManager;
+    
     try {
-      await dbManager.add({
-        name: DB_FILE,
-      });
-    } catch (err) {
-      error = err;
+	    dbManager = await DatabaseManager.init({
+	      path: DB_PATH,
+	    });
+	
+	    const numDBsPre = await DatabaseManagerBase
+	      .adminDB
+	      .DB
+	      .manager
+	      .count(Database);
+	
+	    let error: any;
+	    try {
+	      await dbManager.add({
+	        name: DB_FILE,
+	      });
+	    } catch (err) {
+	      error = err;
+	    }
+	    expect(error).to.not.be.equal(undefined);
+	
+	    const numDBsPost = await DatabaseManagerBase
+	      .adminDB
+	      .DB
+	      .manager
+	      .count(Database);
+	
+	    expect(numDBsPost).to.be.equal(numDBsPre);
+    } finally {
+      await dbManager.destroy();
     }
-    expect(error).to.not.be.equal(undefined);
-
-    const numDBsPost = await DatabaseManagerBase
-      .adminDB
-      .DB
-      .manager
-      .count(Database);
-
-    expect(numDBsPost).to.be.equal(numDBsPre);
   });
 
   it(`Add: id fail`, async () => {

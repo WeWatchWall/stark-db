@@ -28,15 +28,19 @@ describe('Server: User DB.', function () {
       path: DB_PATH,
     });
 
-    await userDB.validator.readyAsync();
+    try {
+      await userDB.validator.readyAsync();
 
-    const vars = await userDB
-      .DB
-      .manager
-      .find(Variable);
-    
-    expect(vars.length).to.be.greaterThan(1);
-    global.numVars = vars.length;
+      const vars = await userDB
+        .DB
+        .manager
+        .find(Variable);
+      
+      expect(vars.length).to.be.greaterThan(1);
+      global.numVars = vars.length;
+    } finally {
+      await userDB.destroy();
+    }
   });
 
   it(`User DB: double init`, async () => {
@@ -45,13 +49,17 @@ describe('Server: User DB.', function () {
       path: DB_PATH,
     });
 
-    await userDB.validator.readyAsync();
+    try {
+      await userDB.validator.readyAsync();
 
-    const vars = await userDB
-      .DB
-      .manager
-      .find(Variable);
-    
-    expect(vars.length).to.be.equal(global.numVars);
+      const vars = await userDB
+        .DB
+        .manager
+        .find(Variable);
+      
+      expect(vars.length).to.be.equal(global.numVars);
+    } finally {
+      await userDB.destroy();
+    }
   });
 });

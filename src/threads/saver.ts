@@ -2,13 +2,7 @@ import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Results } from '../objects/results';
-import {
-  PARAMETER_TOKEN,
-  STATEMENT_DELIMITER,
-  Target,
-  VALUE_DELIMITER,
-  ZERO
-} from '../utils/constants';
+import { Target } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
 
@@ -37,30 +31,8 @@ export abstract class SaverBase implements ISaver, IEngine {
       return;
     }
 
-    for (const result of results.results) {
-      const queryParts: string[] = [
-        `INSERT OR REPLACE INTO ${result.name} VALUES `,
-      ];
-      const queryParams: any[] = [];
-
-      let rowKeys: string[];
-      for (let index = 0; index <result.rows.length; index++) {
-        const row = result.rows[index];
-        if (rowKeys == undefined) { rowKeys = Object.keys(row); }
-        const rowParts: string[] = [];
-
-        for (const key of rowKeys) {
-          rowParts.push(PARAMETER_TOKEN);
-          queryParams.push(row[key]);
-        }
-
-        const rowDelimiter = index === ZERO ? `` : VALUE_DELIMITER;
-        queryParts.push(`${rowDelimiter}(${rowParts.join(VALUE_DELIMITER)})`);
-      }
-
-      queryParts.push(STATEMENT_DELIMITER);
-
-      await this.DB.query(queryParts.join(``), queryParams);
+    for (const update of results.toUpdate()) {
+      await this.DB.query(update.query, update.params);
     }
 
     await this.set(results);

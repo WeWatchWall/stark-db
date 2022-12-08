@@ -23,7 +23,6 @@ const tests = [
     id: 1,
     args: {
       id: 1,
-      target: Target.DB,
       isWrite: true,
       isLong: false,
       results: undefined
@@ -34,7 +33,6 @@ const tests = [
     id: 2,
     args: {
       id: 2,
-      target: Target.DB,
       isWrite: true,
       isLong: false,
       results: [
@@ -75,7 +73,6 @@ const tests = [
     id: 2,
     args: {
       id: 2,
-      target: Target.DB,
       isWrite: true,
       isLong: false,
       results: [
@@ -116,7 +113,6 @@ const tests = [
   }
 ];
 
-/* #region  File DB Target. */
 const beforeAllDB = async () => {
   // Delete the database file if it exists.
   if (existsSync(DB_PATH_FILE)) {
@@ -153,6 +149,77 @@ const beforeAllDB = async () => {
   await userDB.destroy();
 }
 
+async function runDBTest(test: any, target: Target) {
+  const saver: Saver = new Saver(DB_PATH_FILE, target);
+  try {
+    await saver.init();
+
+    // Invoke the saver.add method.
+    const args = Object.assign({}, test.args);
+    args.target = target;
+
+    const results = test.results ? Results.init(args) : undefined;
+    await saver.add(results);
+
+    // Check the results.
+    for (const testResult of test.results) {
+      const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
+      expect(rows).to.deep.equal(testResult.rows);
+    }
+  } finally {
+    await saver.destroy();
+  }
+}
+
+async function runTestDBBC(test: any, target: Target) {
+  const saver: Saver = new Saver(DB_PATH_FILE, target);
+  let BC: BroadcastChannel;
+  try {
+    await saver.init();
+
+    /* #region  Invoke the saver.add method through the BC. */
+    const channelName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;
+    BC = new BroadcastChannel(channelName);
+
+    const promise = new FlatPromise();
+    BC.onmessage = async (event: any) => {
+      const { name, args }: {
+        name: string;
+        args: [number];
+      } = event.data;
+
+      if (name === PersistCall.set) {
+        const [id] = args;
+        promise.resolve(id);
+      } else {
+        promise.reject();
+      }
+    };
+
+    const args = Object.assign({}, test.args);
+    args.target = target;
+
+    BC.postMessage({
+      name: PersistCall.add,
+      args: [args]
+    });
+
+    const id = await promise.promise;
+    expect(id).to.equal(test.id);
+    /* #endregion */
+
+    // Check the results.
+    for (const testResult of test.results) {
+      const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
+      expect(rows).to.deep.equal(testResult.rows);
+    }
+  } finally {
+    BC.close();
+    await saver.destroy();
+  }
+}
+
+/* #region  File DB Target. */
 describe('Server: Saver - DB Target.', function () {
   // this.timeout(600e3);
 
@@ -160,26 +227,7 @@ describe('Server: Saver - DB Target.', function () {
 
   for (const test of tests) {
     it(`Saver - DB Target: ${test.name}`, async () => {
-      const saver: Saver = new Saver(DB_PATH_FILE, Target.DB);
-      let error: unknown;
-      try {
-        await saver.init();
-
-        // Invoke the saver.add method.
-        const results = test.results ? Results.init(test.args) : undefined;
-        await saver.add(results);
-
-        // Check the results.
-        for (const testResult of test.results) {
-          const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
-          expect(rows).to.deep.equal(testResult.rows);
-        }
-      } catch (err) {
-        error = err;
-      } finally {
-        await saver.destroy();
-      }
-      expect(error).to.be.undefined;
+      await runDBTest(test, Target.DB);
     });
   }
 });
@@ -191,51 +239,7 @@ describe('Server: Saver - DB Target & BC.', function () {
 
   for (const test of tests) {
     it(`Saver - DB Target & BC: ${test.name}`, async () => {
-      const saver: Saver = new Saver(DB_PATH_FILE, Target.DB);
-      let error: unknown;
-      let BC: BroadcastChannel;
-      try {
-        await saver.init();
-
-        /* #region  Invoke the saver.add method through the BC. */
-        const channelName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;
-        BC = new BroadcastChannel(channelName);
-
-        const promise = new FlatPromise();
-        BC.onmessage = async (event: any) => {
-          const { name, args }: {
-            name: string,
-            args: [number]
-          } = event.data;
-
-          if (name === PersistCall.set) {
-            const [id] = args;
-            promise.resolve(id);
-          } else {
-            promise.reject();
-          }
-        };
-
-        BC.postMessage({
-          name: PersistCall.add,
-          args: [test.args]
-        });
-        const id = await promise.promise;
-        expect(id).to.equal(test.id);
-        /* #endregion */
-
-        // Check the results.
-        for (const testResult of test.results) {
-          const rows = await saver.DB.query(`SELECT * FROM "${testResult.name}"`);
-          expect(rows).to.deep.equal(testResult.rows);
-        }
-      } catch (err) {
-        error = err;
-      } finally {
-        BC.close();
-        await saver.destroy();
-      }
-      expect(error).to.be.undefined;
+      await runTestDBBC(test, Target.DB);
     });
   }
 });

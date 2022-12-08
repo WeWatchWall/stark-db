@@ -24,60 +24,72 @@ describe('Server: Admin DB.', function () {
 
   it(`Admin DB: init`, async () => {
     // Create the admin database.
-    const adminDB = new AdminDB({
-      name: ADMIN_DB_TEST,
-      path: DB_PATH,
-    });
-    await adminDB.validator.readyAsync();
-
-    // Check the user exists in the table.
-    const users = await adminDB
-      .DB
-      .manager
-      .findBy(User, { userName: ADMIN_USER });
-    expect(users.length).to.be.equal(1);
-    const user = users[0];
-    expect(user).to.be.deep.equal({
-      id: 1,
-      userName: ADMIN_USER,
-      password: '',
-      salt: '',
-    });
-
-    // Check the database exists in the table.
-    const DBs = await adminDB
-      .DB
-      .manager
-      .findBy(Database, { name: ADMIN_DB_TEST });
-    expect(DBs.length).to.be.equal(1);
-    const DB = DBs[0];
-    expect(DB).to.be.deep.equal({
-      id: 1,
-      name: ADMIN_DB_TEST,
-      path: DB_PATH,
-    });
+    let adminDB: AdminDB;
+    
+    try {
+	    adminDB = new AdminDB({
+	      name: ADMIN_DB_TEST,
+	      path: DB_PATH,
+	    });
+	    await adminDB.validator.readyAsync();
+	
+	    // Check the user exists in the table.
+	    const users = await adminDB
+	      .DB
+	      .manager
+	      .findBy(User, { userName: ADMIN_USER });
+	    expect(users.length).to.be.equal(1);
+	    const user = users[0];
+	    expect(user).to.be.deep.equal({
+	      id: 1,
+	      userName: ADMIN_USER,
+	      password: '',
+	      salt: '',
+	    });
+	
+	    // Check the database exists in the table.
+	    const DBs = await adminDB
+	      .DB
+	      .manager
+	      .findBy(Database, { name: ADMIN_DB_TEST });
+	    expect(DBs.length).to.be.equal(1);
+	    const DB = DBs[0];
+	    expect(DB).to.be.deep.equal({
+	      id: 1,
+	      name: ADMIN_DB_TEST,
+	      path: DB_PATH,
+	    });
+    } finally {
+      await adminDB.destroy();
+    }
   });
 
   it(`Admin DB: double init`, async () => {
     // Create the admin database.
-    const adminDB = new AdminDB({
-      name: ADMIN_DB_TEST,
-      path: DB_PATH,
-    });
-    await adminDB.validator.readyAsync();
-
-    // Check the user is the only one in the table.
-    const users = await adminDB
-      .DB
-      .manager
-      .findBy(User, { userName: ADMIN_USER });
-    expect(users.length).to.be.equal(1);
-
-    // Check the database is the only one in the table.
-    const DBs = await adminDB
-      .DB
-      .manager
-      .findBy(Database, { name: ADMIN_DB_TEST });
-    expect(DBs.length).to.be.equal(1);
+    let adminDB: AdminDB;
+    
+   try {
+	    adminDB = new AdminDB({
+	      name: ADMIN_DB_TEST,
+	      path: DB_PATH,
+	    });
+	    await adminDB.validator.readyAsync();
+	
+	    // Check the user is the only one in the table.
+	    const users = await adminDB
+	      .DB
+	      .manager
+	      .findBy(User, { userName: ADMIN_USER });
+	    expect(users.length).to.be.equal(1);
+	
+	    // Check the database is the only one in the table.
+	    const DBs = await adminDB
+	      .DB
+	      .manager
+	      .findBy(Database, { name: ADMIN_DB_TEST });
+	    expect(DBs.length).to.be.equal(1);
+    } finally {
+      await adminDB.destroy();
+    }
   });
 });

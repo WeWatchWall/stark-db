@@ -1,7 +1,14 @@
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
-import { Target } from '../utils/constants';
+import {
+  PARAMETER_TOKEN,
+  STATEMENT_DELIMITER,
+  Target,
+  VALUE_DELIMITER,
+  ZERO
+} from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
+import { Update } from './update';
 
 /* #region  Single result. */
 class ResultArg {
@@ -18,8 +25,8 @@ export class Result {
   rows: any[];
 
   /**
-   * Creates an instance of a SQL result.
-   * @param [init] @type {ResultArg} The initial values.
+   * Creates an instance of the class.
+   * @param [init] @type {ResultArg} The initial value.
    */
   constructor(init?: ResultArg) {
     this.validator = new LazyValidator(
@@ -35,14 +42,6 @@ export class Result {
 
   private validate(): void {
     new ResultInitArg(this);
-  }
-
-  toObject(): ResultArg {
-    return {
-      name: this.name,
-      keys: this.keys,
-      rows: this.rows,
-    };
   }
 
   toIDObject(): ResultArg {
@@ -64,6 +63,43 @@ export class Result {
       rows: rows,
     };
   }
+
+  toObject(): ResultArg {
+    return {
+      name: this.name,
+      keys: this.keys,
+      rows: this.rows,
+    };
+  }
+
+  toUpdate(): Update {
+    const queryParts: string[] = [
+      `INSERT OR REPLACE INTO ${this.name} VALUES `,
+    ];
+    const queryParams: any[] = [];
+
+    let rowKeys: string[];
+    for (let index = 0; index <this.rows.length; index++) {
+      const row = this.rows[index];
+      if (rowKeys == undefined) { rowKeys = Object.keys(row); }
+      const rowParts: string[] = [];
+
+      for (const key of rowKeys) {
+        rowParts.push(PARAMETER_TOKEN);
+        queryParams.push(row[key]);
+      }
+
+      const rowDelimiter = index === ZERO ? `` : VALUE_DELIMITER;
+      queryParts.push(`${rowDelimiter}(${rowParts.join(VALUE_DELIMITER)})`);
+    }
+
+    queryParts.push(STATEMENT_DELIMITER);
+
+    return new Update({
+      query: queryParts.join(``),
+      params: queryParams,
+    });
+  }
 }
 
 /* #region  Use schema to check the properties. */
@@ -81,7 +117,7 @@ class ResultsArg {
   target: Target;
   isWrite: boolean;
   isLong: boolean;
-  results?: Result[] | ResultArg[];
+  results: Result[] | ResultArg[];
 }
 
 export class Results {
@@ -91,20 +127,25 @@ export class Results {
   target: Target;
   isWrite: boolean;
   isLong: boolean;
-  results?: Result[];
+  results: Result[];
 
   static init(obj: ResultsArg): Results {
     if (!obj) { return undefined; }
 
     // Copy the arguments and parse the results property.
     const arg = Object.assign({}, obj);
-    arg.results = arg.results?.map((result: ResultArg) => new Result(result));
+    arg.results =
+      arg
+        .results
+        ?.map((result: ResultArg) => new Result(result))
+      || [];
+
     return new Results(arg);
   }
 
   /**
-   * Creates an instance of a SQL results.
-   * @param [init] @type {ResultsArg} The initial values.
+   * Creates an instance of the class.
+   * @param [init] @type {ResultsArg} The initial value.
    */
    constructor(init?: ResultsArg) {
     this.validator = new LazyValidator(
@@ -122,14 +163,28 @@ export class Results {
     new ResultsInitArg(this);
   }
 
+  toIDObject(): ResultsArg {
+    return {
+      id: this.id,
+      isWrite: this.isWrite,
+      isLong: this.isLong,
+      target: this.target,
+      results: this.results?.map((result) => result.toIDObject()) || [],
+    };
+  }
+
   toObject(): ResultsArg {
     return {
       id: this.id,
       isWrite: this.isWrite,
       isLong: this.isLong,
       target: this.target,
-      results: this.results?.map((result) => result.toObject()),
+      results: this.results?.map((result) => result.toObject()) || [],
     };
+  }
+
+  toUpdate(): Update[] {
+    return this.results?.map((result) => result.toUpdate()) || [];
   }
 }
 
@@ -139,7 +194,7 @@ const ResultsInitArg = new ObjectModel({
   target: [Target.DB, Target.mem],
   isWrite: Boolean,
   isLong: Boolean,
-  results: [undefined, ArrayModel(Result), ArrayModel(ResultArg)],
+  results: [ArrayModel(Result), ArrayModel(ResultArg)],
 });
 /* #endregion */
 /* #endregion */
