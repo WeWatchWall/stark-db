@@ -31,10 +31,12 @@ export abstract class SaverBase implements ISaver, IEngine {
       return;
     }
 
+    this.DB.query(`BEGIN TRANSACTION;`);
     for (const update of results.toUpdate()) {
       if (update.params.length == ZERO) { continue; }
       await this.DB.query(update.query, update.params);
     }
+    this.DB.query(`COMMIT TRANSACTION;`);
 
     await this.set(results);
   }
