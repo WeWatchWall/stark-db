@@ -33,19 +33,41 @@ export abstract class QueueBase implements IQueue {
   abstract init(): Promise<void>;
 
   async get(): Promise<number> {
-    throw new Error("Method not implemented.");
+    await this.commitLock.acquireAsync();
+    
+    this.commit++;
+    const commit = this.commit;
+
+    this.commitLock.release();
+
+    return commit;
   }
 
   async add(_results: Results): Promise<void> {
     throw new Error("Method not implemented.");
   }
 
-  async set(_results: Results): Promise<void> {
-    throw new Error("Method not implemented.");
+  async set(results: Results): Promise<void> {
+    this.out.postMessage({
+      name: PersistCall.set,
+      args: [results]
+    });
   }
 
   async destroy(): Promise<void> {
-    throw new Error("Method not implemented.");
+    if (this.in == undefined) { return; }
+
+    // Clean up the Broadcast Channel.
+    this.in.close();
+    this.out.close();
+    delete this.in;
+    delete this.out;
+
+    if (this.DB == undefined) { return; }
+
+    // Clean up the DataSource.
+    await this.DB.destroy();
+    delete this.DB;
   }
   
   protected async callMethod(event: any): Promise<any> {
