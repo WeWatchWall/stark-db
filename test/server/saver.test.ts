@@ -25,7 +25,6 @@ const tests = [
     id: 1,
     args: {
       id: 1,
-      isWrite: true,
       isLong: false,
       results: undefined
     },
@@ -35,7 +34,6 @@ const tests = [
     id: 2,
     args: {
       id: 2,
-      isWrite: true,
       isLong: false,
       results: [
         {
@@ -77,7 +75,6 @@ const tests = [
     id: 2,
     args: {
       id: 2,
-      isWrite: true,
       isLong: false,
       results: [
         {

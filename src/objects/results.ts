@@ -126,7 +126,6 @@ class ResultsArg {
   id: number;
   target: Target;
 
-  isWrite: boolean;
   isLong: boolean;
   isLongQuery: boolean;
   results?: Result[] | ResultArg[];
@@ -138,7 +137,6 @@ export class Results {
   id: number;
   target: Target;
 
-  isWrite: boolean;
   isLong: boolean;
   isLongQuery: boolean;
   results: Result[];
@@ -189,7 +187,6 @@ export class Results {
   toIDObject(): ResultsArg {
     return {
       id: this.id,
-      isWrite: this.isWrite,
       target: this.target,
 
       isLong: this.isLong,
@@ -201,7 +198,6 @@ export class Results {
   toObject(): ResultsArg {
     return {
       id: this.id,
-      isWrite: this.isWrite,
       target: this.target,
 
       
@@ -221,7 +217,6 @@ const ResultsInitArg = new ObjectModel({
   id: Number,
   target: [Target.DB, Target.mem],
 
-  isWrite: Boolean,
   isLong: Boolean,
   isLongQuery: Boolean,
   results: [ArrayModel(Result), ArrayModel(ResultArg)],

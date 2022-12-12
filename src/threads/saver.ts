@@ -24,7 +24,6 @@ export abstract class SaverBase implements ISaver, IEngine {
   async add(results: Results): Promise<void> {
     if (
       !results ||
-      !results.isWrite ||
       results.isLong ||
       results.isLongQuery ||
       results.results.length === ZERO
