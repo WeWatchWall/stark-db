@@ -1,10 +1,6 @@
 export enum PersistCall {
   init = 'init',
 
-  // Queue: Update the number of Broadcast Channels to use.
-  // Saver: NOOP.
-  resize = 'resize',
-
   // Queue: Get a transaction ID through a Broadcast Channel.
   // Saver: NOOP.
   get = 'get',

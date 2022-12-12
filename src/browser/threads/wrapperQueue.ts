@@ -23,9 +23,6 @@ const job = multee.createHandler(
 
       // The following methods are not usually called this way...
       //   instead, they are called through the Broadcast Channel.
-      //   This is just for testing.
-      case PersistCall.resize:
-        return await instance.resize(callArgs.args[0]);
       case PersistCall.get:
         return await instance.get();
       case PersistCall.add:

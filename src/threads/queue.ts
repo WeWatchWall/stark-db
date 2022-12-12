@@ -13,10 +13,6 @@ export abstract class QueueBase implements IQueue {
 
   abstract init(): Promise<void>;
 
-  async resize(_size: number): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
   async get(): Promise<number> {
     throw new Error("Method not implemented.");
   }

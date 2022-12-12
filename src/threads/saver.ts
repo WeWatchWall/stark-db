@@ -1,22 +1,23 @@
 import { DataSource } from 'typeorm';
-import { BroadcastChannel } from 'worker_threads';
 
+import { Commit } from '../entity/commit';
 import { Results } from '../objects/results';
-import { Target, ZERO } from '../utils/constants';
+import { SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
-import { Commit } from '../entity/commit';
 
 export abstract class SaverBase implements ISaver, IEngine {
   name: string;
   target: Target;
 
   DB: DataSource;
-  channel: BroadcastChannel;
+  channel: any;
+  channelName: string;
 
   constructor(name: string, target: Target) {
     this.name = name;
     this.target = target;
+    this.channelName = `${SAVER_CHANNEL}-${this.target}-${this.name}`;
   }
 
   abstract init(): Promise<void>;

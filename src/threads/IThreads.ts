@@ -19,8 +19,7 @@ export interface IEngine {
 
 export interface IQueue extends IThread {
   target: Target;
- 
-  resize(size: number): Promise<void>;
+
   get(): Promise<number>;
   add(results: Results): Promise<void>;
   set(results: Results): Promise<void>;

@@ -21,13 +21,6 @@ export class QueueCallerBase implements ICaller, IQueue {
     });
   }
 
-  async resize(size: number): Promise<void> {
-    await this.worker.run({
-      name: PersistCall.resize,
-      args: [size]
-    });
-  }
-
   async get(): Promise<number> {
     return await this.worker.run({
       name: PersistCall.get,
