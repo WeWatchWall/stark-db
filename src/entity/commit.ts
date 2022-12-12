@@ -4,6 +4,10 @@ import { IEntity, IEntityArg } from './IEntity';
 
 export class CommitArg implements IEntityArg {
   id?: number;
+  query?: string;
+  params?: any[];
+
+  isSaved?: boolean;
   isLong?: boolean;
   isLongQuery?: boolean;
 }
@@ -18,9 +22,18 @@ export class Commit implements IEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  isLong: boolean;
+  @Column({ nullable: true })
+  query?: string;
+
+  @Column("simple-json", { nullable: true })
+  params?: any[];
   
   @Column()
-  isLongQuery: boolean;
+  isSaved: boolean;
+
+  @Column({ nullable: true })
+  isLong?: boolean;
+  
+  @Column({ nullable: true })
+  isLongQuery?: boolean;
 }

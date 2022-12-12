@@ -5,6 +5,7 @@ import { resolve } from 'path';
 import sqlite3 from 'sqlite3';
 import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
+import { Commit } from '../../src/entity/commit';
 
 import { Results } from '../../src/objects/results';
 import { UserDB } from '../../src/server/objects/DBUser';
@@ -120,11 +121,21 @@ async function runTest(test: any, target: Target) {
   const saver: Saver = new Saver(DB_PATH_FILE, target);
   try {
     await saver.init();
-
-    // Invoke the saver.add method.
+    
+    // Create the args object.
     const args = Object.assign({}, test.args);
     args.target = target;
 
+    // Create the commit row.
+    const commit = new Commit({
+      id: args.id,
+      query: 'query',
+      params: ['param1', 'param2'],
+      isSaved: false
+    });
+    await saver.DB.manager.save(commit);
+
+    // Invoke the saver.add method.
     const results = test.results ? Results.init(args) : undefined;
     await saver.add(results);
 
@@ -143,6 +154,15 @@ async function runTestBC(test: any, target: Target) {
   let BC: BroadcastChannel;
   try {
     await saver.init();
+
+    // Create the commit row.
+    const commit = new Commit({
+      id: test.args.id,
+      query: 'query',
+      params: ['param1', 'param2'],
+      isSaved: false
+    });
+    await saver.DB.manager.save(commit);
 
     /* #region  Invoke the saver.add method through the BC. */
     const channelName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;

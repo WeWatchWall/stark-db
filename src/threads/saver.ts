@@ -46,18 +46,16 @@ export abstract class SaverBase implements ISaver, IEngine {
   }
 
   private async addCommit(results: Results): Promise<void> {
-    if (!results) { return; }
+    if (!results || this.target !== Target.DB) { return; }
 
-    // Save the transaction to the database.
-    if (this.target === Target.DB) {
-      const commit = new Commit({
-        id: results.id,
-        isLong: results.isLong,
-        isLongQuery: results.isLongQuery,
-      });
+    const commit = new Commit({
+      id: results.id,
+      isSaved: true,
+      isLong: results.isLong,
+      isLongQuery: results.isLongQuery,
+    });
 
-      await this.DB.manager.save(commit);
-    }
+    await this.DB.manager.save(commit);
   }
 
   async set(results: Results): Promise<void> {
