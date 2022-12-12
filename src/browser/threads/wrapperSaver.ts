@@ -1,5 +1,6 @@
 import Multee from 'multee-browser';
 
+import { Results } from '../../objects/results';
 import { PersistCall } from '../../utils/threadCalls';
 import { Saver } from './threads';
 
@@ -20,12 +21,18 @@ const job = multee.createHandler(
           callArgs.args[1],
         );
         return await instance.init();
-      
-      // Add is not usually called this way...
-      //   instead, it is called through the Broadcast Channel.
-      //   This is just for testing.
+
+      // Inbound through the Broadcast Channel. This is just for testing.
+      case PersistCall.get:
+        return await instance.get();
       case PersistCall.add:
         return await instance.add(
+          Results.init(callArgs.args[0]),
+        );
+
+      // Outbound through the BC. This is just for testing.
+      case PersistCall.del:
+        return await instance.del(
           callArgs.args[0],
         );
 

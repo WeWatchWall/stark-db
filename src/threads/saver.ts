@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 
 import { Commit } from '../entity/commit';
 import { Results } from '../objects/results';
-import { SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
+import { COMMITS_TABLE, SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
 
@@ -11,16 +11,31 @@ export abstract class SaverBase implements ISaver, IEngine {
   target: Target;
 
   DB: DataSource;
-  channel: any;
-  channelName: string;
+  in: any;
+  out: any;
+  inName: string;
+  outName: string;
 
   constructor(name: string, target: Target) {
     this.name = name;
     this.target = target;
-    this.channelName = `${SAVER_CHANNEL}-${this.target}-${this.name}`;
+    this.inName = `${SAVER_CHANNEL}-${this.target}-${this.name}-in`;
+    this.outName = `${SAVER_CHANNEL}-${this.target}-${this.name}-out`;
   }
 
   abstract init(): Promise<void>;
+
+  async get(): Promise<number> {
+    if (this.DB == undefined || this.target !== Target.DB) {
+      return ZERO;
+    }
+
+    const maxColumn = `MAX(id)`;
+    const currentID =
+      await this.DB.query(`SELECT ${maxColumn} FROM ${COMMITS_TABLE};`);
+
+    return currentID[0][maxColumn];
+  }
 
   async add(results: Results): Promise<void> {
     if (
@@ -30,7 +45,7 @@ export abstract class SaverBase implements ISaver, IEngine {
       results.results.length === ZERO
     ) {
       await this.addCommit(results);
-      await this.set(results);
+      await this.del(results.id);
       return;
     }
 
@@ -43,7 +58,7 @@ export abstract class SaverBase implements ISaver, IEngine {
     // TODO: This isn't atomic!
     await this.addCommit(results);
 
-    await this.set(results);
+    await this.del(results.id);
   }
 
   private async addCommit(results: Results): Promise<void> {
@@ -59,19 +74,21 @@ export abstract class SaverBase implements ISaver, IEngine {
     await this.DB.manager.save(commit);
   }
 
-  async set(results: Results): Promise<void> {
-    this.channel.postMessage({
-      name: PersistCall.set,
-      args: [results.id]
+  async del(commit: number): Promise<void> {
+    this.out.postMessage({
+      name: PersistCall.del,
+      args: [commit]
     });
   }
 
   async destroy(): Promise<void> {
-    if (this.channel == undefined) { return; }
+    if (this.in == undefined) { return; }
 
     // Clean up the Broadcast Channel.
-    this.channel.close();
-    delete this.channel;
+    this.in.close();
+    this.out.close();
+    delete this.in;
+    delete this.out;
 
     // Clean up the DataSource.
     await this.DB.destroy();
@@ -86,8 +103,6 @@ export abstract class SaverBase implements ISaver, IEngine {
     switch (name) {
       case PersistCall.add:
         return await this.add(Results.init(args[0]));
-      case PersistCall.destroy:
-        return await this.destroy();
       default:
         break;
     }

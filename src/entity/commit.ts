@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { COMMITS_TABLE } from '../utils/constants';
 
 import { IEntity, IEntityArg } from './IEntity';
 
@@ -12,7 +13,7 @@ export class CommitArg implements IEntityArg {
   isLongQuery?: boolean;
 }
 
-@Entity({ name: '_stark_commits' })
+@Entity({ name: COMMITS_TABLE })
 export class Commit implements IEntity {
 
   constructor(init: CommitArg) {

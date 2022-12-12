@@ -14,6 +14,10 @@ export const DB_IDENTIFIER = 1663328354;
 export const ADMIN_DB = 'stark-admin.db';
 export const ADMIN_USER = 'system';
 
+export const COMMITS_TABLE = '_stark_commits';
+export const TABLES_TABLE = '_stark_tables';
+export const VARS_TABLE = '_stark_vars';
+
 export const LONG_COMMIT_DEFAULT = 200;
 
 export enum Target { DB = 'DB', mem = 'mem' }

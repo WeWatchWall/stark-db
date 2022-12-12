@@ -2,7 +2,7 @@ export enum PersistCall {
   init = 'init',
 
   // Queue: Get a transaction ID through a Broadcast Channel.
-  // Saver: NOOP.
+  // Saver: Get the first transaction ID from the WAL.
   get = 'get',
 
   // Queue: add a transaction to the queue.
@@ -14,9 +14,9 @@ export enum PersistCall {
   // Saver: Gets called internally when finished the DB update.
   set = 'set',
   
-  // Queue: Delete from the short WAL.
+  // Queue: NOOP.
+  // Saver: Delete from the WAL.
   //   Gets called only internally. Also on outbound messages.
-  // Saver: NOOP.
   del = 'del',
 
   // Finish all the transactions and destroy all the resources.

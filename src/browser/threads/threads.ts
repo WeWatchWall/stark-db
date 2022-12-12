@@ -19,9 +19,11 @@ export class Worker extends WorkerBase {
 
 export class Queue extends QueueBase {
   async init(): Promise<void> {
-    // TODO:
-    // Setup Broadcast Channel(s)
-    throw new Error("Method not implemented.");
+    // TODO: Set up the Broadcast channels.
+
+    // Doesn't connect to the DataSource because it's in memory.
+    // super.DB = await getDBConnection(this.name, this.target);
+    // await this.DB.initialize();
   }
 }
 
@@ -29,12 +31,12 @@ export class Queue extends QueueBase {
 export class Saver extends SaverBase {
   async init(): Promise<void> {
     // Set up the Broadcast Channel.
-    super.channel = new BroadcastChannel(this.channelName);
-    this.channel.onmessage =  async (message: any) => this.callMethod(message);
+    super.in = new BroadcastChannel(this.inName);
+    super.out = new BroadcastChannel(this.outName);
+    this.in.onmessage =  async (message: any) => this.callMethod(message);
 
-    // Connect to the DataSource, based conditionally on target.
+    // Connect to the DataSource.
     super.DB = await getDBConnection(this.name, this.target);
-
     await this.DB.initialize();
   }
 }

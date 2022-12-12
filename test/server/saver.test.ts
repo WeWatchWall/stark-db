@@ -151,7 +151,8 @@ async function runTest(test: any, target: Target) {
 
 async function runTestBC(test: any, target: Target) {
   const saver: Saver = new Saver(DB_PATH_FILE, target);
-  let BC: BroadcastChannel;
+  let BCIn: BroadcastChannel;
+  let BCOut: BroadcastChannel;
   try {
     await saver.init();
 
@@ -165,17 +166,18 @@ async function runTestBC(test: any, target: Target) {
     await saver.DB.manager.save(commit);
 
     /* #region  Invoke the saver.add method through the BC. */
-    const channelName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;
-    BC = new BroadcastChannel(channelName);
+    const inName = `${SAVER_CHANNEL}-${saver.target}-${saver.name}`;
+    BCIn = new BroadcastChannel(`${inName}-in`);
+    BCOut = new BroadcastChannel(`${inName}-out`); 
 
     const promise = new FlatPromise();
-    BC.onmessage = async (event: any) => {
+    BCOut.onmessage = async (event: any) => {
       const { name, args }: {
         name: string;
         args: [number];
       } = event.data;
 
-      if (name === PersistCall.set) {
+      if (name === PersistCall.del) {
         const [id] = args;
         promise.resolve(id);
       } else {
@@ -186,7 +188,7 @@ async function runTestBC(test: any, target: Target) {
     const args = Object.assign({}, test.args);
     args.target = target;
 
-    BC.postMessage({
+    BCIn.postMessage({
       name: PersistCall.add,
       args: [args]
     });
@@ -201,7 +203,8 @@ async function runTestBC(test: any, target: Target) {
       expect(rows).to.deep.equal(testResult.rows);
     }
   } finally {
-    BC.close();
+    BCIn.close();
+    BCOut.close();
     await saver.destroy();
   }
 }
@@ -253,6 +256,19 @@ describe('Server: Saver - DB Target.', function () {
       await runTest(test, Target.DB);
     });
   }
+
+  it(`Saver - DB Get`, async () => {
+    let saver: Saver;
+    try {
+      saver = new Saver(DB_PATH_FILE, Target.DB);
+      await saver.init();
+  
+      const commit = await saver.get();
+      expect(commit).to.equal(2);
+    } finally {
+      await saver.destroy();
+    }
+  });
 });
 
 describe('Server: Saver - DB Target & BC.', function () {
@@ -315,7 +331,7 @@ const afterAllMem = async () => {
   await memDB.destroy();
 };
 
-describe('Server: Saver - Mem DB Target.', function () {
+describe('Server: Saver - Mem Target.', function () {
   // this.timeout(600e3);
 
   this.beforeAll(beforeAllMem);
@@ -326,9 +342,22 @@ describe('Server: Saver - Mem DB Target.', function () {
       await runTest(test, Target.mem);
     });
   }
+
+  it(`Saver - Mem Get`, async () => {
+    let saver: Saver;
+    try {
+      saver = new Saver(DB_PATH_FILE, Target.mem);
+      await saver.init();
+  
+      const commit = await saver.get();
+      expect(commit).to.equal(0);
+    } finally {
+      await saver.destroy();
+    }
+  });
 });
 
-describe('Server: Saver - Mem DB Target & BC.', function () {
+describe('Server: Saver - Mem Target & BC.', function () {
   // this.timeout(600e3);
 
   this.beforeAll(beforeAllMem);

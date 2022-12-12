@@ -18,18 +18,24 @@ export interface IEngine {
 }
 
 export interface IQueue extends IThread {
+  name: string;
   target: Target;
+  
+  DB?: DataSource;
+  in: any;
+  out: any;
 
   get(): Promise<number>;
   add(results: Results): Promise<void>;
   set(results: Results): Promise<void>;
-  del(IDs: number[]): Promise<void>;
 }
 
 export interface ISaver extends IThread {
   target: Target;
 
+  get(): Promise<number>;
   add(results: Results): Promise<void>;
+  del(commit: number): Promise<void>;
 }
 
 export interface IWorker extends IThread {
