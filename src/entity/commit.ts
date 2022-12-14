@@ -5,8 +5,8 @@ import { IEntity, IEntityArg } from './IEntity';
 
 export class CommitArg implements IEntityArg {
   id?: number;
-  query?: string;
-  params?: any[];
+  queries?: string[];
+  params?: any[][];
 
   isSaved?: boolean;
   isLong?: boolean;
@@ -23,11 +23,11 @@ export class Commit implements IEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
-  query?: string;
+  @Column("simple-json", { nullable: true })
+  queries?: string[];
 
   @Column("simple-json", { nullable: true })
-  params?: any[];
+  params?: any[][];
   
   @Column()
   isSaved: boolean;

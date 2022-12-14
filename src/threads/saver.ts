@@ -26,15 +26,13 @@ export abstract class SaverBase implements ISaver, IEngine {
   abstract init(): Promise<void>;
 
   async get(): Promise<number> {
-    if (this.DB == undefined || this.target !== Target.DB) {
-      return ZERO;
-    }
+    if (this.DB == undefined || this.target !== Target.DB) { return ZERO; }
 
     const maxColumn = `MAX(id)`;
     const currentID =
       await this.DB.query(`SELECT ${maxColumn} FROM ${COMMITS_TABLE};`);
 
-    return currentID[0][maxColumn];
+    return currentID?.[0]?.[maxColumn] || ZERO;
   }
 
   async add(results: Results): Promise<void> {
@@ -67,8 +65,6 @@ export abstract class SaverBase implements ISaver, IEngine {
     const commit = new Commit({
       id: results.id,
       isSaved: true,
-      isLong: results.isLong,
-      isLongQuery: results.isLongQuery,
     });
 
     await this.DB.manager.save(commit);

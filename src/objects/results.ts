@@ -126,6 +126,9 @@ class ResultsArg {
   id: number;
   target: Target;
 
+  queries?: string[];
+  params?: any[][];
+
   isLong: boolean;
   isLongQuery: boolean;
   results?: Result[] | ResultArg[];
@@ -136,6 +139,9 @@ export class Results {
 
   id: number;
   target: Target;
+
+  queries?: string[];
+  params?: any[][];
 
   isLong: boolean;
   isLongQuery: boolean;
@@ -189,6 +195,9 @@ export class Results {
       id: this.id,
       target: this.target,
 
+      queries: this.queries,
+      params: this.params,
+
       isLong: this.isLong,
       isLongQuery: this.isLongQuery,
       results: this.results.map((result) => result.toIDObject()),
@@ -200,6 +209,8 @@ export class Results {
       id: this.id,
       target: this.target,
 
+      queries: this.queries,
+      params: this.params,
       
       isLong: this.isLong,
       isLongQuery: this.isLongQuery,
@@ -216,6 +227,9 @@ export class Results {
 const ResultsInitArg = new ObjectModel({
   id: Number,
   target: [Target.DB, Target.mem],
+
+  queries: [ArrayModel(String)],
+  params: [ArrayModel(ArrayModel(Any))],
 
   isLong: Boolean,
   isLongQuery: Boolean,

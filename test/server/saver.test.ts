@@ -129,9 +129,9 @@ async function runTest(test: any, target: Target) {
     // Create the commit row.
     const commit = new Commit({
       id: args.id,
-      query: 'query',
-      params: ['param1', 'param2'],
-      isSaved: false
+      queries: ['query'],
+      params: [['param1', 'param2']],
+      isSaved: true
     });
     await saver.DB.manager.save(commit);
 
@@ -159,9 +159,9 @@ async function runTestBC(test: any, target: Target) {
     // Create the commit row.
     const commit = new Commit({
       id: test.args.id,
-      query: 'query',
-      params: ['param1', 'param2'],
-      isSaved: false
+      queries: ['query'],
+      params: [['param1', 'param2']],
+      isSaved: true
     });
     await saver.DB.manager.save(commit);
 

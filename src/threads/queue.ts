@@ -1,50 +1,103 @@
 import AwaitLock from 'await-lock';
+import FIFO from 'fifo';
+import FlatPromise from 'flat-promise';
 import { DataSource } from 'typeorm';
+import { Commit } from '../entity/commit';
 
 import { Results } from '../objects/results';
-import { QUEUE_CHANNEL, Target } from '../utils/constants';
+import {
+  ONE,
+  QUEUE_CHANNEL,
+  SAVER_CHANNEL,
+  Target,
+  ZERO
+} from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IQueue } from './IThreads';
 
 export abstract class QueueBase implements IQueue {
   name: string;
   target: Target;
-
   DB?: DataSource;
+
   in: any;
   out: any;
+  saverIn: any;
+  saverOut: any;
 
   protected inName: string;
   protected outName: string;
 
-  protected commit: number;
-  protected commitLock: AwaitLock;
+  protected saverInName: string;
+  protected saverOutName: string;
+
+  private commitLock: AwaitLock;
+  private commitLong?: number;
+
+  private currentCommit: number;
+  private currentPromise: FlatPromise;
+  private lastCommit: number;
+  private queue: FIFO<Results>;
 
   constructor(name: string, target: Target, commit: number) {
     this.name = name;
     this.target = target;
-    this.commit = commit;
 
-    this.commitLock = new AwaitLock();
     this.inName = `${QUEUE_CHANNEL}-${this.target}-${this.name}-in`;
     this.outName = `${QUEUE_CHANNEL}-${this.target}-${this.name}-out`;
+    this.saverInName = `${SAVER_CHANNEL}-${this.target}-${this.name}-in`;
+    this.saverOutName = `${SAVER_CHANNEL}-${this.target}-${this.name}-out`;
+
+    this.commitLock = new AwaitLock();
+    this.currentCommit = ZERO;
+    this.currentPromise = new FlatPromise();
+    this.lastCommit = commit;
+    this.queue = new FIFO();
   }
 
   abstract init(): Promise<void>;
 
-  async get(): Promise<number> {
+  async get(isLong = false): Promise<number> {
     await this.commitLock.acquireAsync();
     
-    this.commit++;
-    const commit = this.commit;
+    this.lastCommit++;
+    const commit = this.lastCommit;
 
-    this.commitLock.release();
+    if (this.DB != undefined && isLong) {
+      this.commitLong = commit;
+    } else {
+      this.commitLock.release();
+    }
 
     return commit;
   }
 
-  async add(_results: Results): Promise<void> {
-    throw new Error("Method not implemented.");
+  async add(results: Results): Promise<void> {
+    this.queue.push(results);
+
+    // Add the commit to the queue table if targeting the server DB.
+    if (this.DB != undefined && this.target === Target.DB) {
+      const commit = new Commit({
+        id: results.id,
+        queries: results.queries,
+        params: results.params,
+
+        isSaved: false,
+        isLong: results.isLong,
+        isLongQuery: results.isLongQuery
+      });
+
+      await this.DB.manager.save(commit);
+    }
+
+    while (this.currentCommit > ZERO && this.currentCommit < results.id - ONE) {
+      await this.currentPromise;
+    }
+
+    this.saverIn.postMessage({
+      name: PersistCall.add,
+      args: [results]
+    });
   }
 
   async set(results: Results): Promise<void> {
@@ -52,10 +105,39 @@ export abstract class QueueBase implements IQueue {
       name: PersistCall.set,
       args: [results]
     });
+
+    if (this.commitLong !== undefined && this.commitLong === results.id) {
+      this.commitLock.release();
+      delete this.commitLong;
+    }
+
+    // Update the state of the queue.
+    this.currentCommit = results.id;
+    const tempPromise = this.currentPromise;
+    this.currentPromise = new FlatPromise();
+    tempPromise.resolve();    
+  }
+
+  async del(commit: number): Promise<void> {
+    const { value: results } = this.queue.shift();
+
+    if (results == undefined || results.id !== commit) {
+      throw new Error(`Invalid commit: ${commit}`);
+    }
+
+    await this.set(results);
   }
 
   async destroy(): Promise<void> {
     if (this.in == undefined) { return; }
+
+    // Prevent further commits.
+    await this.commitLock.acquireAsync();
+    
+    // Wait until all the commits are saved.
+    while (this.currentCommit > ZERO && this.currentCommit < this.lastCommit) {
+      await this.currentPromise;
+    }
 
     // Clean up the Broadcast Channel.
     this.in.close();
@@ -80,6 +162,8 @@ export abstract class QueueBase implements IQueue {
         return await this.get();
       case PersistCall.add:
         return await this.add(Results.init(args[0]));
+      case PersistCall.del:
+        return await this.del(args[0]);
       default:
         break;
     }

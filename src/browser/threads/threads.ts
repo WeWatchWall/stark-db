@@ -19,11 +19,20 @@ export class Worker extends WorkerBase {
 
 export class Queue extends QueueBase {
   async init(): Promise<void> {
-    // TODO: Set up the Broadcast channels.
+    // Set up the broadcast channels.
+    super.in = new BroadcastChannel(this.inName);
+    super.out = new BroadcastChannel(this.outName);
+    this.in.onmessage = async (message: any) => this.callMethod(message);
+    
+    // Connect to the saver broadcast channel.
+    super.saverIn = new BroadcastChannel(this.saverInName);
+    super.saverOut = new BroadcastChannel(this.saverOutName);
+    this.saverOut.onmessage = async (message: any) => this.callMethod(message);
 
     // Doesn't connect to the DataSource because it's in memory.
     // super.DB = await getDBConnection(this.name, this.target);
     // await this.DB.initialize();
+    // ...doesn't run all the transactions until they are caught up.
   }
 }
 

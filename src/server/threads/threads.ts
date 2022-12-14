@@ -6,7 +6,7 @@ import { Commit } from '../../entity/commit';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
-import { DB_DRIVER, Target } from '../../utils/constants';
+import { DB_DRIVER, ONE, Target, ZERO } from '../../utils/constants';
 
 export class Worker extends WorkerBase {
   async init(): Promise<void> {
@@ -19,10 +19,58 @@ export class Worker extends WorkerBase {
 
 export class Queue extends QueueBase {
   async init(): Promise<void> {
-    // Set up the Broadcast channels.
+    // Set up the broadcast channels.
+    super.in = new BroadcastChannel(this.inName);
+    super.out = new BroadcastChannel(this.outName);
+    this.in.onmessage = async (message: any) => this.callMethod(message);
     
+    // Connect to the saver broadcast channel.
+    super.saverIn = new BroadcastChannel(this.saverInName);
+    super.saverOut = new BroadcastChannel(this.saverOutName);
+    this.saverOut.onmessage = async (message: any) => this.callMethod(message);
+
+    // Connect to the database.
     super.DB = getDBConnection(this.name, this.target);
     await this.DB.initialize();
+    const commitRepo = this.DB.getRepository(Commit);
+
+    // Get and run all the transactions until they are caught up.
+    const commits = await commitRepo
+      .find({
+        where: { isSaved: false },
+        order: { id: 'ASC' }
+      });
+    
+    let currentCommit = ZERO;
+
+    // Save all the commits until the first one without a query.
+    for (const commit of commits) {
+
+      // This should only happen for the last long commit in the queue.
+      // That commit should be re-tried later.
+      // Also break if the commit is not the next one in the queue.
+      if (
+        commit.isLongQuery === true ||
+        (currentCommit > ZERO && commit.id > currentCommit + ONE)
+      ) { break; }
+      
+      currentCommit = commit.id;
+
+      // Run the queries in a transaction.
+      this.DB.query('BEGIN TRANSACTION;');
+      for (const query of commit.queries) {
+        await this.DB.query(query, commit.params);
+      }
+
+      // Mark the commit as saved.
+      commit.isSaved = true;
+      await this.DB.manager.save(commit);
+
+      this.DB.query('COMMIT TRANSACTION;');
+    }
+
+    // Delete all the rows from the queue.
+    await commitRepo.clear();
   }
 }
 

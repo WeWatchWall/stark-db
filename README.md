@@ -15,7 +15,36 @@ npm install stark-db
 
 ## Usage and Options
 
+### Long Transactions and Failures
+
+The design for concurrent writes relies on a central queue that orders short
+transactions. Short results are communicated across threads, and re-run if there
+are any collisions of target IDs.
+
+Long transactions still block up all the writes until
+they are complete. Queries of the type `INSERT... SELECT FROM ...` are always
+treated as long queries due to their read-write nature. An alternative approach
+is to separate the reading and the writing at the application level. Long
+transactions are ones that modify a parameter-specified number of rows
+(TODO: what parameter?). If the transaction is not marked as a long one,
+then it has to run twice - once to detect that it is long, and again to commit.
+A good way to avoid such issues is to run a `SELECT ... LIMIT ${PARAM + 1}`
+query and to check the length of the results against the long transaction
+parameter. Then, include the query to mark the transaction as long
+(isWAL = false): `UPDATE _stark_variable SET value = 0 WHERE name = 'isWAL'`.
+That variable's value is always reset to true (1) at the end of the transaction.
+
+Catastrophic failures of the engine may result in gaps near the end of the
+internal transaction log.
+As such, user applications that reqire 100% consistency should generate a
+non-ordered ID per transaction and add it to a separate database -- i.e. Redis
+-- during the transaction.
+In case of failure, the result IDs need to be compared to the request IDs.
+Any missing request IDs can be re-tried. This is not necessary if the node
+is shut down gracefully.
+
 ## Roadmap
 
+- Sharding - with a single queue.
 - Driver architecture for various DB engines.
 - Scaling tables & relations across nodes.
