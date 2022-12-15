@@ -39,7 +39,7 @@ export abstract class QueueBase implements IQueue {
   private lastCommit: number;
   private queue: FIFO<Results>;
 
-  constructor(name: string, target: Target, commit: number) {
+  constructor(name: string, target: Target, commit = ZERO) {
     this.name = name;
     this.target = target;
 
@@ -68,6 +68,7 @@ export abstract class QueueBase implements IQueue {
     isLong: boolean,
     isLongQuery: boolean
   ): Promise<number> {
+    // Don't run on the wrong target.
     if (this.target === Target.mem && target !== Target.mem) { return -ONE; }
 
     await this.commitLock.acquireAsync();
@@ -110,12 +111,19 @@ export abstract class QueueBase implements IQueue {
   }
 
   async add(results: Results): Promise<void> {
+    // Don't run on the wrong target.
+    // Even if there is a result for both targets, the memory result may be
+    //   empty.
+    if (this.target !== results.target) { return; }
+
     this.queue.push(results);
 
+    // Wait until the queue is caught up.
     while (this.currentCommit > ZERO && this.currentCommit < results.id - ONE) {
       await this.currentPromise;
     }
 
+    // Call the saver with the task.
     this.saverIn.postMessage({
       name: PersistCall.add,
       args: [results]
@@ -123,11 +131,13 @@ export abstract class QueueBase implements IQueue {
   }
 
   async set(results: Results): Promise<void> {
+    // Call the workers with the task results.
     this.out.postMessage({
       name: PersistCall.set,
       args: [results]
     });
 
+    // Release the lock if this is the long transaction.
     if (this.commitLong !== undefined && this.commitLong === results.id) {
       this.commitLock.release();
       delete this.commitLong;
@@ -141,16 +151,20 @@ export abstract class QueueBase implements IQueue {
   }
 
   async del(commit: number): Promise<void> {
+    // Get the next results from the queue.
     const { value: results } = this.queue.shift();
 
+    // Make sure the queue is synched with the saver.
     if (results == undefined || results.id !== commit) {
       throw new Error(`Invalid commit: ${commit}`);
     }
 
+    // Report the results to the workers.
     await this.set(results);
   }
 
   async destroy(): Promise<void> {
+    // Don't destroy twice.
     if (this.in == undefined) { return; }
 
     // Prevent further commits.

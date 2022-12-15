@@ -25,6 +25,8 @@ export abstract class SaverBase implements ISaver, IEngine {
 
   abstract init(): Promise<void>;
 
+  // This is probably dead code because the queue is cleared on startup.
+  // TODO: Remove this?
   async get(): Promise<number> {
     if (this.DB == undefined || this.target !== Target.DB) { return ZERO; }
 
