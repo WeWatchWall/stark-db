@@ -22,13 +22,13 @@ export class QueueCallerBase implements ICaller, IQueue {
   }
 
   async get(
-    targets: Target[],
+    target: Target,
     threadID: number,
     isLong: boolean
   ): Promise<number> {
     return await this.worker.run({
       name: PersistCall.get,
-      args: [targets, threadID, isLong]
+      args: [target, threadID, isLong]
     });
   }
 

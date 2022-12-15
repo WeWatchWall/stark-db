@@ -59,11 +59,11 @@ export abstract class QueueBase implements IQueue {
   abstract init(): Promise<void>;
 
   async get(
-    targets = [],
+    target = Target.DB,
     threadID = -ONE,
     isLong = false
   ): Promise<number> {
-    if (!targets.includes(this.target)) { return -ONE; }
+    if (this.target === Target.mem && target !== Target.mem) { return -ONE; }
 
     await this.commitLock.acquireAsync();
     

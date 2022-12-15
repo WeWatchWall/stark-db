@@ -21,7 +21,7 @@ export interface IQueue extends IThread {
   name: string;
   target: Target;
 
-  get(targets: Target[], threadID: number, isLong: boolean): Promise<number>;
+  get(target: Target, threadID: number, isLong: boolean): Promise<number>;
   add(results: Results): Promise<void>;
   set(results: Results): Promise<void>;
 }

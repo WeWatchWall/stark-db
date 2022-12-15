@@ -5,7 +5,6 @@ import { IEntity, IEntityArg } from './IEntity';
 export class TableArg implements IEntityArg {
   name?: string;
   isMemory?: boolean;
-  isPersist?: boolean;
 }
 
 @Entity({name: '_stark_tables'})
@@ -23,8 +22,5 @@ export class Table implements IEntity {
 
   @Column()
   isMemory: boolean;
-
-  @Column()
-  isPersist: boolean;
 
 }
