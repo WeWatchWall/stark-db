@@ -59,9 +59,14 @@ export abstract class QueueBase implements IQueue {
   abstract init(): Promise<void>;
 
   async get(
-    target = Target.DB,
-    threadID = -ONE,
-    isLong = false
+    threadID: number,
+    target: Target,
+
+    queries: string[],
+    params: any[][],
+
+    isLong: boolean,
+    isLongQuery: boolean
   ): Promise<number> {
     if (this.target === Target.mem && target !== Target.mem) { return -ONE; }
 
@@ -70,37 +75,42 @@ export abstract class QueueBase implements IQueue {
     this.lastCommit++;
     const commit = this.lastCommit;
 
+    // Add the commit to the queue table if targeting the server DB.
+    if (this.DB != undefined && this.target === Target.DB) {
+      const commitEntity = new Commit({
+        id: commit,
+
+        queries: queries,
+        params: params,
+
+        isSaved: false,
+        isLong: isLong,
+        isLongQuery: isLongQuery
+      });
+
+      await this.DB.manager.save(commitEntity);
+    }
+
+    // Send the response.
+    this.out.postMessage({
+      name: PersistCall.get,
+      args: [threadID, commit]
+    });
+
+    // Conditionally release the lock if this isn't a long transaction.
+    // Adding the commit to the DB while locked might make this unfeasible,
+    //   so this might need to come before that.
     if (this.DB != undefined && isLong) {
       this.commitLong = commit;
     } else {
       this.commitLock.release();
     }
 
-    this.out.postMessage({
-      name: PersistCall.get,
-      args: [threadID, commit]
-    });
-
     return commit;
   }
 
   async add(results: Results): Promise<void> {
     this.queue.push(results);
-
-    // Add the commit to the queue table if targeting the server DB.
-    if (this.DB != undefined && this.target === Target.DB) {
-      const commit = new Commit({
-        id: results.id,
-        queries: results.queries,
-        params: results.params,
-
-        isSaved: false,
-        isLong: results.isLong,
-        isLongQuery: results.isLongQuery
-      });
-
-      await this.DB.manager.save(commit);
-    }
 
     while (this.currentCommit > ZERO && this.currentCommit < results.id - ONE) {
       await this.currentPromise;
@@ -171,7 +181,14 @@ export abstract class QueueBase implements IQueue {
 
     switch (name) {
       case PersistCall.get:
-        return await this.get(args[0], args[1], args[2]);
+        return await this.get(
+          args[0],
+          args[1],
+          args[2],
+          args[3],
+          args[4],
+          args[5]
+        );
       case PersistCall.add:
         return await this.add(Results.init(args[0]));
       case PersistCall.del:

@@ -5,8 +5,8 @@ import { resolve } from 'path';
 import sqlite3 from 'sqlite3';
 import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
-import { Commit } from '../../src/entity/commit';
 
+import { Commit } from '../../src/entity/commit';
 import { Results } from '../../src/objects/results';
 import { UserDB } from '../../src/server/objects/DBUser';
 import { Saver } from '../../src/server/threads/threads';
