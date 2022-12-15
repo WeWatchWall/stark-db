@@ -131,7 +131,9 @@ async function runTest(test: any, target: Target) {
       id: args.id,
       queries: ['query'],
       params: [['param1', 'param2']],
-      isSaved: true
+      isSaved: true,
+      isLong: false,
+      isLongQuery: false
     });
     await saver.DB.manager.save(commit);
 
@@ -161,7 +163,9 @@ async function runTestBC(test: any, target: Target) {
       id: test.args.id,
       queries: ['query'],
       params: [['param1', 'param2']],
-      isSaved: true
+      isSaved: true,
+      isLong: false,
+      isLongQuery: false
     });
     await saver.DB.manager.save(commit);
 

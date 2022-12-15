@@ -32,9 +32,9 @@ export class Commit implements IEntity {
   @Column()
   isSaved: boolean;
 
-  @Column({ nullable: true })
-  isLong?: boolean;
+  @Column()
+  isLong: boolean;
   
-  @Column({ nullable: true })
-  isLongQuery?: boolean;
+  @Column()
+  isLongQuery: boolean;
 }

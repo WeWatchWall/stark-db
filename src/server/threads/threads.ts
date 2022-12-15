@@ -56,17 +56,19 @@ export class Queue extends QueueBase {
       
       currentCommit = commit.id;
 
-      // Run the queries in a transaction.
-      this.DB.query('BEGIN TRANSACTION;');
-      for (const query of commit.queries) {
-        await this.DB.query(query, commit.params);
+      // Run the queries in a transaction if there are any.
+      if (commit.queries != undefined && commit.queries.length > 0) {
+        this.DB.query('BEGIN TRANSACTION;');
+        for (const query of commit.queries || []) {
+          await this.DB.query(query, commit.params);
+        }
+        this.DB.query('COMMIT TRANSACTION;');
       }
 
       // Mark the commit as saved.
+      // Not atomic.
       commit.isSaved = true;
       await this.DB.manager.save(commit);
-
-      this.DB.query('COMMIT TRANSACTION;');
     }
 
     // Delete all the rows from the queue.
