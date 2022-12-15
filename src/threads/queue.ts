@@ -43,7 +43,8 @@ export abstract class QueueBase implements IQueue {
     this.name = name;
     this.target = target;
 
-    this.inName = `${QUEUE_CHANNEL}-${this.target}-${this.name}-in`;
+    // DB and Memory use the same channel to avoid deadlocks.
+    this.inName = `${QUEUE_CHANNEL}-${this.name}-in`;
     this.outName = `${QUEUE_CHANNEL}-${this.target}-${this.name}-out`;
     this.saverInName = `${SAVER_CHANNEL}-${this.target}-${this.name}-in`;
     this.saverOutName = `${SAVER_CHANNEL}-${this.target}-${this.name}-out`;
@@ -57,7 +58,13 @@ export abstract class QueueBase implements IQueue {
 
   abstract init(): Promise<void>;
 
-  async get(isLong = false): Promise<number> {
+  async get(
+    targets = [],
+    threadID = -ONE,
+    isLong = false
+  ): Promise<number> {
+    if (!targets.includes(this.target)) { return -ONE; }
+
     await this.commitLock.acquireAsync();
     
     this.lastCommit++;
@@ -68,6 +75,11 @@ export abstract class QueueBase implements IQueue {
     } else {
       this.commitLock.release();
     }
+
+    this.out.postMessage({
+      name: PersistCall.get,
+      args: [threadID, commit]
+    });
 
     return commit;
   }
@@ -159,7 +171,7 @@ export abstract class QueueBase implements IQueue {
 
     switch (name) {
       case PersistCall.get:
-        return await this.get();
+        return await this.get(args[0], args[1], args[2]);
       case PersistCall.add:
         return await this.add(Results.init(args[0]));
       case PersistCall.del:

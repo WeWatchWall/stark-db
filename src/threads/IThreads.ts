@@ -20,12 +20,8 @@ export interface IEngine {
 export interface IQueue extends IThread {
   name: string;
   target: Target;
-  
-  DB?: DataSource;
-  in: any;
-  out: any;
 
-  get(): Promise<number>;
+  get(targets: Target[], threadID: number, isLong: boolean): Promise<number>;
   add(results: Results): Promise<void>;
   set(results: Results): Promise<void>;
 }

@@ -21,10 +21,14 @@ export class QueueCallerBase implements ICaller, IQueue {
     });
   }
 
-  async get(): Promise<number> {
+  async get(
+    targets: Target[],
+    threadID: number,
+    isLong: boolean
+  ): Promise<number> {
     return await this.worker.run({
       name: PersistCall.get,
-      args: []
+      args: [targets, threadID, isLong]
     });
   }
 

@@ -25,7 +25,11 @@ const job = multee.createHandler(
 
       // Inbound through the Broadcast Channel. This is just for testing.
       case PersistCall.get:
-        return await instance.get();
+        return await instance.get(
+          callArgs.args[0],
+          callArgs.args[1],
+          callArgs.args[2],
+        );
       case PersistCall.add:
         return await instance.add(
           Results.init(callArgs.args[0]),
