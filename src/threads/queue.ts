@@ -18,8 +18,8 @@ import { IQueue } from './IThreads';
 export abstract class QueueBase implements IQueue {
   name: string;
   target: Target;
-  DB?: DataSource;
 
+  DB?: DataSource;
   in: any;
   out: any;
   saverIn: any;

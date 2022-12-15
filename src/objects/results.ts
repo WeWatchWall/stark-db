@@ -124,10 +124,6 @@ const ResultInitArg = new ObjectModel({
 /* #region  Multiple results. */
 class ResultsArg {
   id: number;
-  target: Target;
-
-  queries?: string[];
-  params?: any[][];
 
   isLong: boolean;
   isLongQuery: boolean;
@@ -138,10 +134,6 @@ export class Results {
   validator: LazyValidator;
 
   id: number;
-  target: Target;
-
-  queries?: string[];
-  params?: any[][];
 
   isLong: boolean;
   isLongQuery: boolean;
@@ -193,10 +185,6 @@ export class Results {
   toIDObject(): ResultsArg {
     return {
       id: this.id,
-      target: this.target,
-
-      queries: this.queries,
-      params: this.params,
 
       isLong: this.isLong,
       isLongQuery: this.isLongQuery,
@@ -207,10 +195,6 @@ export class Results {
   toObject(): ResultsArg {
     return {
       id: this.id,
-      target: this.target,
-
-      queries: this.queries,
-      params: this.params,
       
       isLong: this.isLong,
       isLongQuery: this.isLongQuery,
@@ -226,10 +210,6 @@ export class Results {
 /* #region  Use schema to check the properties. */
 const ResultsInitArg = new ObjectModel({
   id: Number,
-  target: [Target.DB, Target.mem],
-
-  queries: [ArrayModel(String)],
-  params: [ArrayModel(ArrayModel(Any))],
 
   isLong: Boolean,
   isLongQuery: Boolean,
