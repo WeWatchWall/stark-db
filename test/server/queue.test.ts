@@ -271,7 +271,7 @@ const beforeAllDB = async () => {
 }
 
 describe('Server: Queue - DB Target.', function () {
-  this.timeout(600e3);
+  // this.timeout(600e3);
 
   this.beforeAll(beforeAllDB);
 
