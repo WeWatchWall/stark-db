@@ -77,7 +77,7 @@ export class Queue extends QueueBase {
     // Not atomic.
     await commitRepo.clear();
     await this.DB.query(
-      `DELETE FROM sqlite_sequence WHERE name = '${COMMITS_TABLE}';`
+      `UPDATE SQLITE_SEQUENCE SET SEQ = 0 WHERE NAME = '${COMMITS_TABLE}';`
     );
   }
 }
