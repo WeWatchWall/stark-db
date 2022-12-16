@@ -6,7 +6,7 @@ import { Commit } from '../../entity/commit';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
-import { DB_DRIVER, ONE, Target, ZERO } from '../../utils/constants';
+import { COMMITS_TABLE, DB_DRIVER, ONE, Target, ZERO } from '../../utils/constants';
 
 export class Worker extends WorkerBase {
   async init(): Promise<void> {
@@ -59,8 +59,10 @@ export class Queue extends QueueBase {
       // Run the queries in a transaction if there are any.
       if (commit.queries != undefined && commit.queries.length > 0) {
         this.DB.query('BEGIN TRANSACTION;');
-        for (const query of commit.queries || []) {
-          await this.DB.query(query, commit.params);
+        for (let index = 0; index < commit.queries?.length || ZERO; index++) {
+          const query = commit.queries[index];
+          const params = commit.params[index];
+          await this.DB.query(query, params); 
         }
         this.DB.query('COMMIT TRANSACTION;');
       }
@@ -71,8 +73,12 @@ export class Queue extends QueueBase {
       await this.DB.manager.save(commit);
     }
 
-    // Delete all the rows from the queue.
+    // Delete all the rows from the queue and reset its ID autoincrement.
+    // Not atomic.
     await commitRepo.clear();
+    await this.DB.query(
+      `DELETE FROM sqlite_sequence WHERE name = '${COMMITS_TABLE}';`
+    );
   }
 }
 

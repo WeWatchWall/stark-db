@@ -178,8 +178,13 @@ export abstract class QueueBase implements IQueue {
     // Clean up the Broadcast Channel.
     this.in.close();
     this.out.close();
+    this.saverIn.close();
+    this.saverOut.close();
+
     delete this.in;
     delete this.out;
+    delete this.saverIn;
+    delete this.saverOut;
 
     if (this.DB == undefined) { return; }
 
