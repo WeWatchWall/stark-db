@@ -21,6 +21,13 @@ export class SaverCallerBase implements ICaller, ISaver {
     });
   }
 
+  async get(): Promise<number> {
+    return await this.worker.run({
+      name: PersistCall.get,
+      args: []
+    });
+  }
+
   async add(
     results: Results
   ): Promise<void> {
@@ -29,6 +36,13 @@ export class SaverCallerBase implements ICaller, ISaver {
       args: [
         results.toObject(),
       ]
+    });
+  }
+
+  async del(commit: number): Promise<void> {
+    await this.worker.run({
+      name: PersistCall.del,
+      args: [commit]
     });
   }
 

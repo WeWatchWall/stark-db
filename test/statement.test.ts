@@ -12,6 +12,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'BEGIN;',
+      params: [],
       tables: [],
       type: ParseType.begin_transaction
     },
@@ -24,6 +25,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'BEGIN;',
+      params: [],
       tables: [],
       type: ParseType.begin_transaction
     }
@@ -35,6 +37,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'BEGIN TRANSACTION;',
+      params: [],
       tables: [],
       type: ParseType.begin_transaction
     }
@@ -46,6 +49,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ROLLBACK;',
+      params: [],
       tables: [],
       type: ParseType.rollback_transaction
     }
@@ -57,6 +61,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ROLLBACK TRANSACTION;',
+      params: [],
       tables: [],
       type: ParseType.rollback_transaction
     }
@@ -68,6 +73,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'COMMIT;',
+      params: [],
       tables: [],
       type: ParseType.commit_transaction
     }
@@ -79,6 +85,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'COMMIT TRANSACTION;',
+      params: [],
       tables: [],
       type: ParseType.commit_transaction
     }
@@ -90,6 +97,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'END;',
+      params: [],
       tables: [],
       type: ParseType.commit_transaction
     }
@@ -101,6 +109,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'END TRANSACTION;',
+      params: [],
       tables: [],
       type: ParseType.commit_transaction
     }
@@ -117,6 +126,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+      params: [],
       tables: ["variables"],
       type: ParseType.create_table,
     }
@@ -128,6 +138,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+      params: [],
       tables: ["variables"],
       type: ParseType.create_table,
     }
@@ -139,6 +150,7 @@ const tests = [
       index: 0,
       isRead: true,
       statement: 'CREATE TABLE variables AS SELECT * FROM variables2;',
+      params: [],
       tables: ["variables", "variables2"],
       type: ParseType.create_table,
     },
@@ -151,6 +163,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'DROP TABLE "variables";',
+      params: [],
       tables: ["variables"],
       type: ParseType.drop_table,
     }
@@ -162,6 +175,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'DROP TABLE IF EXISTS "variables";',
+      params: [],
       tables: ["variables"],
       type: ParseType.drop_table,
     }
@@ -176,6 +190,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ALTER TABLE "variables" RENAME TO "variables2";',
+      params: [],
       tables: ["variables2", "variables"],
       type: ParseType.rename_table
     }
@@ -187,6 +202,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
+      params: [],
       tables: ["variables2", "variables"],
       type: ParseType.rename_table,
     },
@@ -199,6 +215,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ALTER TABLE "variables" ADD "value2";',
+      params: [],
       tables: ["variables"],
       type: ParseType.modify_table_columns
     }
@@ -210,6 +227,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ALTER TABLE "variables" ADD COLUMN "value2";',
+      params: [],
       tables: ["variables"],
       type: ParseType.modify_table_columns,
     }
@@ -221,6 +239,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ALTER TABLE "variables" DROP "value2";',
+      params: [],
       tables: ["variables"],
       type: ParseType.modify_table_columns,
     },
@@ -233,6 +252,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'ALTER TABLE "variables" DROP COLUMN "value2";',
+      params: [],
       tables: ["variables"],
       type: ParseType.modify_table_columns,
     },
@@ -249,6 +269,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'INSERT INTO variables VALUES ("isWAL", 1);',
+      params: [],
       tables: ["variables"],
       type: ParseType.modify_data,
     }
@@ -260,6 +281,7 @@ const tests = [
       index: 0,
       isRead: true,
       statement: 'INSERT INTO variables SELECT * FROM variables2;',
+      params: [],
       tables: ["variables", "variables2"],
       type: ParseType.modify_data
     }
@@ -271,6 +293,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'INSERT OR REPLACE INTO variables VALUES ("isWAL", 1);',
+      params: [],
       tables: ["variables"],
       type: ParseType.modify_data
     }
@@ -282,6 +305,7 @@ const tests = [
       index: 0,
       isRead: true,
       statement: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
+      params: [],
       tables: ["variables", "variables2"],
       type: ParseType.modify_data
     },
@@ -294,6 +318,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'UPDATE variables SET value = "new";',
+      params: [],
       type: ParseType.modify_data,
       tables: ["variables"]
     }
@@ -305,6 +330,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'DELETE FROM variables WHERE value = "new";',
+      params: [],
       type: ParseType.modify_data,
       tables: ["variables"]
     }
@@ -316,6 +342,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'SELECT * FROM variables WHERE value = "new";',
+      params: [],
       type: ParseType.select_data,
       tables: ["variables"]
     }
@@ -327,6 +354,7 @@ const tests = [
       index: 0,
       isRead: false,
       statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
+      params: [],
       tables: ["variables", "variables2"],
       type: ParseType.select_data
     }
@@ -341,6 +369,7 @@ const tests = [
     result: {
       index: 0,
       statement: 'PRAGMA pragma_name = value;',
+      params: [],
       tables: [],
       isRead: false,
       type: ParseType.other
@@ -354,7 +383,11 @@ describe('Statements.', function () {
     if (test.isSkip) { continue; }
 
     it(`${test.id}: ${test.name}`, async () => {
-      const statement = new Statement({ index: 0, statement: test.statement });
+      const statement = new Statement({
+        index: 0,
+        statement: test.statement,
+        params: []
+      });
       statement.validator.ready();
 
       // Copy and cleanup the statement.

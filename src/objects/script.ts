@@ -1,12 +1,13 @@
-import { ArrayModel, ObjectModel } from 'objectmodel';
+import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
-import { STATEMENT_DELIMITER, NEWLINE } from '../utils/constants';
+import { NEWLINE, STATEMENT_DELIMITER, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { ParseType, Statement } from './statement';
 
 export class ScriptArg {
   script?: string;
+  params?: any[];
   statements?: Statement[];
 }
 
@@ -15,6 +16,7 @@ export class Script {
   validator: LazyValidator;
 
   script: string;
+  params: any[];
   statements: Statement[];
 
   private isSave: boolean;
@@ -70,9 +72,17 @@ export class Script {
       .filter((statement) => statement.trim() !== '')
       .map((statement) => `${ statement.trim() }${ STATEMENT_DELIMITER }`);
 
+    let startParam = 0;
+
     // Parse the script statements.
     this.statements = statements.map((statement: string, index: number) => {
-      const statementMeta = new Statement({ statement, index });
+      // Count and extract the number of parameters in the statement.
+      const paramCount = Script.countString(statement, `\\?`);
+      const params = this.params.slice(startParam, startParam + paramCount);
+      startParam += paramCount;
+
+      // Create validate, and return the statement.
+      const statementMeta = new Statement({ statement, params, index });
       statementMeta.validator.ready();
       return statementMeta;
     });
@@ -90,6 +100,16 @@ export class Script {
         isTransaction = false;
       }
     }
+  }
+
+  private static countString(str: string, letter: string) {
+      // creating regex 
+      const re = new RegExp(letter, `g`);
+  
+      // matching the pattern
+      const count = str.match(re)?.length || ZERO;
+  
+      return count;
   }
   /* #endregion */
 
@@ -111,10 +131,13 @@ export class Script {
 
   private saveReady(): void {
     let statements = [];
+    this.params = [];
 
     for (const statement of this.statements) {
       statement.validator.ready();
       statements.push(statement.toString());
+
+      this.params.push(...statement.params);
     }
 
     this.script = statements.join(NEWLINE);
@@ -133,11 +156,13 @@ export class Script {
 /* #region  Use schema to check the properties. */
 const ScriptLoad = new ObjectModel({
   script: String,
+  params: ArrayModel(Any),
   statements: undefined,
 });
 
 const ScriptSave = new ObjectModel({
   script: [String],
+  params: [ArrayModel(Any)],
   statements: ArrayModel(Statement),
 });
 /* #endregion */

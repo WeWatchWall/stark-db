@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { BasicModel, ObjectModel } from 'objectmodel';
+import { Any, ArrayModel, BasicModel, ObjectModel } from 'objectmodel';
 import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
@@ -43,6 +43,7 @@ enum StatementType {
 class StatementArg {
   index: number;
   statement: string;
+  params: any[];
 }
 
 // TODO: Add support for the following:
@@ -59,8 +60,9 @@ export class Statement {
 
   index: number;
   statement: string;
-  meta: any;
+  params: any[];
 
+  meta: any;
   type: ParseType;
   isRead: boolean;
   tables: string[];
@@ -237,5 +239,6 @@ const PositiveInteger = Integer
 const StatementInitArg = new ObjectModel({
   index: PositiveInteger,
   statement: String,
+  params: ArrayModel(Any)
 });
 /* #endregion */
