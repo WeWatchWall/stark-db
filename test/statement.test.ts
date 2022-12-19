@@ -10,7 +10,9 @@ const tests = [
     statement: 'BEGIN;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'BEGIN;',
+      tables: [],
       type: ParseType.begin_transaction
     },
     isSkip: false
@@ -20,7 +22,9 @@ const tests = [
     statement: '\n  BEGIN;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'BEGIN;',
+      tables: [],
       type: ParseType.begin_transaction
     }
   }, {
@@ -29,7 +33,9 @@ const tests = [
     statement: 'BEGIN TRANSACTION;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'BEGIN TRANSACTION;',
+      tables: [],
       type: ParseType.begin_transaction
     }
   }, {
@@ -38,7 +44,9 @@ const tests = [
     statement: 'ROLLBACK;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ROLLBACK;',
+      tables: [],
       type: ParseType.rollback_transaction
     }
   }, {
@@ -47,7 +55,9 @@ const tests = [
     statement: 'ROLLBACK TRANSACTION;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ROLLBACK TRANSACTION;',
+      tables: [],
       type: ParseType.rollback_transaction
     }
   }, {
@@ -56,7 +66,9 @@ const tests = [
     statement: 'COMMIT;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'COMMIT;',
+      tables: [],
       type: ParseType.commit_transaction
     }
   }, {
@@ -65,7 +77,9 @@ const tests = [
     statement: 'COMMIT TRANSACTION;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'COMMIT TRANSACTION;',
+      tables: [],
       type: ParseType.commit_transaction
     }
   }, {
@@ -74,7 +88,9 @@ const tests = [
     statement: 'END;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'END;',
+      tables: [],
       type: ParseType.commit_transaction
     }
   }, {
@@ -83,7 +99,9 @@ const tests = [
     statement: 'END TRANSACTION;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'END TRANSACTION;',
+      tables: [],
       type: ParseType.commit_transaction
     }
   },
@@ -97,9 +115,10 @@ const tests = [
     statement: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
       index: 0,
+      isRead: false,
       statement: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+      tables: ["variables"],
       type: ParseType.create_table,
-      tables: ["variables"]
     }
   }, {
     id: 10,
@@ -107,94 +126,115 @@ const tests = [
     statement: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
       index: 0,
+      isRead: false,
       statement: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+      tables: ["variables"],
       type: ParseType.create_table,
-      tables: ["variables"]
     }
   }, {
     id: 11,
+    name: 'Data - create table with select.',
+    statement: 'CREATE TABLE variables AS SELECT * FROM variables2;',
+    result: {
+      index: 0,
+      isRead: true,
+      statement: 'CREATE TABLE variables AS SELECT * FROM variables2;',
+      tables: ["variables", "variables2"],
+      type: ParseType.create_table,
+    },
+    isSkip: false
+  }, {
+    id: 12,
     name: 'Table - drop',
     statement: 'DROP TABLE "variables";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'DROP TABLE "variables";',
+      tables: ["variables"],
       type: ParseType.drop_table,
-      tables: ["variables"]
     }
   }, {
-    id: 12,
+    id: 13,
     name: 'Table - drop conditional',
     statement: 'DROP TABLE IF EXISTS "variables";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'DROP TABLE IF EXISTS "variables";',
+      tables: ["variables"],
       type: ParseType.drop_table,
-      tables: ["variables"]
     }
   },
 
   // https://www.sqlite.org/lang_altertable.html
   {
-    id: 13,
+    id: 14,
     name: 'Table - rename',
     statement: 'ALTER TABLE "variables" RENAME TO "variables2";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ALTER TABLE "variables" RENAME TO "variables2";',
-      type: ParseType.rename_table,
-      tables: ["variables2", "variables"]
+      tables: ["variables2", "variables"],
+      type: ParseType.rename_table
     }
   }, {
-    id: 14,
+    id: 15,
     name: 'Table - TODO: rename column',
     statement: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
+      tables: ["variables2", "variables"],
       type: ParseType.rename_table,
-      tables: ["variables2", "variables"]
     },
     isSkip: true
   }, {
-    id: 15,
+    id: 16,
     name: 'Table - add column',
     statement: 'ALTER TABLE "variables" ADD "value2";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ALTER TABLE "variables" ADD "value2";',
-      type: ParseType.modify_table_columns,
-      tables: ["variables"]
+      tables: ["variables"],
+      type: ParseType.modify_table_columns
     }
   }, {
-    id: 16,
+    id: 17,
     name: 'Table - add column long',
     statement: 'ALTER TABLE "variables" ADD COLUMN "value2";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ALTER TABLE "variables" ADD COLUMN "value2";',
+      tables: ["variables"],
       type: ParseType.modify_table_columns,
-      tables: ["variables"]
     }
   }, {
-    id: 17,
+    id: 18,
     name: 'Table - TODO: drop column',
     statement: 'ALTER TABLE "variables" DROP "value2";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ALTER TABLE "variables" DROP "value2";',
+      tables: ["variables"],
       type: ParseType.modify_table_columns,
-      tables: ["variables"]
     },
     isSkip: true
   }, {
-    id: 18,
+    id: 19,
     name: 'Table - TODO: drop column long',
     statement: 'ALTER TABLE "variables" DROP COLUMN "value2";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'ALTER TABLE "variables" DROP COLUMN "value2";',
+      tables: ["variables"],
       type: ParseType.modify_table_columns,
-      tables: ["variables"]
     },
     isSkip: true
   },
@@ -207,71 +247,102 @@ const tests = [
     statement: 'INSERT INTO variables VALUES ("isWAL", 1);',
     result: {
       index: 0,
+      isRead: false,
       statement: 'INSERT INTO variables VALUES ("isWAL", 1);',
+      tables: ["variables"],
       type: ParseType.modify_data,
-      tables: ["variables"]
     }
   }, {
     id: 20,
+    name: 'Data - insert with select.',
+    statement: 'INSERT INTO variables SELECT * FROM variables2;',
+    result: {
+      index: 0,
+      isRead: true,
+      statement: 'INSERT INTO variables SELECT * FROM variables2;',
+      tables: ["variables", "variables2"],
+      type: ParseType.modify_data
+    }
+  }, {
+    id: 21,
     name: 'Data - upsert',
     statement: 'INSERT OR REPLACE INTO variables VALUES ("isWAL", 1);',
     result: {
       index: 0,
+      isRead: false,
       statement: 'INSERT OR REPLACE INTO variables VALUES ("isWAL", 1);',
-      type: ParseType.modify_data,
-      tables: ["variables"]
+      tables: ["variables"],
+      type: ParseType.modify_data
     }
   }, {
-    id: 21,
+    id: 22,
+    name: 'Data - UPSERT with select.',
+    statement: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
+    result: {
+      index: 0,
+      isRead: true,
+      statement: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
+      tables: ["variables", "variables2"],
+      type: ParseType.modify_data
+    },
+    isSkip: false
+  }, {
+    id: 23,
     name: 'Data - update',
     statement: 'UPDATE variables SET value = "new";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'UPDATE variables SET value = "new";',
       type: ParseType.modify_data,
       tables: ["variables"]
     }
   }, {
-    id: 22,
+    id: 24,
     name: 'Data - delete',
     statement: 'DELETE FROM variables WHERE value = "new";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'DELETE FROM variables WHERE value = "new";',
       type: ParseType.modify_data,
       tables: ["variables"]
     }
   }, {
-    id: 23,
+    id: 25,
     name: 'Data - select',
     statement: 'SELECT * FROM variables WHERE value = "new";',
     result: {
       index: 0,
+      isRead: false,
       statement: 'SELECT * FROM variables WHERE value = "new";',
       type: ParseType.select_data,
       tables: ["variables"]
     }
   }, {
-    id: 24,
+    id: 26,
     name: 'Data - select with join',
     statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
     result: {
       index: 0,
+      isRead: false,
       statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
-      type: ParseType.select_data,
-      tables: ["variables", "variables2"]
+      tables: ["variables", "variables2"],
+      type: ParseType.select_data
     }
   },
   /* #endregion */
 
   /* #region  Other. */
   {
-    id: 25,
+    id: 27,
     name: 'Other - add pragma',
     statement: 'PRAGMA pragma_name = value;',
     result: {
       index: 0,
       statement: 'PRAGMA pragma_name = value;',
+      tables: [],
+      isRead: false,
       type: ParseType.other
     }
   },

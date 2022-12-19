@@ -46,7 +46,6 @@ class StatementArg {
 }
 
 // TODO: Add support for the following:
-// - CREATE TABLE ... AS SELECT
 // - WITH PREFIX TO DATA QUERIES
 
 // - CREATE INDEX
@@ -63,6 +62,7 @@ export class Statement {
   meta: any;
 
   type: ParseType;
+  isRead: boolean;
   tables: string[];
 
   isTransaction: boolean;
@@ -105,48 +105,6 @@ export class Statement {
     this.parseTables();
   }
 
-  private parseTables(): void {
-
-    const tableActions = [
-      ParseType.create_table,
-      ParseType.rename_table,
-      ParseType.modify_table_columns,
-      ParseType.drop_table,
-    ];
-
-    const dataActions = [
-      ParseType.modify_data,
-      ParseType.select_data,
-    ];
-
-    if ( tableActions.includes(this.type) || dataActions.includes(this.type)) {
-      this.tables = this.parseDataTables();
-    }
-  }
-
-  private parseDataTables(): string[] {
-    const tables = new Set<string>();
-
-    let iterator = new RecursiveIterator(
-      this.meta,
-      1, // Breath-first.
-    );
-
-    for(let { node } of iterator) {
-      const conditions = [
-        node.type === `identifier`,
-        node.variant === `table`,
-        !!node.name
-      ];
-
-      if (conditions.includes(false)) { continue; }
-
-      tables.add(node.name);
-    }
-
-    return Array.from(tables);
-  }
- 
   private parseType() {
     const transactionActions = [
       StatementType[0],
@@ -203,6 +161,60 @@ export class Statement {
     } else {
       this.type = ParseType.other;
     }
+
+    // Detect if the statement is a write with a read.
+    this.isRead = (
+      this.type === ParseType.create_table &&
+      this.meta.definition?.[ZERO]?.type === `statement` &&
+      this.meta.definition?.[ZERO]?.variant === StatementType[10]
+    ) || (
+      this.type === ParseType.modify_data &&
+      this.meta.result?.type === `statement` &&
+      this.meta.result?.variant === StatementType[10]
+    );
+  }
+
+  private parseTables(): void {
+
+    const tableActions = [
+      ParseType.create_table,
+      ParseType.rename_table,
+      ParseType.modify_table_columns,
+      ParseType.drop_table,
+    ];
+
+    const dataActions = [
+      ParseType.modify_data,
+      ParseType.select_data,
+    ];
+
+    this.tables = [];
+    if (tableActions.includes(this.type) || dataActions.includes(this.type)) {
+      this.tables = this.parseDataTables();
+    }
+  }
+
+  private parseDataTables(): string[] {
+    const tables = new Set<string>();
+
+    let iterator = new RecursiveIterator(
+      this.meta,
+      1, // Breath-first.
+    );
+
+    for(let { node } of iterator) {
+      const conditions = [
+        node.type === `identifier`,
+        node.variant === `table`,
+        !!node.name
+      ];
+
+      if (conditions.includes(false)) { continue; }
+
+      tables.add(node.name);
+    }
+
+    return Array.from(tables);
   }
 
   /**
