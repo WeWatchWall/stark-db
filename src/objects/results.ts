@@ -1,4 +1,5 @@
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
+import shortHash from 'shorthash2';
 
 import {
   PARAMETER_TOKEN,
@@ -43,6 +44,18 @@ export class Result {
 
   private validate(): void {
     new ResultInitArg(this);
+  }
+
+  toHashObject(): ResultArg {
+    // Get the ID object.
+    const idObject = this.toIDObject();
+
+    // Loop through the rows and return the hashes.
+    const hashes = idObject.rows.map((id) => shortHash(JSON.stringify(id)));
+    
+    // Set the rows to the hashes.
+    idObject.rows = hashes;
+    return idObject;
   }
 
   toIDObject(): ResultArg {
@@ -113,7 +126,7 @@ const ResultInitArg = new ObjectModel({
 /* #endregion */
 
 /* #region  Multiple results. */
-class ResultsArg {
+export class ResultsArg {
   id: number;
   target: Target;
 
@@ -162,6 +175,16 @@ export class Results {
 
   private validate(): void {
     new ResultsInitArg(this);
+  }
+
+  toHashObject(): ResultsArg {
+    return {
+      id: this.id,
+      target: this.target,
+
+      isLong: this.isLong,
+      results: this.results.map((result) => result.toHashObject()),
+    };
   }
 
   toIDObject(): ResultsArg {
