@@ -65,8 +65,7 @@ export abstract class QueueBase implements IQueue {
     queries: string[],
     params: any[][],
 
-    isLong: boolean,
-    isLongQuery: boolean
+    isLong: boolean
   ): Promise<number> {
     // Don't run on the wrong target.
     if (this.target === Target.mem && target !== Target.mem) { return -ONE; }
@@ -85,8 +84,7 @@ export abstract class QueueBase implements IQueue {
         params: params,
 
         isSaved: false,
-        isLong: isLong,
-        isLongQuery: isLongQuery
+        isLong: isLong
       });
 
       await this.DB.manager.save(commitEntity);
@@ -205,8 +203,7 @@ export abstract class QueueBase implements IQueue {
           args[1],
           args[2],
           args[3],
-          args[4],
-          args[5]
+          args[4]
         );
       case PersistCall.add:
         return await this.add(Results.init(args[0]));

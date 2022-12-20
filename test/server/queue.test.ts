@@ -28,7 +28,6 @@ const tests = {
 
           isSaved: false,
           isLong: false,
-          isLongQuery: false,
         }
       ],
       results: {
@@ -53,7 +52,6 @@ const tests = {
 
           isSaved: false,
           isLong: false,
-          isLongQuery: false,
         }
       ],
       results: {
@@ -79,7 +77,6 @@ const tests = {
 
           isSaved: false,
           isLong: false,
-          isLongQuery: false,
         }, {
           queries: [
             `INSERT OR REPLACE INTO ${TABLE2} VALUES (?, ?), (?, ?);`,
@@ -90,7 +87,6 @@ const tests = {
 
           isSaved: false,
           isLong: true,
-          isLongQuery: false,
         }
       ],
       results: {
@@ -117,7 +113,6 @@ const tests = {
 
           isSaved: true,
           isLong: false,
-          isLongQuery: false,
         }, {
           queries: [
             `INSERT OR REPLACE INTO ${TABLE2} VALUES (?, ?), (?, ?);`,
@@ -128,7 +123,6 @@ const tests = {
 
           isSaved: false,
           isLong: false,
-          isLongQuery: false,
         }
       ],
       results: {
@@ -143,51 +137,6 @@ const tests = {
       }
     }, {
       id: 5,
-      name: 'Stop on isLongQuery commits.',
-      commits: [
-        {
-          queries: [
-            `INSERT OR REPLACE INTO ${TABLE1} VALUES (?, ?);`,
-          ],
-          params: [
-            [1, 'test3'],
-          ],
-
-          isSaved: false,
-          isLong: false,
-          isLongQuery: false,
-        }, {
-          queries: undefined,
-          params: undefined,
-
-          isSaved: false,
-          isLong: false,
-          isLongQuery: true,
-        }, {
-          queries: [
-            `INSERT OR REPLACE INTO ${TABLE2} VALUES (?, ?), (?, ?);`,
-          ],
-          params: [
-            [1, 'test10', 2, 'test11'],
-          ],
-
-          isSaved: false,
-          isLong: false,
-          isLongQuery: false,
-        }
-      ],
-      results: {
-        TABLE1: [
-          { id: 1, value: 'test3' },
-          { id: 2, value: 'test5' }
-        ],
-        TABLE2: [
-          { id: 1, value: 'test8' },
-          { id: 2, value: 'test9' }
-        ],
-      }
-    }, {
-      id: 6,
       name: 'Stop for fragmented commits.',
       commits: [
         {
@@ -200,7 +149,6 @@ const tests = {
 
           isSaved: false,
           isLong: false,
-          isLongQuery: false,
         }, {
           id: 3,
           queries: [
@@ -212,7 +160,6 @@ const tests = {
 
           isSaved: false,
           isLong: false,
-          isLongQuery: false,
         }
       ],
       results: {

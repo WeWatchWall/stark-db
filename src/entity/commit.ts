@@ -10,7 +10,6 @@ export class CommitArg implements IEntityArg {
 
   isSaved?: boolean;
   isLong?: boolean;
-  isLongQuery?: boolean;
 }
 
 @Entity({ name: COMMITS_TABLE })
@@ -34,7 +33,4 @@ export class Commit implements IEntity {
 
   @Column()
   isLong: boolean;
-  
-  @Column()
-  isLongQuery: boolean;
 }

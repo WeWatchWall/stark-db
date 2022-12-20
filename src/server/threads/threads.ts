@@ -49,10 +49,7 @@ export class Queue extends QueueBase {
       // This should only happen for the last long commit in the queue.
       // That commit should be re-tried later.
       // Also break if the commit is not the next one in the queue.
-      if (
-        commit.isLongQuery === true ||
-        (currentCommit > ZERO && commit.id > currentCommit + ONE)
-      ) { break; }
+      if (currentCommit > ZERO && commit.id > currentCommit + ONE) { break; }
       
       currentCommit = commit.id;
 

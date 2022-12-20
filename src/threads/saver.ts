@@ -40,9 +40,8 @@ export abstract class SaverBase implements ISaver, IEngine {
   async add(results: Results): Promise<void> {
     if (
       !results ||
-      results.isLong ||
-      results.isLongQuery ||
-      results.results.length === ZERO
+      results.results.length === ZERO ||
+      results.isLong
     ) {
       await this.addCommit(results);
       await this.del(results.id);

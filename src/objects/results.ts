@@ -15,7 +15,6 @@ class ResultArg {
   name: string;
   keys: string[];
 
-  isLongQuery: boolean;
   rows: any[];
 }
 
@@ -24,8 +23,6 @@ export class Result {
 
   name: string;
   keys: string[];
-
-  isLongQuery: boolean;
   rows: any[];
 
   /**
@@ -64,8 +61,6 @@ export class Result {
     return {
       name: this.name,
       keys: this.keys,
-
-      isLongQuery: this.isLongQuery,
       rows: rows,
     };
   }
@@ -74,8 +69,6 @@ export class Result {
     return {
       name: this.name,
       keys: this.keys,
-
-      isLongQuery: this.isLongQuery,
       rows: this.rows,
     };
   }
@@ -114,8 +107,6 @@ export class Result {
 const ResultInitArg = new ObjectModel({
   name: String,
   keys: ArrayModel(String),
-
-  isLongQuery: Boolean,
   rows: ArrayModel(Any),
 });
 /* #endregion */
@@ -127,7 +118,6 @@ class ResultsArg {
   target: Target;
 
   isLong: boolean;
-  isLongQuery: boolean;
   results?: Result[] | ResultArg[];
 }
 
@@ -138,7 +128,6 @@ export class Results {
   target: Target;
 
   isLong: boolean;
-  isLongQuery: boolean;
   results: Result[];
 
   static init(obj: ResultsArg): Results {
@@ -151,15 +140,6 @@ export class Results {
         .results
         ?.map((result: ResultArg) => new Result(result))
       || [];
-
-    // Check if any of the results are long queries.
-    arg.isLongQuery = false;
-    for (const result of arg.results) {
-      if (result.isLongQuery) {
-        arg.isLongQuery = true;
-        break;
-      }
-    }
 
     return new Results(arg);
   }
@@ -190,7 +170,6 @@ export class Results {
       target: this.target,
 
       isLong: this.isLong,
-      isLongQuery: this.isLongQuery,
       results: this.results.map((result) => result.toIDObject()),
     };
   }
@@ -201,7 +180,6 @@ export class Results {
       target: this.target,
 
       isLong: this.isLong,
-      isLongQuery: this.isLongQuery,
       results: this.results.map((result) => result.toObject()),
     };
   }
@@ -217,7 +195,6 @@ const ResultsInitArg = new ObjectModel({
   target: [Target.DB, Target.mem],
 
   isLong: Boolean,
-  isLongQuery: Boolean,
   results: [ArrayModel(Result), ArrayModel(ResultArg)],
 });
 /* #endregion */

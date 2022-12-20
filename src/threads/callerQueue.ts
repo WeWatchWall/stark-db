@@ -28,8 +28,7 @@ export class QueueCallerBase implements ICaller, IQueue {
     queries: string[],
     params: any[][],
 
-    isLong: boolean,
-    isLongQuery: boolean
+    isLong: boolean
   ): Promise<number> {
     return await this.worker.run({
       name: PersistCall.get,
@@ -40,8 +39,7 @@ export class QueueCallerBase implements ICaller, IQueue {
         queries,
         params,
 
-        isLong,
-        isLongQuery,
+        isLong
       ]
     });
   }
