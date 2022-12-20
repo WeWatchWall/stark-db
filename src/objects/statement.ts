@@ -104,6 +104,7 @@ export class Statement {
 
   private ready(): void {
     this.parseType();
+    this.parseIsRead();
     this.parseTables();
   }
 
@@ -174,6 +175,23 @@ export class Statement {
       this.meta.result?.type === `statement` &&
       this.meta.result?.variant === StatementType[10]
     );
+  }
+
+  private parseIsRead(): void {
+    let iterator = new RecursiveIterator(
+      this.meta,
+      1, // Breath-first.
+    );
+
+    for(let { node } of iterator) {
+      if (
+        node.type === `statement` &&
+        node.variant === StatementType[10]
+      ) {
+        this.isRead = true;
+        break;
+      }      
+    }
   }
 
   private parseTables(): void {

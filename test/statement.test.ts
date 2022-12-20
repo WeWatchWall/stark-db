@@ -324,6 +324,18 @@ const tests = [
     }
   }, {
     id: 24,
+    name: 'Data - update with select',
+    statement: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
+    result: {
+      index: 0,
+      isRead: true,
+      statement: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
+      params: [],
+      type: ParseType.modify_data,
+      tables: ["variables"]
+    }
+  }, {
+    id: 24,
     name: 'Data - delete',
     statement: 'DELETE FROM variables WHERE value = "new";',
     result: {
