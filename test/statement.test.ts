@@ -335,7 +335,7 @@ const tests = [
       tables: ["variables"]
     }
   }, {
-    id: 24,
+    id: 25,
     name: 'Data - delete',
     statement: 'DELETE FROM variables WHERE value = "new";',
     result: {
@@ -347,7 +347,7 @@ const tests = [
       tables: ["variables"]
     }
   }, {
-    id: 25,
+    id: 26,
     name: 'Data - select',
     statement: 'SELECT * FROM variables WHERE value = "new";',
     result: {
@@ -359,7 +359,7 @@ const tests = [
       tables: ["variables"]
     }
   }, {
-    id: 26,
+    id: 27,
     name: 'Data - select with join',
     statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
     result: {
@@ -375,7 +375,7 @@ const tests = [
 
   /* #region  Other. */
   {
-    id: 27,
+    id: 28,
     name: 'Other - add pragma',
     statement: 'PRAGMA pragma_name = value;',
     result: {
