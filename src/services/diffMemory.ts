@@ -90,16 +90,18 @@ export class DiffManager {
         const hash = hashSet.rows[j];
 
         // If the hash is not in the memory, add the row.
-        const memRow = this.mem[resultSet.name].rows[hash];
+        const memTable = this.mem[resultSet.name].rows;
+        const memRow = memTable[hash];
         if (memRow == undefined) {
-          this.mem[resultSet.name].rows[hash] = {
+          memTable[hash] = {
             count: 0,
             row,
           };
 
-        // Otherwise, increment the count.
+        // Otherwise, increment the count and update the row.
         } else {
           memRow.count++;
+          memRow.row = row;
         }
       }
     }
