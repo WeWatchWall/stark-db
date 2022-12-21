@@ -157,7 +157,7 @@ const loadTests = [
   },
 ];
 
-describe('Scripts - Load.', function () {
+describe('Commits - Load.', function () {
   for (const test of loadTests) {
     if (test.isSkip) { continue; }
 
@@ -273,7 +273,7 @@ SELECT * FROM user;`,
   }
 ];
 
-describe('Scripts - Save.', function () {
+describe('Commits - Save.', function () {
   for (const test of saveTests) {
     if (test.isSkip) { continue; }
 
