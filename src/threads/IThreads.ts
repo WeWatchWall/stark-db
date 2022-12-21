@@ -25,11 +25,11 @@ export interface IQueue extends IThread {
     threadID: number,
     target: Target,
 
-    queries: string[],
-    params: any[][],
+    queries: string[][],
+    params: any[][][],
 
-    isLong: boolean
-  ): Promise<number>;
+    isLong: boolean[]
+  ): Promise<number[]>;
   add(results: Results): Promise<void>;
   set(results: Results): Promise<void>;
 }

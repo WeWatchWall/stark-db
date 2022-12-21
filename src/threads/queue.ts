@@ -62,50 +62,70 @@ export abstract class QueueBase implements IQueue {
     threadID: number,
     target: Target,
 
-    queries: string[],
-    params: any[][],
+    queries: string[][],
+    params: any[][][],
 
-    isLong: boolean
-  ): Promise<number> {
+    isLong: boolean[],
+    count = ONE
+  ): Promise<number[]> {
     // Don't run on the wrong target.
-    if (this.target === Target.mem && target !== Target.mem) { return -ONE; }
+    if (this.target === Target.mem && target !== Target.mem) { return []; }
+
+    // Set count to be the minimum of all the argument lengths.
+    count = Math.min(queries.length, params.length, isLong.length, count);
+    if (count < ONE) { return []; }
 
     await this.commitLock.acquireAsync();
     
-    this.lastCommit++;
-    const commit = this.lastCommit;
+    // Assign the commit IDs and update the last commit.
+    const commitIds = Array
+      .from(Array(count))
+      .map((_value, index: number) => this.lastCommit + index + ONE);
+    this.lastCommit = commitIds[commitIds.length - ONE];
 
     // Add the commit to the queue table if targeting the server DB.
     if (this.DB != undefined && this.target === Target.DB) {
-      const commitEntity = new Commit({
-        id: commit,
+      const commits: Commit[] = [];
 
-        queries: queries,
-        params: params,
+      // Create the commit entities.
+      for (let i = 0; i < commitIds.length; i++) {
+        const commitId = commitIds[i];
+        const commitQueries = queries[i];
+        const commitParams = params[i];
+        const commitIsLong = isLong[i];
 
-        isSaved: false,
-        isLong: isLong
-      });
+        const commitEntity = new Commit({
+          id: commitId,
+  
+          queries: commitQueries,
+          params: commitParams,
+  
+          isSaved: false,
+          isLong: commitIsLong
+        });
 
-      await this.DB.manager.save(commitEntity);
+        commits.push(commitEntity);
+      }
+
+      await this.DB.manager.save(commits);
     }
 
     // Send the response.
     this.out.postMessage({
       name: PersistCall.get,
-      args: [threadID, commit]
+      args: [threadID, commitIds]
     });
 
     // Conditionally release the lock if this isn't a long transaction.
     // Adding the commit to the DB while locked might make this unfeasible,
     //   so this might need to come before that.
     if (this.DB != undefined && isLong) {
-      this.commitLong = commit;
+      this.commitLong = this.lastCommit;
     } else {
       this.commitLock.release();
     }
 
-    return commit;
+    return commitIds;
   }
 
   async add(results: Results): Promise<void> {

@@ -23,4 +23,6 @@ export class Table implements IEntity {
   @Column()
   isMemory: boolean;
 
+  @Column()
+  changeCount: number;
 }
