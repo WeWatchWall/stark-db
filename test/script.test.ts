@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import copy from 'fast-copy';
 
-import { Script } from '../src/objects/commit';
+import { Commit } from '../src/objects/commit';
 import { ParseType, Statement } from '../src/objects/statement';
 
 const loadTests = [
@@ -162,7 +162,7 @@ describe('Scripts - Load.', function () {
     if (test.isSkip) { continue; }
 
     it(`${test.id}: ${test.name}`, async () => {
-      const script = new Script({
+      const script = new Commit({
         script: test.script,
         params: test.params
       });
@@ -281,7 +281,7 @@ describe('Scripts - Save.', function () {
       const statements = test.statements.map((statement) => 
         new Statement(statement)
       );
-      const script = new Script({ statements });
+      const script = new Commit({ statements });
 
       expect(script.toString()).to.be.deep.equal(test.result);
       expect(script.params).to.be.deep.equal(test.params);

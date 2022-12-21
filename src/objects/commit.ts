@@ -5,13 +5,13 @@ import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { ParseType, Statement } from './statement';
 
-export class ScriptArg {
+export class CommitArg {
   script?: string;
   params?: any[];
   statements?: Statement[];
 }
 
-export class Script {
+export class Commit {
   loader: LazyLoader;
   validator: LazyValidator;
 
@@ -25,7 +25,7 @@ export class Script {
    * Creates an instance of a SQL script.
    * @param [init] @type {StatementData} The initial values.
    */
-  constructor(init: ScriptArg) {
+  constructor(init: CommitArg) {
     // Hook up the loader.
     this.loader = new LazyLoader(
       () => this.load.apply(this, []),
@@ -77,7 +77,7 @@ export class Script {
     // Parse the script statements.
     this.statements = statements.map((statement: string, index: number) => {
       // Count and extract the number of parameters in the statement.
-      const paramCount = Script.countString(statement, `\\?`);
+      const paramCount = Commit.countString(statement, `\\?`);
       const params = this.params.slice(startParam, startParam + paramCount);
       startParam += paramCount;
 
