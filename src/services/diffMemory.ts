@@ -1,4 +1,4 @@
-import { Result, Results, ResultsArg } from '../objects/results';
+import { Result, ResultList, ResultListArg } from '../objects/results';
 import { ONE, Target, ZERO } from '../utils/constants';
 
 // TODO: test this...
@@ -23,9 +23,9 @@ export class DiffManager {
 
   /**
    * Adds all the required tables to the diff manager.
-   * @param arg @type {Results} The results to add.
+   * @param arg @type {ResultList} The results to add.
    */
-  add(arg: Results): void {
+  add(arg: ResultList): void {
     for (const result of arg.results) {
       if (this.mem[result.name] != undefined) { continue; }
 
@@ -38,9 +38,9 @@ export class DiffManager {
 
   /**
    * Gets the a @type {Results} object from the diff manager memory.
-   * @returns get @type {Results} The compiled results.
+   * @returns get @type {ResultList} The compiled results.
    */
-  async get(): Promise<Results> {
+  async get(): Promise<ResultList> {
     const results: Result[] = [];
 
     for (const tableName of Object.keys(this.mem)) {
@@ -63,7 +63,7 @@ export class DiffManager {
     }
 
     // Return a results object with dummy properties set up.
-    return new Results({
+    return new ResultList({
       id: -ONE,
       isLong: false,
       target: Target.DB,
@@ -73,10 +73,10 @@ export class DiffManager {
 
   /**
    * Sets the row counts in the diff manager memory.
-   * @param arg @type {Results} The results to set.
-   * @param hashes @type {ResultsArg} The hashes that correspond to the results.
+   * @param arg @type {ResultList} The results to set.
+   * @param hashes @type {ResultListArg} The hashes that correspond to the results.
    */
-  set(arg: Results, hashes: ResultsArg): void {
+  set(arg: ResultList, hashes: ResultListArg): void {
     this.add(arg);
 
     for (let i = 0; i < arg.results.length; i++) {
@@ -109,9 +109,9 @@ export class DiffManager {
 
   /**
    * Deletes a set of results @type {ResultsArg} from the diff manager.
-   * @param hashes  @type {ResultsArg} The hashes to delete.
+   * @param hashes  @type {ResultListArg} The hashes to delete.
    */
-  del(hashes: ResultsArg): void {
+  del(hashes: ResultListArg): void {
     for (let i = 0; i < hashes.results.length; i++) {
       // Get the result and hash sets.
       const hashSet = hashes.results[i];

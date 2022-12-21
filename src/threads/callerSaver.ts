@@ -1,4 +1,4 @@
-import { Results } from '../objects/results';
+import { ResultList } from '../objects/results';
 import { Target } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { ICaller, ISaver } from './IThreads';
@@ -29,7 +29,7 @@ export class SaverCallerBase implements ICaller, ISaver {
   }
 
   async add(
-    results: Results
+    results: ResultList
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.add,

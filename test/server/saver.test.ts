@@ -7,7 +7,7 @@ import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../src/entity/commit';
-import { Results } from '../../src/objects/results';
+import { ResultList } from '../../src/objects/results';
 import { UserDB } from '../../src/server/objects/DBUser';
 import { Saver } from '../../src/server/threads/threads';
 import { DB_DRIVER, SAVER_CHANNEL, Target } from '../../src/utils/constants';
@@ -133,7 +133,7 @@ async function runTest(test: any, target: Target) {
     await saver.DB.manager.save(commit);
 
     // Invoke the saver.add method.
-    const results = test.results ? Results.init(args) : undefined;
+    const results = test.results ? ResultList.init(args) : undefined;
     await saver.add(results);
 
     // Check the results.

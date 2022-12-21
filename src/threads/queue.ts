@@ -4,7 +4,7 @@ import FlatPromise from 'flat-promise';
 import { DataSource } from 'typeorm';
 import { Commit } from '../entity/commit';
 
-import { Results } from '../objects/results';
+import { ResultList } from '../objects/results';
 import {
   ONE,
   QUEUE_CHANNEL,
@@ -37,7 +37,7 @@ export abstract class QueueBase implements IQueue {
   private currentCommit: number;
   private currentPromise: FlatPromise;
   private lastCommit: number;
-  private queue: FIFO<Results>;
+  private queue: FIFO<ResultList>;
 
   constructor(name: string, target: Target, commit = ZERO) {
     this.name = name;
@@ -127,7 +127,7 @@ export abstract class QueueBase implements IQueue {
     return commitIds;
   }
 
-  async add(results: Results): Promise<void> {
+  async add(results: ResultList): Promise<void> {
     // Don't run on the wrong target.
     // Even if there is a result for both targets, the memory result may be
     //   empty.
@@ -147,7 +147,7 @@ export abstract class QueueBase implements IQueue {
     });
   }
 
-  async set(results: Results): Promise<void> {
+  async set(results: ResultList): Promise<void> {
     // Call the workers with the task results.
     this.out.postMessage({
       name: PersistCall.set,
@@ -225,7 +225,7 @@ export abstract class QueueBase implements IQueue {
           args[4]
         );
       case PersistCall.add:
-        return await this.add(Results.init(args[0]));
+        return await this.add(ResultList.init(args[0]));
       case PersistCall.del:
         return await this.del(args[0]);
       default:

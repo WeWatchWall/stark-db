@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { Results } from '../objects/results';
+import { ResultList } from '../objects/results';
 import { Target } from '../utils/constants';
 
 export interface ICaller {
@@ -30,21 +30,21 @@ export interface IQueue extends IThread {
 
     isLong: boolean
   ): Promise<number[]>;
-  add(results: Results): Promise<void>;
-  set(results: Results): Promise<void>;
+  add(results: ResultList): Promise<void>;
+  set(results: ResultList): Promise<void>;
 }
 
 export interface ISaver extends IThread {
   target: Target;
 
   get(): Promise<number>;
-  add(results: Results): Promise<void>;
+  add(results: ResultList): Promise<void>;
   del(commit: number): Promise<void>;
 }
 
 export interface IWorker extends IThread {
   id: number;
 
-  run(query: string, args: any[]): Promise<Results>;
+  run(query: string, args: any[]): Promise<ResultList>;
   pause(id: number, target: Target): Promise<void>;
 }

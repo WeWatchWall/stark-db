@@ -1,4 +1,4 @@
-import { Results } from '../objects/results';
+import { ResultList } from '../objects/results';
 import { Target } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { ICaller, IQueue } from './IThreads';
@@ -45,7 +45,7 @@ export class QueueCallerBase implements ICaller, IQueue {
   }
 
   async add(
-    results: Results,
+    results: ResultList,
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.add,
@@ -56,7 +56,7 @@ export class QueueCallerBase implements ICaller, IQueue {
   }
 
   async set(
-    results: Results,
+    results: ResultList,
   ): Promise<void> {
     await this.worker.run({
       name: PersistCall.set,

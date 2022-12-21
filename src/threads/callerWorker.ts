@@ -1,4 +1,4 @@
-import { Results } from '../objects/results';
+import { ResultList } from '../objects/results';
 import { Target } from '../utils/constants';
 import { WorkerCall } from '../utils/threadCalls';
 import { ICaller, IWorker } from './IThreads';
@@ -21,7 +21,7 @@ export class WorkerCallerBase implements ICaller, IWorker {
     });
   }
 
-  async run(query: string, args: any[]): Promise<Results> {
+  async run(query: string, args: any[]): Promise<ResultList> {
     return await this.worker.run({
       name: WorkerCall.run,
       args: [

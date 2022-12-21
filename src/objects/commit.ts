@@ -61,7 +61,7 @@ export class Commit {
   }
 
   private loadValidate(): void {
-    new ScriptLoad(this);
+    new CommitLoad(this);
   }
 
   private loadReady(): void {
@@ -154,7 +154,7 @@ export class Commit {
 }
 
 /* #region  Use schema to check the properties. */
-const ScriptLoad = new ObjectModel({
+const CommitLoad = new ObjectModel({
   script: String,
   params: ArrayModel(Any),
   statements: undefined,

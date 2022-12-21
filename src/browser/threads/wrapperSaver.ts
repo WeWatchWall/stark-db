@@ -1,6 +1,6 @@
 import Multee from 'multee-browser';
 
-import { Results } from '../../objects/results';
+import { ResultList } from '../../objects/results';
 import { PersistCall } from '../../utils/threadCalls';
 import { Saver } from './threads';
 
@@ -27,7 +27,7 @@ const job = multee.createHandler(
         return await instance.get();
       case PersistCall.add:
         return await instance.add(
-          Results.init(callArgs.args[0]),
+          ResultList.init(callArgs.args[0]),
         );
 
       // Outbound through the BC. This is just for testing.

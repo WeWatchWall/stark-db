@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 
 import { Commit } from '../entity/commit';
-import { Results } from '../objects/results';
+import { ResultList } from '../objects/results';
 import { COMMITS_TABLE, SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
@@ -37,7 +37,7 @@ export abstract class SaverBase implements ISaver, IEngine {
     return currentID?.[0]?.[maxColumn] || ZERO;
   }
 
-  async add(results: Results): Promise<void> {
+  async add(results: ResultList): Promise<void> {
     if (
       !results ||
       results.results.length === ZERO ||
@@ -60,7 +60,7 @@ export abstract class SaverBase implements ISaver, IEngine {
     await this.del(results.id);
   }
 
-  private async addCommit(results: Results): Promise<void> {
+  private async addCommit(results: ResultList): Promise<void> {
     if (!results || this.target !== Target.DB) { return; }
 
     const commit = new Commit({
@@ -99,7 +99,7 @@ export abstract class SaverBase implements ISaver, IEngine {
 
     switch (name) {
       case PersistCall.add:
-        return await this.add(Results.init(args[0]));
+        return await this.add(ResultList.init(args[0]));
       default:
         break;
     }

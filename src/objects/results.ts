@@ -126,7 +126,7 @@ const ResultInitArg = new ObjectModel({
 /* #endregion */
 
 /* #region  Multiple results. */
-export class ResultsArg {
+export class ResultListArg {
   id: number;
   target: Target;
 
@@ -134,7 +134,7 @@ export class ResultsArg {
   results?: Result[] | ResultArg[];
 }
 
-export class Results {
+export class ResultList {
   validator: LazyValidator;
 
   id: number;
@@ -143,7 +143,7 @@ export class Results {
   isLong: boolean;
   results: Result[];
 
-  static init(obj: ResultsArg): Results {
+  static init(obj: ResultListArg): ResultList {
     if (!obj) { return undefined; }
 
     // Copy the arguments and parse the results property.
@@ -154,14 +154,14 @@ export class Results {
         ?.map((result: ResultArg) => new Result(result))
       || [];
 
-    return new Results(arg);
+    return new ResultList(arg);
   }
 
   /**
    * Creates an instance of the class.
-   * @param [init] @type {ResultsArg} The initial value.
+   * @param [init] @type {ResultListArg} The initial value.
    */
-   constructor(init?: ResultsArg) {
+   constructor(init?: ResultListArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
     );
@@ -174,10 +174,10 @@ export class Results {
   }
 
   private validate(): void {
-    new ResultsInitArg(this);
+    new ResultListInitArg(this);
   }
 
-  toHashObject(): ResultsArg {
+  toHashObject(): ResultListArg {
     return {
       id: this.id,
       target: this.target,
@@ -187,7 +187,7 @@ export class Results {
     };
   }
 
-  toIDObject(): ResultsArg {
+  toIDObject(): ResultListArg {
     return {
       id: this.id,
       target: this.target,
@@ -197,7 +197,7 @@ export class Results {
     };
   }
 
-  toObject(): ResultsArg {
+  toObject(): ResultListArg {
     return {
       id: this.id,
       target: this.target,
@@ -213,7 +213,7 @@ export class Results {
 }
 
 /* #region  Use schema to check the properties. */
-const ResultsInitArg = new ObjectModel({
+const ResultListInitArg = new ObjectModel({
   id: Number,
   target: [Target.DB, Target.mem],
 
