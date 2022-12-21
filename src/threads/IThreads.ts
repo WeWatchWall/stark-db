@@ -28,7 +28,7 @@ export interface IQueue extends IThread {
     queries: string[][],
     params: any[][][],
 
-    isLong: boolean[]
+    isLong: boolean
   ): Promise<number[]>;
   add(results: Results): Promise<void>;
   set(results: Results): Promise<void>;

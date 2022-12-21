@@ -65,14 +65,14 @@ export abstract class QueueBase implements IQueue {
     queries: string[][],
     params: any[][][],
 
-    isLong: boolean[],
+    isLong: boolean,
     count = ONE
   ): Promise<number[]> {
     // Don't run on the wrong target.
     if (this.target === Target.mem && target !== Target.mem) { return []; }
 
     // Set count to be the minimum of all the argument lengths.
-    count = Math.min(queries.length, params.length, isLong.length, count);
+    count = Math.min(queries.length, params.length, count);
     if (count < ONE) { return []; }
 
     await this.commitLock.acquireAsync();
@@ -92,7 +92,6 @@ export abstract class QueueBase implements IQueue {
         const commitId = commitIds[i];
         const commitQueries = queries[i];
         const commitParams = params[i];
-        const commitIsLong = isLong[i];
 
         const commitEntity = new Commit({
           id: commitId,
@@ -101,7 +100,7 @@ export abstract class QueueBase implements IQueue {
           params: commitParams,
   
           isSaved: false,
-          isLong: commitIsLong
+          isLong: isLong
         });
 
         commits.push(commitEntity);
