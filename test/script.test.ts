@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import copy from 'fast-copy';
 
-import { Script } from '../src/objects/script';
+import { Script } from '../src/objects/commit';
 import { ParseType, Statement } from '../src/objects/statement';
 
 const loadTests = [
