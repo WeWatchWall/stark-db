@@ -4,7 +4,7 @@ import FlatPromise from 'flat-promise';
 import { DataSource } from 'typeorm';
 import { Commit } from '../entity/commit';
 
-import { ResultList } from '../objects/results';
+import { ResultList } from '../objects/resultList';
 import {
   ONE,
   QUEUE_CHANNEL,

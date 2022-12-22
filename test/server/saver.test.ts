@@ -7,7 +7,7 @@ import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../src/entity/commit';
-import { ResultList } from '../../src/objects/results';
+import { ResultList } from '../../src/objects/resultList';
 import { UserDB } from '../../src/server/objects/DBUser';
 import { Saver } from '../../src/server/threads/threads';
 import { DB_DRIVER, SAVER_CHANNEL, Target } from '../../src/utils/constants';

@@ -1,4 +1,4 @@
-import { ResultList } from '../objects/results';
+import { ResultList } from '../objects/resultList';
 import { Target } from '../utils/constants';
 import { WorkerCall } from '../utils/threadCalls';
 import { ICaller, IWorker } from './IThreads';

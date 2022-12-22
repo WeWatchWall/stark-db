@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 
 import { Commit } from '../entity/commit';
-import { ResultList } from '../objects/results';
+import { ResultList } from '../objects/resultList';
 import { COMMITS_TABLE, SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
 import { PersistCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';

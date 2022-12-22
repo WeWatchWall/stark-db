@@ -1,5 +1,5 @@
 import Multee from 'multee';
-import { ResultList } from '../../objects/results';
+import { ResultList } from '../../objects/resultList';
 
 import { PersistCall } from '../../utils/threadCalls';
 import { Queue } from './threads';

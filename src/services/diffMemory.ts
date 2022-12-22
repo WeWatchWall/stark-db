@@ -1,4 +1,5 @@
-import { Result, ResultList, ResultListArg } from '../objects/results';
+import { Result } from '../objects/result';
+import { ResultList, ResultListArg } from '../objects/resultList';
 import { ONE, Target, ZERO } from '../utils/constants';
 
 // TODO: test this...

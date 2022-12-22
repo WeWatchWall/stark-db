@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { ResultList } from '../objects/results';
+import { ResultList } from '../objects/resultList';
 import { Target } from '../utils/constants';
 
 export interface ICaller {
