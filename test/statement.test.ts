@@ -350,10 +350,10 @@ const tests = [
     name: 'Other - add pragma',
     statement: 'PRAGMA pragma_name = value;',
     result: {
+      isRead: false,
       statement: 'PRAGMA pragma_name = value;',
       params: [],
       tables: [],
-      isRead: false,
       type: ParseType.other
     }
   },
@@ -372,12 +372,7 @@ describe('Statements.', function () {
       statement.validator.ready();
 
       // Copy and cleanup the statement.
-      const result = Object.assign(
-        {},
-        statement
-      );
-      delete result.validator;
-      delete result.meta;
+      const result = statement.toObject();
 
       expect(result).to.be.deep.equal(test.result);
     });

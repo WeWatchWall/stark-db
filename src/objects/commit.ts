@@ -3,12 +3,12 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import { NEWLINE, STATEMENT_DELIMITER, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
-import { ParseType, Statement } from './statement';
+import { Statement, StatementArg } from './statement';
 
 export class CommitArg {
   script?: string;
   params?: any[];
-  statements?: Statement[];
+  statements?: StatementArg[] | Statement[];
 }
 
 export class Commit {
@@ -86,20 +86,6 @@ export class Commit {
       statementMeta.validator.ready();
       return statementMeta;
     });
-
-    // Set the statement.isTransaction property.
-    let isTransaction = false;
-    for (const statement of this.statements) {
-      if (statement.type === ParseType.begin_transaction) {
-        isTransaction = true;
-      }
-
-      statement.isTransaction = isTransaction;
-
-      if (statement.type === ParseType.commit_transaction) {
-        isTransaction = false;
-      }
-    }
   }
 
   private static countString(str: string, letter: string) {
@@ -143,6 +129,14 @@ export class Commit {
     this.script = statements.join(NEWLINE);
   }
   /* #endregion */
+
+  toObject(): CommitArg {
+    return {
+      script: this.script,
+      params: this.params,
+      statements: this.statements.map((statement) => statement.toObject()),
+    };
+  }
 
   /**
    * Gets the string representation of the instance.

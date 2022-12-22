@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import copy from 'fast-copy';
 
 import { Commit } from '../src/objects/commit';
 import { ParseType, Statement } from '../src/objects/statement';
@@ -30,7 +29,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: false,
           tables: ["user"],
           type: ParseType.select_data
         }
@@ -50,7 +48,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: true,
           tables: [],
           type: ParseType.begin_transaction
         }
@@ -70,7 +67,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: false,
           tables: ["user"],
           type: ParseType.select_data
         }, {
@@ -78,7 +74,6 @@ const loadTests = [
           params: [1, "Timber", "Saw", 25],
 
           isRead: false,
-          isTransaction: false,
           tables: ["user"],
           type: ParseType.modify_data
         }
@@ -98,7 +93,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: false,
           tables: ["user"],
           type: ParseType.select_data
         }, {
@@ -106,7 +100,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: true,
           tables: [],
           type: ParseType.begin_transaction
         }, {
@@ -114,7 +107,6 @@ const loadTests = [
           params: [1, "Timber", "Saw", 25],
 
           isRead: false,
-          isTransaction: true,
           tables: ["user"],
           type: ParseType.modify_data
         }, {
@@ -122,7 +114,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: true,
           tables: [],
           type: ParseType.rollback_transaction
         }, {
@@ -130,7 +121,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: true,
           tables: [],
           type: ParseType.commit_transaction
         }, {
@@ -138,7 +128,6 @@ const loadTests = [
           params: [],
 
           isRead: false,
-          isTransaction: false,
           tables: ["user"],
           type: ParseType.select_data
         }
@@ -152,22 +141,13 @@ describe('Commits - Load.', function () {
     if (test.isSkip) { continue; }
 
     it(`${test.id}: ${test.name}`, async () => {
-      const script = new Commit({
+      const commit = new Commit({
         script: test.script,
         params: test.params
       });
 
       // Copy and cleanup the statement.
-      const result = copy(script);
-
-      delete result.loader;
-      delete result.validator;
-      delete (<any>result).isSave; // isSave is private.
-
-      for (const statement of result.statements) {
-        delete statement.validator;
-        delete statement.meta;
-      }
+      const result = commit.toObject();
 
       expect(result).to.be.deep.equal(test.result);
     });
@@ -261,10 +241,10 @@ describe('Commits - Save.', function () {
       const statements = test.statements.map((statement) => 
         new Statement(statement)
       );
-      const script = new Commit({ statements });
+      const commit = new Commit({ statements });
 
-      expect(script.toString()).to.be.deep.equal(test.result);
-      expect(script.params).to.be.deep.equal(test.params);
+      expect(commit.toString()).to.be.deep.equal(test.result);
+      expect(commit.params).to.be.deep.equal(test.params);
     });
   }
 });

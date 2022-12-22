@@ -1,5 +1,5 @@
 import assert from 'assert';
-import { Any, ArrayModel, BasicModel, ObjectModel } from 'objectmodel';
+import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
@@ -40,9 +40,13 @@ enum StatementType {
   delete = 11,
 }
 
-class StatementArg {
+export class StatementArg {
   statement: string;
   params: any[];
+
+  type?: ParseType;
+  isRead?: boolean;
+  tables?: string[];
 }
 
 // TODO: Add support for the following:
@@ -60,12 +64,11 @@ export class Statement {
   statement: string;
   params: any[];
 
-  meta: any;
   type: ParseType;
   isRead: boolean;
   tables: string[];
 
-  isTransaction: boolean;
+  private meta: any;
 
   /**
    * Creates an instance of a SQL statement.
@@ -235,6 +238,17 @@ export class Statement {
     return Array.from(tables);
   }
 
+  toObject(): StatementArg {
+    return {
+      statement: this.statement,
+      params: this.params,
+
+      type: this.type,
+      isRead: this.isRead,
+      tables: this.tables,
+    };
+  }
+
   /**
    * Gets the string representation of the instance.
    * @returns string
@@ -246,12 +260,6 @@ export class Statement {
 }
 
 /* #region  Use schema to check the properties. */
-const Integer = BasicModel(Number)
-  .assert(Number.isSafeInteger)
-  .as("Integer");
-const PositiveInteger = Integer
-  .assert(function isPositive(n) { return n >= ZERO })
-  .as("PositiveInteger");
 const StatementInitArg = new ObjectModel({
   statement: String,
   params: ArrayModel(Any)

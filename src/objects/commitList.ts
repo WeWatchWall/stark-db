@@ -4,13 +4,16 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import { NEWLINE, ONE, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Commit } from './commit';
+import { Commit, CommitArg } from './commit';
 import { ParseType, Statement } from './statement';
 
 export class CommitListArg {
   script?: string;
   params?: any[];
-  commits?: Commit[];
+  commits?: CommitArg[] | Commit[];
+
+  isLong?: boolean;
+  isWait?: boolean;
 }
 
 export class CommitList {
@@ -47,7 +50,7 @@ export class CommitList {
   }
 
   /* #region  Loads from the script string. */
-  private load(): void {
+  load(): void {
     this.validator = new LazyValidator(
       () => this.loadValidate.apply(this, []),
       () => this.loadReady.apply(this, [])
@@ -153,10 +156,7 @@ export class CommitList {
   }
 
   /* #region  Saves to the script string. */
-  private save(): void {
-    // Don't run the save if this is a load.
-    if (!this.isSave) { return; }
-
+  save(): void {
     this.validator = new LazyValidator(
       () => this.saveValidate.apply(this, []),
       () => this.saveReady.apply(this, [])
@@ -173,6 +173,17 @@ export class CommitList {
     this.params = this.commits.map((commit) => commit.params).flat();
   }
   /* #endregion */
+
+  toObject(): CommitListArg {
+    return {
+      script: this.script,
+      params: this.params,
+      commits: this.commits.map((commit) => commit.toObject()),
+
+      isLong: this.isLong,
+      isWait: this.isWait,
+    };
+  }
 
   /**
    * Gets the string representation of the instance.
