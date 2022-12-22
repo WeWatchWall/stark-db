@@ -22,8 +22,8 @@ export class Commit {
   private isSave: boolean;
 
   /**
-   * Creates an instance of a SQL script.
-   * @param [init] @type {StatementData} The initial values.
+   * Creates an instance of the class.
+   * @param [init] @type {StatementArg} The initial values.
    */
   constructor(init: CommitArg) {
     // Hook up the loader.

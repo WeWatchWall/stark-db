@@ -1,9 +1,9 @@
 import AwaitLock from 'await-lock';
-import FIFO from 'fifo';
 import FlatPromise from 'flat-promise';
+import { Queue } from 'js-sdsl';
 import { DataSource } from 'typeorm';
-import { Commit } from '../entity/commit';
 
+import { Commit } from '../entity/commit';
 import { ResultList } from '../objects/resultList';
 import {
   ONE,
@@ -37,7 +37,7 @@ export abstract class QueueBase implements IQueue {
   private currentCommit: number;
   private currentPromise: FlatPromise;
   private lastCommit: number;
-  private queue: FIFO<ResultList>;
+  private queue: Queue<ResultList>;
 
   constructor(name: string, target: Target, commit = ZERO) {
     this.name = name;
@@ -53,7 +53,7 @@ export abstract class QueueBase implements IQueue {
     this.currentCommit = ZERO;
     this.currentPromise = new FlatPromise();
     this.lastCommit = commit;
-    this.queue = new FIFO();
+    this.queue = new Queue<ResultList>();
   }
 
   abstract init(): Promise<void>;
@@ -169,7 +169,7 @@ export abstract class QueueBase implements IQueue {
 
   async del(commit: number): Promise<void> {
     // Get the next results from the queue.
-    const { value: results } = this.queue.shift();
+    const results = this.queue.pop();
 
     // Make sure the queue is synched with the saver.
     if (results == undefined || results.id !== commit) {
