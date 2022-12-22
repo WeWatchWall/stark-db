@@ -75,14 +75,14 @@ export class Commit {
     let startParam = 0;
 
     // Parse the script statements.
-    this.statements = statements.map((statement: string, index: number) => {
+    this.statements = statements.map((statement: string) => {
       // Count and extract the number of parameters in the statement.
       const paramCount = Commit.countString(statement, `\\?`);
       const params = this.params.slice(startParam, startParam + paramCount);
       startParam += paramCount;
 
       // Create validate, and return the statement.
-      const statementMeta = new Statement({ statement, params, index });
+      const statementMeta = new Statement({ statement, params });
       statementMeta.validator.ready();
       return statementMeta;
     });

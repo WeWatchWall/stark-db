@@ -41,7 +41,6 @@ enum StatementType {
 }
 
 class StatementArg {
-  index: number;
   statement: string;
   params: any[];
 }
@@ -58,7 +57,6 @@ class StatementArg {
 export class Statement {
   validator: LazyValidator;
 
-  index: number;
   statement: string;
   params: any[];
 
@@ -93,7 +91,7 @@ export class Statement {
     const parseResult = sqliteParser(this.statement);
     this.meta = parseResult
       ?.statement
-      ?.[0];
+      ?.[ZERO];
 
     assert(this.meta, `Failed to parse the statement.`);
     assert( // TODO: Might be unnecessary. 
@@ -255,7 +253,6 @@ const PositiveInteger = Integer
   .assert(function isPositive(n) { return n >= ZERO })
   .as("PositiveInteger");
 const StatementInitArg = new ObjectModel({
-  index: PositiveInteger,
   statement: String,
   params: ArrayModel(Any)
 });

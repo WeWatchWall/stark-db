@@ -26,7 +26,6 @@ const loadTests = [
       params: [],
       statements: [
         {
-          index: 0,
           statement: 'SELECT * FROM user;',
           params: [],
 
@@ -47,7 +46,6 @@ const loadTests = [
       params: [],
       statements: [
         {
-          index: 0,
           statement: 'BEGIN;',
           params: [],
 
@@ -68,7 +66,6 @@ const loadTests = [
       params: [1, "Timber", "Saw", 25],
       statements: [
         {
-          index: 0,
           statement: 'SELECT * FROM user;',
           params: [],
 
@@ -77,7 +74,6 @@ const loadTests = [
           tables: ["user"],
           type: ParseType.select_data
         }, {
-          index: 1,
           statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
           params: [1, "Timber", "Saw", 25],
 
@@ -98,7 +94,6 @@ const loadTests = [
       params: [1, "Timber", "Saw", 25],
       statements: [
         {
-          index: 0,
           statement: 'SELECT * FROM user;',
           params: [],
 
@@ -107,7 +102,6 @@ const loadTests = [
           tables: ["user"],
           type: ParseType.select_data
         }, {
-          index: 1,
           statement: 'BEGIN;',
           params: [],
 
@@ -116,7 +110,6 @@ const loadTests = [
           tables: [],
           type: ParseType.begin_transaction
         }, {
-          index: 2,
           statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
           params: [1, "Timber", "Saw", 25],
 
@@ -125,7 +118,6 @@ const loadTests = [
           tables: ["user"],
           type: ParseType.modify_data
         }, {
-          index: 3,
           statement: 'ROLLBACK TRANSACTION;',
           params: [],
 
@@ -134,7 +126,6 @@ const loadTests = [
           tables: [],
           type: ParseType.rollback_transaction
         }, {
-          index: 4,
           statement: 'END;',
           params: [],
 
@@ -143,7 +134,6 @@ const loadTests = [
           tables: [],
           type: ParseType.commit_transaction
         }, {
-          index: 5,
           statement: 'SELECT * FROM user;',
           params: [],
 
@@ -197,7 +187,6 @@ const saveTests = [
     name: 'Single statement',
     statements: [
       {
-        index: 0,
         statement: '\n SELECT * FROM user;',
         params: []
       }
@@ -209,7 +198,6 @@ const saveTests = [
     name: 'Single statement - transaction',
     statements: [
       {
-        index: 0,
         statement: 'BEGIN;',
         params: []
       }
@@ -221,11 +209,9 @@ const saveTests = [
     name: 'Multiple statements',
     statements: [
       {
-        index: 0,
         statement: 'SELECT * FROM user;',
         params: []
       }, {
-        index: 1,
         statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
         params: [1, "Timber", "Saw", 25],
       }
@@ -238,27 +224,21 @@ INSERT INTO user VALUES (?, ?, ?, ?);`,
     name: 'Multiple statements',
     statements: [
       {
-        index: 0,
         statement: 'SELECT * FROM user;',
         params: []
       }, {
-        index: 1,
         statement: 'BEGIN;',
         params: []
       }, {
-        index: 2,
         statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
         params: [1, "Timber", "Saw", 25],
       }, {
-        index: 3,
         statement: 'ROLLBACK TRANSACTION;',
         params: []
       }, {
-        index: 4,
         statement: 'END;',
         params: []
       }, {
-        index: 5,
         statement: 'SELECT * FROM user;',
         params: []
       }
