@@ -1,7 +1,9 @@
 import { LinkList } from 'js-sdsl';
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
+import RecursiveIterator from 'recursive-iterator';
+import sqliteParser from 'sqlite-parser';
 
-import { NEWLINE, ONE, ZERO } from '../utils/constants';
+import { isWAL_VAR, NEWLINE, ONE, VARS_TABLE, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Commit, CommitArg } from './commit';
@@ -100,6 +102,7 @@ export class CommitList {
 
   private static commitAnalyzers = [
     'splitCommits',
+    'setIsWAL',
   ];
 
   splitCommits(statements: Statement[]): LinkList<Statement>[] {
@@ -126,6 +129,7 @@ export class CommitList {
     this.isWait = result.length === ONE &&
       result[ZERO].front().type === ParseType.begin_transaction &&
       result[ZERO].back().type !== ParseType.commit_transaction;
+    this.isLong = this.isWait;
 
     /* #region  Check the first statement begins with a */
     //   begin transaction statement.
@@ -156,6 +160,80 @@ export class CommitList {
     /* #endregion */
 
     return result;
+  }
+
+  setIsWAL(commits: LinkList<Statement>[]): LinkList<Statement>[] {
+    // Remove the statements that update the isWAL flag.
+    for (let cIndex = 0; cIndex < commits.length; cIndex++) {
+      let commitList = commits[cIndex];
+      let commit = Array.from(commitList);
+      const indexes = [];
+
+      for (let sIndex = 0; sIndex < commit.length; sIndex++) {
+        const statement: Statement = commit[sIndex];
+
+        // Skip all statements that are not update variable statements.
+        if (
+          statement.type !== ParseType.modify_data ||
+          !statement.tables.includes(VARS_TABLE)
+        ) { continue; }
+
+        // Check the parameters for the isWAL variable.
+        if (statement.params.includes(isWAL_VAR)) {
+          indexes.push(sIndex);
+          continue;
+        }
+
+        const statementMeta = sqliteParser(statement.statement);
+        
+        let iterator = new RecursiveIterator(
+          statementMeta,
+          1, // Breath-first.
+        );
+
+        // Search for the isWAL variable.
+        let isFound = false;
+        for (let { node } of iterator) {
+          if (node.name !== isWAL_VAR) { continue; }
+
+          indexes.push(sIndex);
+          isFound = true;
+          break;
+        }
+        if (isFound) {
+          indexes.push(sIndex);
+          this.isLong = true;
+        }
+      }
+
+      // Remove the isWAL statements & update the commit list.
+      if (indexes.length > ZERO) {
+        commit = commit.filter((_, index) => !indexes.includes(index));
+        commitList = new LinkList<Statement>(commit);
+        commits[cIndex] = commitList;
+      }
+
+      // Add the isWAL statement to the beginning of the statements list.
+      // The value is set in the worker. First, the value is true to
+      //   extract the data. Then, the value is false to commit the data.
+      commitList.insert(ONE, new Statement({
+        statement:
+          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+        params: [ZERO],
+      }));
+
+      // Check if the first commit is waiting.
+      if (this.isWait) { break; }
+
+      // Add the isWAL statement to the end of the statements list.
+      commitList.insert(commitList.length - ONE, new Statement({
+        statement:
+          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+        params: [ONE],
+      }));
+    }
+
+    return commits;
   }
 
   /* #region  Saves to the script string. */
