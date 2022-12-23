@@ -122,10 +122,15 @@ export class CommitList {
     }
     /* #endregion */
 
+    // Check if the user specifies a partial query.
+    this.isWait = result.length === ONE &&
+      result[ZERO].front().type === ParseType.begin_transaction &&
+      result[ZERO].back().type !== ParseType.commit_transaction;
+
     /* #region  Check the first statement begins with a */
     //   begin transaction statement.
     if (
-      result.length > 0 &&
+      result.length > ZERO &&
       result[ZERO].front().type !== ParseType.begin_transaction
     ) {
       result[ZERO].pushFront(new Statement({
@@ -137,9 +142,7 @@ export class CommitList {
 
     /* #region  Check the first and only statement ends with a */
     //   commit transaction statement.
-    if (result.length === ONE) {
-      this.isWait = result[ZERO].back().type !== ParseType.commit_transaction;
-    } else {
+    if (!this.isWait && result.length > ZERO) {
       // Ensure every last statement is a commit transaction statement.
       for (const commit of result) {
         if (commit.back().type === ParseType.commit_transaction) { continue; }

@@ -20,6 +20,48 @@ const loadTests = [
     isSkip: false
   }, {
     id: 1,
+    name: 'Missing start & end transaction',
+    script: `SELECT * FROM user;`,
+    params: [],
+    result: {
+      script: "BEGIN TRANSACTION;\nSELECT * FROM user;\nCOMMIT TRANSACTION;",
+      params: [],
+      commits: [
+        {
+          script:
+            "BEGIN TRANSACTION;\nSELECT * FROM user;\nCOMMIT TRANSACTION;",
+          params: [],
+          statements: [
+            {
+              isRead: false,
+              params: [],
+              statement: "BEGIN TRANSACTION;",
+              tables: [],
+              type: ParseType.begin_transaction
+            }, {
+              isRead: false,
+              params: [],
+              statement: "SELECT * FROM user;",
+              tables: [
+                "user"
+              ],
+              type: ParseType.select_data
+            }, {
+              isRead: false,
+              params: [],
+              statement: "COMMIT TRANSACTION;",
+              tables: [],
+              type: ParseType.commit_transaction
+            }
+          ]
+        }
+      ],
+      isLong: false,
+      isWait: false
+    },
+    isSkip: false
+  }, {
+    id: 2,
     name: 'Missing start transaction',
     script: `SELECT * FROM user;
 COMMIT TRANSACTION;`,
@@ -62,7 +104,7 @@ COMMIT TRANSACTION;`,
     },
     isSkip: false
   }, {
-    id: 2,
+    id: 3,
     name: 'Missing start transaction - Multiple',
     script: `SELECT * FROM user;
 COMMIT TRANSACTION;
@@ -137,42 +179,6 @@ COMMIT TRANSACTION;`,
       ],
       isLong: false,
       isWait: false
-    },
-    isSkip: false
-  }, {
-    id: 3,
-    name: 'Missing start & end transaction',
-    script: `SELECT * FROM user;`,
-    params: [],
-    result: {
-      script: "BEGIN TRANSACTION;\nSELECT * FROM user;",
-      params: [],
-      commits: [
-        {
-          script:
-            "BEGIN TRANSACTION;\nSELECT * FROM user;",
-          params: [],
-          statements: [
-            {
-              isRead: false,
-              params: [],
-              statement: "BEGIN TRANSACTION;",
-              tables: [],
-              type: ParseType.begin_transaction
-            }, {
-              isRead: false,
-              params: [],
-              statement: "SELECT * FROM user;",
-              tables: [
-                "user"
-              ],
-              type: ParseType.select_data
-            }
-          ]
-        }
-      ],
-      isLong: false,
-      isWait: true
     },
     isSkip: false
   }, {
