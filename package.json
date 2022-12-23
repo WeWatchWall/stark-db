@@ -1,6 +1,6 @@
 {
    "name": "stark-db",
-   "version": "0.12.3",
+   "version": "0.12.4",
    "description": "Persistent SQL engine with TypeScript APIs for quick and easy production apps.",
    "main": "./dist/src/stark-db.js",
    "types": "./dist/src/stark-db.d.ts",

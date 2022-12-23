@@ -181,6 +181,7 @@ export class CommitList {
         // Check the parameters for the isWAL variable.
         if (statement.params.includes(isWAL_VAR)) {
           indexes.push(sIndex);
+          this.isLong = true;
           continue;
         }
 
@@ -196,7 +197,6 @@ export class CommitList {
         for (let { node } of iterator) {
           if (node.name !== isWAL_VAR) { continue; }
 
-          indexes.push(sIndex);
           isFound = true;
           break;
         }

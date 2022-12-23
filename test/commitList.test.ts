@@ -157,6 +157,55 @@ COMMIT TRANSACTION;`,
     isSkip: false
   }, {
     id: 3,
+    name: 'Split - Missing end transaction',
+    script: `BEGIN TRANSACTION;
+SELECT * FROM user;`,
+    params: [],
+    result: {
+      script: `BEGIN TRANSACTION;
+UPDATE _stark_vars SET value = ? WHERE id = \"isWAL\";
+SELECT * FROM user;`,
+      params: [ZERO],
+      commits: [
+        {
+          script: `BEGIN TRANSACTION;
+UPDATE _stark_vars SET value = ? WHERE id = \"isWAL\";
+SELECT * FROM user;`,
+          params: [ZERO],
+          statements: [
+            {
+              isRead: false,
+              params: [],
+              statement: "BEGIN TRANSACTION;",
+              tables: [],
+              type: ParseType.begin_transaction
+            }, {
+              isRead: false,
+              statement:
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+              params: [ZERO],
+              tables: [
+                VARS_TABLE
+              ],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              params: [],
+              statement: "SELECT * FROM user;",
+              tables: [
+                "user"
+              ],
+              type: ParseType.select_data
+            }
+          ]
+        }
+      ],
+      isLong: true,
+      isWait: true
+    },
+    isSkip: false
+  }, {
+    id: 4,
     name: 'Split - Missing start transaction - Multiple',
     script: `SELECT * FROM user;
 COMMIT TRANSACTION;
@@ -280,7 +329,7 @@ COMMIT TRANSACTION;`,
     },
     isSkip: false
   }, {
-    id: 4,
+    id: 5,
     name: 'Split - Missing start & end transaction - Multiple',
     script: `SELECT * FROM user;
 BEGIN TRANSACTION;
@@ -406,10 +455,124 @@ COMMIT TRANSACTION;`,
 
   /* #region  Manage the isWAL flag. */
   {
-    id: 5,
+    id: 6,
     name: 'isWAL - Update query',
     script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${isWAL_VAR}";`,
     params: [ZERO],
+    result: {
+      script: `BEGIN TRANSACTION;
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+COMMIT TRANSACTION;`,
+      params: [ZERO, ONE],
+      commits: [
+        {
+          script: `BEGIN TRANSACTION;
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+COMMIT TRANSACTION;`,
+          params: [ZERO, ONE],
+          statements: [
+            {
+              isRead: false,
+              params: [],
+              statement: "BEGIN TRANSACTION;",
+              tables: [],
+              type: ParseType.begin_transaction
+            }, {
+              isRead: false,
+              statement:
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+              params: [ZERO],
+              tables: [
+                VARS_TABLE
+              ],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              statement:
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+              params: [ONE],
+              tables: [
+                VARS_TABLE
+              ],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              statement: "COMMIT TRANSACTION;",
+              params: [],
+              tables: [],
+              type: ParseType.commit_transaction
+            }
+          ]
+        }
+      ],
+      isLong: true,
+      isWait: false
+    },
+    isSkip: false
+  }, {
+    id: 7,
+    name: 'isWAL - Insert or replace query',
+    script: `REPLACE INTO ${VARS_TABLE} VALUES ("${isWAL_VAR}", ?);`,
+    params: [ZERO],
+    result: {
+      script: `BEGIN TRANSACTION;
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+COMMIT TRANSACTION;`,
+      params: [ZERO, ONE],
+      commits: [
+        {
+          script: `BEGIN TRANSACTION;
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
+COMMIT TRANSACTION;`,
+          params: [ZERO, ONE],
+          statements: [
+            {
+              isRead: false,
+              params: [],
+              statement: "BEGIN TRANSACTION;",
+              tables: [],
+              type: ParseType.begin_transaction
+            }, {
+              isRead: false,
+              statement:
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+              params: [ZERO],
+              tables: [
+                VARS_TABLE
+              ],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              statement:
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+              params: [ONE],
+              tables: [
+                VARS_TABLE
+              ],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              statement: "COMMIT TRANSACTION;",
+              params: [],
+              tables: [],
+              type: ParseType.commit_transaction
+            }
+          ]
+        }
+      ],
+      isLong: true,
+      isWait: false
+    },
+    isSkip: false
+  }, {
+    id: 8,
+    name: 'isWAL - Query with params',
+    script: `REPLACE INTO ${VARS_TABLE} VALUES (?, ?);`,
+    params: [isWAL_VAR, ZERO],
     result: {
       script: `BEGIN TRANSACTION;
 UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";
