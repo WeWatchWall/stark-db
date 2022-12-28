@@ -3,7 +3,7 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
-import { ZERO } from '../utils/constants';
+import { ONE, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 
 export enum ParseType {
@@ -47,6 +47,8 @@ export class StatementArg {
   type?: ParseType;
   isRead?: boolean;
   tables?: string[];
+  columns?: string[];
+  keys?: string[];
 }
 
 // TODO: Add support for the following:
@@ -67,6 +69,8 @@ export class Statement {
   type: ParseType;
   isRead: boolean;
   tables: string[];
+  columns: string[];
+  keys: string[];
 
   private meta: any;
 
@@ -181,17 +185,17 @@ export class Statement {
   private parseIsRead(): void {
     let iterator = new RecursiveIterator(
       this.meta,
-      1, // Breath-first.
+      ONE, // Breath-first.
     );
 
-    for(let { node } of iterator) {
+    for (let { node } of iterator) {
       if (
         node.type === `statement` &&
         node.variant === StatementType[10]
       ) {
         this.isRead = true;
         break;
-      }      
+      }
     }
   }
 
@@ -209,21 +213,27 @@ export class Statement {
       ParseType.select_data,
     ];
 
-    this.tables = [];
+    this.tables = []; this.columns = []; this.keys = [];
     if (tableActions.includes(this.type) || dataActions.includes(this.type)) {
-      this.tables = this.parseDataTables();
+      const { tables, columns, keys } = this.parseDataTables();
+      this.tables = tables; this.columns = columns; this.keys = keys;
     }
   }
 
-  private parseDataTables(): string[] {
+  private parseDataTables(): {
+    tables: string[];
+    columns: string[];
+    keys: string[];
+  } {
+    /* #region  Parse table metadata. */
     const tables = new Set<string>();
 
     let iterator = new RecursiveIterator(
       this.meta,
-      1, // Breath-first.
+      ONE, // Breath-first.
     );
 
-    for(let { node } of iterator) {
+    for (let { node } of iterator) {
       const conditions = [
         node.type === `identifier`,
         node.variant === `table`,
@@ -234,8 +244,41 @@ export class Statement {
 
       tables.add(node.name);
     }
+    /* #endregion */
 
-    return Array.from(tables);
+    /* #region  Parse column metadata. */
+    // Extract the columns metadata to an array.
+    let definitions = [];
+    if (!!this.meta.definition) {
+      if (!!this.meta.definition.name) {
+        definitions.push(this.meta.definition);
+      } else if (!!this.meta.definition.length) {
+        definitions = this.meta.definition;
+      }
+    }
+
+    // Extract the columns and the key columns.
+    const columns = []; const keys = [];
+    for (let definition of definitions) {
+      if (definition.type !== `definition`) { continue; }
+      columns.push(definition.name);
+
+      for (const constraint of definition.definition) {
+        if (constraint.type !== `constraint`) { continue; }
+
+        if (constraint.variant === `primary key`) {
+          keys.push(definition.name);
+          break;
+        }
+      }
+    }
+    /* #endregion */
+
+    return {
+      tables: Array.from(tables),
+      columns,
+      keys
+    };
   }
 
   toObject(): StatementArg {
@@ -246,6 +289,8 @@ export class Statement {
       type: this.type,
       isRead: this.isRead,
       tables: this.tables,
+      columns: this.columns,
+      keys: this.keys
     };
   }
 
