@@ -3,9 +3,10 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
-import { isWAL_VAR, NEWLINE, ONE, VARS_TABLE, ZERO } from '../utils/constants';
+import { NEWLINE, ONE, VARS_TABLE, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
+import { Variables } from '../utils/variables';
 import { Commit, CommitArg } from './commit';
 import { ParseType, Statement } from './statement';
 
@@ -15,6 +16,7 @@ export class CommitListArg {
   commits?: CommitArg[] | Commit[];
 
   isLong?: boolean;
+  isMemory?: boolean;
   isWait?: boolean;
 }
 
@@ -27,6 +29,7 @@ export class CommitList {
   commits: Commit[];
 
   isLong: boolean;
+  isMemory: boolean;
   isWait: boolean;
 
   private isSave: boolean;
@@ -77,6 +80,7 @@ export class CommitList {
   private loadReady(): void {
     // Set the flags.
     this.isLong = false;
+    this.isMemory = false;
     this.isWait = false;
 
     // Load the commit arg as a commit list.
@@ -102,7 +106,7 @@ export class CommitList {
 
   private static commitAnalyzers = [
     'splitCommits',
-    'setIsWAL',
+    'setFlags',
   ];
 
   splitCommits(statements: Statement[]): LinkList<Statement>[] {
@@ -150,7 +154,7 @@ export class CommitList {
       // Ensure every last statement is a commit transaction statement.
       for (const commit of result) {
         if (commit.back().type === ParseType.commit_transaction) { continue; }
-        
+
         commit.pushBack(new Statement({
           statement: `COMMIT TRANSACTION;`,
           params: []
@@ -162,12 +166,12 @@ export class CommitList {
     return result;
   }
 
-  setIsWAL(commits: LinkList<Statement>[]): LinkList<Statement>[] {
+  setFlags(commits: LinkList<Statement>[]): LinkList<Statement>[] {
     // Remove the statements that update the isWAL flag.
     for (let cIndex = 0; cIndex < commits.length; cIndex++) {
       let commitList = commits[cIndex];
       let commit = Array.from(commitList);
-      const indexes = [];
+      const indexes = new Set<number>();
 
       for (let sIndex = 0; sIndex < commit.length; sIndex++) {
         const statement: Statement = commit[sIndex];
@@ -178,37 +182,58 @@ export class CommitList {
           !statement.tables.includes(VARS_TABLE)
         ) { continue; }
 
-        // Check the parameters for the isWAL variable.
-        if (statement.params.includes(isWAL_VAR)) {
-          indexes.push(sIndex);
+        // Check the parameters for the variables.
+        if (statement.params.includes(Variables.isWAL)) {
           this.isLong = true;
-          continue;
+          indexes.add(sIndex);
+        }
+        if (statement.params.includes(Variables.isMemory)) {
+          this.isMemory = true;
+          indexes.add(sIndex);
         }
 
         const statementMeta = sqliteParser(statement.statement);
-        
+
+        /* #region  Search for the isWAL variable. */
+        let isFound = false;
         let iterator = new RecursiveIterator(
           statementMeta,
           1, // Breath-first.
         );
-
-        // Search for the isWAL variable.
-        let isFound = false;
         for (let { node } of iterator) {
-          if (node.name !== isWAL_VAR) { continue; }
+          if (node.name !== Variables.isWAL) { continue; }
 
           isFound = true;
           break;
         }
         if (isFound) {
-          indexes.push(sIndex);
+          indexes.add(sIndex);
           this.isLong = true;
         }
+        /* #endregion */
+
+        /* #region  Search for the isMemory variable. */
+        isFound = false;
+        iterator = new RecursiveIterator(
+          statementMeta,
+          1, // Breath-first.
+        );
+        for (let { node } of iterator) {
+          if (node.name !== Variables.isMemory) { continue; }
+
+          isFound = true;
+          break;
+        }
+        if (isFound) {
+          indexes.add(sIndex);
+          this.isMemory = true;
+        }
+        /* #endregion */
       }
 
-      // Remove the isWAL statements & update the commit list.
-      if (indexes.length > ZERO) {
-        commit = commit.filter((_, index) => !indexes.includes(index));
+      // Remove the flag statements & update the commit list.
+      if (indexes.size > ZERO) {
+        commit = commit.filter((_, index) => !indexes.has(index));
         commitList = new LinkList<Statement>(commit);
         commits[cIndex] = commitList;
       }
@@ -218,7 +243,7 @@ export class CommitList {
       //   extract the data. Then, the value is false to commit the data.
       commitList.insert(ONE, new Statement({
         statement:
-          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
         params: [ZERO],
       }));
 
@@ -228,7 +253,7 @@ export class CommitList {
       // Add the isWAL statement to the end of the statements list.
       commitList.insert(commitList.length - ONE, new Statement({
         statement:
-          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${isWAL_VAR}";`,
+`UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
         params: [ONE],
       }));
     }
@@ -262,6 +287,7 @@ export class CommitList {
       commits: this.commits.map((commit) => commit.toObject()),
 
       isLong: this.isLong,
+      isMemory: this.isMemory,
       isWait: this.isWait,
     };
   }

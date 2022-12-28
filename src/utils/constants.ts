@@ -18,8 +18,6 @@ export const COMMITS_TABLE = '_stark_commits';
 export const TABLES_TABLE = '_stark_tables';
 export const VARS_TABLE = '_stark_vars';
 
-export const isWAL_VAR = 'isWAL';
-
 export const LONG_COMMIT_DEFAULT = 200;
 
 export enum Target { DB = 'DB', mem = 'mem' }

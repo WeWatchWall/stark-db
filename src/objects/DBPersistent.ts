@@ -83,6 +83,11 @@ export abstract class PersistentDBBase implements IDB {
       value: true
     });
 
+    const isMemoryVar = new Variable({
+      name: Variables.isMemory,
+      value: true
+    });
+
     const numChangesVar = new Variable({
       name: Variables.numChanges,
       value: ZERO
@@ -95,6 +100,7 @@ export abstract class PersistentDBBase implements IDB {
 
     await db.manager.save(isChanged);
     await db.manager.save(isWALVar);
+    await db.manager.save(isMemoryVar);
     await db.manager.save(numChangesVar);
     await db.manager.save(lastAccessVar);
     /* #endregion */
