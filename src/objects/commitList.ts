@@ -80,7 +80,7 @@ export class CommitList {
   private loadReady(): void {
     // Set the flags.
     this.isLong = false;
-    this.isMemory = false;
+    this.isMemory = true;
     this.isWait = false;
 
     // Load the commit arg as a commit list.
@@ -188,7 +188,7 @@ export class CommitList {
           indexes.add(sIndex);
         }
         if (statement.params.includes(Variables.isMemory)) {
-          this.isMemory = true;
+          this.isMemory = false;
           indexes.add(sIndex);
         }
 
@@ -226,7 +226,7 @@ export class CommitList {
         }
         if (isFound) {
           indexes.add(sIndex);
-          this.isMemory = true;
+          this.isMemory = false;
         }
         /* #endregion */
       }
