@@ -286,10 +286,10 @@ const tests = [
   {
     id: 19,
     name: 'Data - insert',
-    statement: 'INSERT INTO variables VALUES ("isWAL", 1);',
+    statement: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
       isRead: false,
-      statement: 'INSERT INTO variables VALUES ("isWAL", 1);',
+      statement: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -312,10 +312,10 @@ const tests = [
   }, {
     id: 21,
     name: 'Data - upsert',
-    statement: 'INSERT OR REPLACE INTO variables VALUES ("isWAL", 1);',
+    statement: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
       isRead: false,
-      statement: 'INSERT OR REPLACE INTO variables VALUES ("isWAL", 1);',
+      statement: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
       params: [],
       tables: ["variables"],
       columns: [],

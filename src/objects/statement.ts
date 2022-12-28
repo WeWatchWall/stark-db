@@ -236,7 +236,7 @@ export class Statement {
     for (let { node } of iterator) {
       const conditions = [
         node.type === `identifier`,
-        node.variant === `table`,
+        node.variant === `table` || node.format === `table`,
         !!node.name
       ];
 
