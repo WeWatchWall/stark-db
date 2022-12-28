@@ -168,12 +168,12 @@ export class CommitList {
 
   setFlags(commits: LinkList<Statement>[]): LinkList<Statement>[] {
     // Remove the statements that update the isWAL flag.
-    for (let cIndex = 0; cIndex < commits.length; cIndex++) {
+    for (let cIndex = ZERO; cIndex < commits.length; cIndex++) {
       let commitList = commits[cIndex];
       let commit = Array.from(commitList);
       const indexes = new Set<number>();
 
-      for (let sIndex = 0; sIndex < commit.length; sIndex++) {
+      for (let sIndex = ZERO; sIndex < commit.length; sIndex++) {
         const statement: Statement = commit[sIndex];
 
         // Skip all statements that are not update variable statements.
@@ -198,7 +198,7 @@ export class CommitList {
         let isFound = false;
         let iterator = new RecursiveIterator(
           statementMeta,
-          1, // Breath-first.
+          ONE, // Breath-first.
         );
         for (let { node } of iterator) {
           if (node.name !== Variables.isWAL) { continue; }
@@ -216,7 +216,7 @@ export class CommitList {
         isFound = false;
         iterator = new RecursiveIterator(
           statementMeta,
-          1, // Breath-first.
+          ONE, // Breath-first.
         );
         for (let { node } of iterator) {
           if (node.name !== Variables.isMemory) { continue; }
