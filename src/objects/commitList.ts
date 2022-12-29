@@ -293,7 +293,7 @@ export class CommitList {
         // Skip all statements that are not table statements.
         if (!tableTypes.has(statement.type)) { continue; }
 
-        results[sIndex] = this.writeTable(statement);
+        results[sIndex] = CommitList.getTableStatements(statement);
       }
       /* #endregion */
 
@@ -314,7 +314,7 @@ export class CommitList {
     return commits;
   }
 
-  writeTable(statement: Statement): Statement[] {
+  static getTableStatements(statement: Statement): Statement[] {
     const results: Statement[] = [];
 
     switch (statement.type) {
@@ -421,7 +421,7 @@ export class CommitList {
     return results;
   }
 
-  private getTrigger(
+  private static getTrigger(
     op: `insert` | `update`,
     name: string,
     table: string,
