@@ -9,6 +9,7 @@ import {
   ONE,
   STATEMENT_DELIMITER,
   STATEMENT_PLACEHOLDER,
+  TABLES_TABLE,
   TRIGGER_ADD,
   TRIGGER_PREFIX,
   TRIGGER_SET,
@@ -293,7 +294,7 @@ export class CommitList {
         // Skip all statements that are not table statements.
         if (!tableTypes.has(statement.type)) { continue; }
 
-        results[sIndex] = CommitList.getTableStatements(statement);
+        results[sIndex] = CommitList.getTableQueries(statement, this.isMemory);
       }
       /* #endregion */
 
@@ -314,7 +315,7 @@ export class CommitList {
     return commits;
   }
 
-  static getTableStatements(statement: Statement): Statement[] {
+  static getTableQueries(statement: Statement, isMemory: boolean): Statement[] {
     const results: Statement[] = [];
 
     switch (statement.type) {
@@ -376,6 +377,16 @@ export class CommitList {
           statement: triggerSetQuery,
           params: [],
         }));
+
+        results.push(new Statement({
+          statement: `REPLACE INTO ${TABLES_TABLE} VALUES (?, ?, ?, ?);`,
+          params: [
+            statement.tables[ZERO],
+            JSON.stringify(statement.keys),
+            isMemory ? ONE : ZERO,
+            ZERO
+          ]
+        }));
         /* #endregion */
         break;
       case ParseType.rename_table:
@@ -388,6 +399,14 @@ export class CommitList {
           statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
           params: []
         }));
+
+        // Update the table name if it is renamed.
+        if (statement.type === ParseType.rename_table) {
+          results.push(new Statement({
+            statement: `UPDATE ${TABLES_TABLE} SET name = ? WHERE name = ?;`,
+            params: statement.tables
+          }));
+        }
 
         const oldTableName = statement.type === ParseType.rename_table ?
           statement.tables[ONE] :

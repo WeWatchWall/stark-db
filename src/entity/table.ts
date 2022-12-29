@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
+import { TABLES_TABLE } from '../utils/constants';
 import { IEntity, IEntityArg } from './IEntity';
 
 export class TableArg implements IEntityArg {
@@ -7,7 +8,7 @@ export class TableArg implements IEntityArg {
   isMemory?: boolean;
 }
 
-@Entity({name: '_stark_tables'})
+@Entity({name: TABLES_TABLE})
 export class Table implements IEntity {
 
   constructor(init: TableArg) {
