@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { Commit } from '../src/objects/commit';
-import { ParseType, Query } from '../src/objects/query';
+import { ParseType, ParseQuery } from '../src/objects/query';
 
 const loadTests = [
   {
@@ -259,7 +259,7 @@ describe('Commits - Save.', function () {
 
     it(`${test.id}: ${test.name}`, async () => {
       const statements = test.statements.map((statement) => 
-        new Query(statement)
+        new ParseQuery(statement)
       );
       const commit = new Commit({ statements });
 

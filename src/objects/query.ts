@@ -40,7 +40,7 @@ enum StatementType {
   delete = 11,
 }
 
-export class QueryArg {
+export class ParseQueryArg {
   query: string;
   params: any[];
 
@@ -60,7 +60,7 @@ export class QueryArg {
 
 // - SCHEMA NAME
 // - ATTACH DB
-export class Query {
+export class ParseQuery {
   validator: LazyValidator;
 
   query: string;
@@ -76,9 +76,9 @@ export class Query {
 
   /**
    * Creates an instance of a SQL statement.
-   * @param [init] @type {QueryArg} The initial values.
+   * @param [init] @type {ParseQueryArg} The initial values.
    */
-  constructor(init?: QueryArg) {
+  constructor(init?: ParseQueryArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])
@@ -93,7 +93,7 @@ export class Query {
   }
 
   private validate(): void {
-    new StatementInitArg(this);
+    new ParseQueryInitArg(this);
 
     const parseResult = sqliteParser(this.query);
     this.meta = parseResult
@@ -281,7 +281,7 @@ export class Query {
     };
   }
 
-  toObject(): QueryArg {
+  toObject(): ParseQueryArg {
     return {
       query: this.query,
       params: this.params,
@@ -305,7 +305,7 @@ export class Query {
 }
 
 /* #region  Use schema to check the properties. */
-const StatementInitArg = new ObjectModel({
+const ParseQueryInitArg = new ObjectModel({
   query: String,
   params: ArrayModel(Any)
 });

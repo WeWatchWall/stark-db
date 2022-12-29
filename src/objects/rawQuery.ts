@@ -30,7 +30,7 @@ export class RawQuery {
   }
 
   private validate(): void {
-    new QueryInitArg(this);
+    new RawQueryInitArg(this);
   }
 
   toObject(): RawQueryArg {
@@ -41,7 +41,7 @@ export class RawQuery {
   }
 }
 
-const QueryInitArg = new ObjectModel({
+const RawQueryInitArg = new ObjectModel({
   query: String,
   params: ArrayModel(Any),
 });
