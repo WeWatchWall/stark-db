@@ -404,16 +404,6 @@ export class CommitList {
           params: []
         }));
         break;
-      case ParseType.drop_table:
-        results.push(new Statement({
-          statement: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
-          params: []
-        }));
-        results.push(new Statement({
-          statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
-          params: []
-        }));
-        break;
       default:
         break;
     }
