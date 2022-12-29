@@ -8,7 +8,7 @@ import {
   ZERO
 } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
-import { RawQuery } from './rawQuery';
+import { QueryRaw } from './queryRaw';
 
 /* #region  Single result. */
 export class ResultArg {
@@ -85,7 +85,7 @@ export class Result {
     };
   }
 
-  toUpdate(): RawQuery {
+  toUpdate(): QueryRaw {
     const queryParts: string[] = [
       `INSERT OR REPLACE INTO ${this.name} VALUES `,
     ];
@@ -108,7 +108,7 @@ export class Result {
 
     queryParts.push(STATEMENT_DELIMITER);
 
-    return new RawQuery({
+    return new QueryRaw({
       query: queryParts.join(``),
       params: queryParams,
     });

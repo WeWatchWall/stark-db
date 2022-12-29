@@ -2,7 +2,7 @@ import { expect } from 'chai';
 
 import { CommitArg } from '../src/objects/commit';
 import { CommitList } from '../src/objects/commitList';
-import { ParseType } from '../src/objects/query';
+import { ParseType } from '../src/objects/queryParse';
 import { ONE, VARS_TABLE, ZERO } from '../src/utils/constants';
 import { Variables } from '../src/utils/variables';
 

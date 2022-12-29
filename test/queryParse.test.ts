@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ParseType, ParseQuery } from '../src/objects/query';
+import { ParseType, QueryParse } from '../src/objects/queryParse';
 
 const tests = [
   /* #region  Transactions. */
@@ -422,12 +422,12 @@ const tests = [
   /* #endregion */
 ];
 
-describe('Statements.', function () {
+describe('Queries.', function () {
   for (const test of tests) {
     if (test.isSkip) { continue; }
 
     it(`${test.id}: ${test.name}`, async () => {
-      const statement = new ParseQuery({
+      const statement = new QueryParse({
         query: test.query,
         params: []
       });

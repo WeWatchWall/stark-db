@@ -3,12 +3,12 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import { NEWLINE, STATEMENT_DELIMITER, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
-import { ParseQuery, ParseQueryArg } from './query';
+import { QueryParse, QueryParseArg } from './queryParse';
 
 export class CommitArg {
   script?: string;
   params?: any[];
-  statements?: ParseQueryArg[] | ParseQuery[];
+  statements?: QueryParseArg[] | QueryParse[];
 }
 
 export class Commit {
@@ -17,13 +17,13 @@ export class Commit {
 
   script: string;
   params: any[];
-  statements: ParseQuery[];
+  statements: QueryParse[];
 
   private isSave: boolean;
 
   /**
    * Creates an instance of the class.
-   * @param [init] @type {ParseQueryArg} The initial values.
+   * @param [init] @type {QueryParseArg} The initial values.
    */
   constructor(init: CommitArg) {
     // Hook up the loader.
@@ -82,7 +82,7 @@ export class Commit {
       startParam += paramCount;
 
       // Create validate, and return the statement.
-      const statementMeta = new ParseQuery({ query: statement, params });
+      const statementMeta = new QueryParse({ query: statement, params });
       statementMeta.validator.ready();
       return statementMeta;
     });
@@ -157,6 +157,6 @@ const CommitLoad = new ObjectModel({
 const ScriptSave = new ObjectModel({
   script: [String],
   params: [ArrayModel(Any)],
-  statements: ArrayModel(ParseQuery),
+  statements: ArrayModel(QueryParse),
 });
 /* #endregion */

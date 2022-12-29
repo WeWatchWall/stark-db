@@ -21,7 +21,7 @@ import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variables } from '../utils/variables';
 import { Commit, CommitArg } from './commit';
-import { ParseType, ParseQuery } from './query';
+import { ParseType, QueryParse } from './queryParse';
 
 export class CommitListArg {
   script?: string;
@@ -103,7 +103,7 @@ export class CommitList {
     });
 
     // Initialize the argument to the analyzation stack.
-    let commitList: ParseQuery[] | LinkList<ParseQuery>[]
+    let commitList: QueryParse[] | LinkList<QueryParse>[]
       = commitArg.statements;
 
     for (const commitAnalyzer of CommitList.commitAnalyzers) {
@@ -111,7 +111,7 @@ export class CommitList {
     }
 
     // Convert the commit list to a commit array.
-    this.commits = (<LinkList<ParseQuery>[]>commitList)
+    this.commits = (<LinkList<QueryParse>[]>commitList)
       .map((commit) => new Commit({
         statements: Array.from(commit)
       }));
@@ -123,10 +123,10 @@ export class CommitList {
     'writeTables'
   ];
 
-  splitCommits(statements: ParseQuery[]): LinkList<ParseQuery>[] {
-    const result: LinkList<ParseQuery>[] = [];
+  splitCommits(statements: QueryParse[]): LinkList<QueryParse>[] {
+    const result: LinkList<QueryParse>[] = [];
 
-    let currentCommit: LinkList<ParseQuery>;
+    let currentCommit: LinkList<QueryParse>;
 
     /* #region  Split up the statements into commits based on the */
     //   begin transaction statement.
@@ -135,7 +135,7 @@ export class CommitList {
         currentCommit == undefined ||
         statement.type === ParseType.begin_transaction
       ) {
-        currentCommit = new LinkList<ParseQuery>();
+        currentCommit = new LinkList<QueryParse>();
         result.push(currentCommit);
       }
 
@@ -155,7 +155,7 @@ export class CommitList {
       result.length > ZERO &&
       result[ZERO].front().type !== ParseType.begin_transaction
     ) {
-      result[ZERO].pushFront(new ParseQuery({
+      result[ZERO].pushFront(new QueryParse({
         query: `BEGIN TRANSACTION;`,
         params: []
       }));
@@ -169,7 +169,7 @@ export class CommitList {
       for (const commit of result) {
         if (commit.back().type === ParseType.commit_transaction) { continue; }
 
-        commit.pushBack(new ParseQuery({
+        commit.pushBack(new QueryParse({
           query: `COMMIT TRANSACTION;`,
           params: []
         }));
@@ -180,7 +180,7 @@ export class CommitList {
     return result;
   }
 
-  setFlags(commits: LinkList<ParseQuery>[]): LinkList<ParseQuery>[] {
+  setFlags(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
     // Remove the statements that update the isWAL flag.
     for (let cIndex = ZERO; cIndex < commits.length; cIndex++) {
       let commitList = commits[cIndex];
@@ -188,7 +188,7 @@ export class CommitList {
       const indexes = new Set<number>();
 
       for (let sIndex = ZERO; sIndex < commit.length; sIndex++) {
-        const statement: ParseQuery = commit[sIndex];
+        const statement: QueryParse = commit[sIndex];
 
         // Skip all statements that are not update variable statements.
         if (
@@ -248,14 +248,14 @@ export class CommitList {
       // Remove the flag statements & update the commit list.
       if (indexes.size > ZERO) {
         commit = commit.filter((_, index) => !indexes.has(index));
-        commitList = new LinkList<ParseQuery>(commit);
+        commitList = new LinkList<QueryParse>(commit);
         commits[cIndex] = commitList;
       }
 
       // Add the isWAL statement to the beginning of the statements list.
       // The value is set in the worker. First, the value is true to
       //   extract the data. Then, the value is false to commit the data.
-      commitList.insert(ONE, new ParseQuery({
+      commitList.insert(ONE, new QueryParse({
         query:
           `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
         params: [ZERO],
@@ -265,7 +265,7 @@ export class CommitList {
       if (this.isWait) { break; }
 
       // Add the isWAL statement to the end of the statements list.
-      commitList.insert(commitList.length - ONE, new ParseQuery({
+      commitList.insert(commitList.length - ONE, new QueryParse({
         query:
           `UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
         params: [ONE],
@@ -275,7 +275,7 @@ export class CommitList {
     return commits;
   }
 
-  writeTables(commits: LinkList<ParseQuery>[]): LinkList<ParseQuery>[] {
+  writeTables(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
     const tableTypes = new Set<ParseType>([
       ParseType.create_table,
       ParseType.rename_table,
@@ -285,7 +285,7 @@ export class CommitList {
 
     for (const commit of commits) {
       const statements = Array.from(commit);
-      const results: ParseQuery[][] = [];
+      const results: QueryParse[][] = [];
 
       /* #region  Render the table statements. */
       for (let sIndex = 0; sIndex < statements.length; sIndex++) {
@@ -315,8 +315,8 @@ export class CommitList {
     return commits;
   }
 
-  static getTableQueries(statement: ParseQuery, isMemory: boolean): ParseQuery[] {
-    const results: ParseQuery[] = [];
+  static getTableQueries(statement: QueryParse, isMemory: boolean): QueryParse[] {
+    const results: QueryParse[] = [];
 
     switch (statement.type) {
       case ParseType.create_table:
@@ -328,7 +328,7 @@ export class CommitList {
           .replace(selectRegex, STATEMENT_DELIMITER)
           .replace(statement.tables[ZERO], diffTableName);
 
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: query,
           params: [],
         }));
@@ -350,11 +350,11 @@ export class CommitList {
           columns
         );
 
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
           params: []
         }));
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: triggerAddQuery,
           params: [],
         }));
@@ -369,16 +369,16 @@ export class CommitList {
           columns
         );
 
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
           params: []
         }));
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: triggerSetQuery,
           params: [],
         }));
 
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: `REPLACE INTO ${TABLES_TABLE} VALUES (?, ?, ?, ?);`,
           params: [
             statement.tables[ZERO],
@@ -391,18 +391,18 @@ export class CommitList {
         break;
       case ParseType.rename_table:
       case ParseType.modify_table_columns:
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
           params: []
         }));
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
           params: []
         }));
 
         // Update the table name if it is renamed.
         if (statement.type === ParseType.rename_table) {
-          results.push(new ParseQuery({
+          results.push(new QueryParse({
             query: `UPDATE ${TABLES_TABLE} SET name = ? WHERE name = ?;`,
             params: statement.tables
           }));
@@ -411,14 +411,14 @@ export class CommitList {
         const oldTableName = statement.type === ParseType.rename_table ?
           statement.tables[ONE] :
           statement.tables[ZERO];
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: `SELECT sql FROM sqlite_master WHERE name = ?;`,
           params: [oldTableName]
         }));
 
         // Expects this same method to be called again using the result
         //   of the previous statement.
-        results.push(new ParseQuery({
+        results.push(new QueryParse({
           query: STATEMENT_PLACEHOLDER,
           params: []
         }));

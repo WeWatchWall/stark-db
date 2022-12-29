@@ -22,7 +22,7 @@ export enum ParseType {
   other = 9,
 }
 
-enum StatementType {
+enum QueryType {
   begin = 0,
   rollback = 1,
   commit = 2,
@@ -40,7 +40,7 @@ enum StatementType {
   delete = 11,
 }
 
-export class ParseQueryArg {
+export class QueryParseArg {
   query: string;
   params: any[];
 
@@ -60,7 +60,7 @@ export class ParseQueryArg {
 
 // - SCHEMA NAME
 // - ATTACH DB
-export class ParseQuery {
+export class QueryParse {
   validator: LazyValidator;
 
   query: string;
@@ -76,9 +76,9 @@ export class ParseQuery {
 
   /**
    * Creates an instance of a SQL statement.
-   * @param [init] @type {ParseQueryArg} The initial values.
+   * @param [init] @type {QueryParseArg} The initial values.
    */
-  constructor(init?: ParseQueryArg) {
+  constructor(init?: QueryParseArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])
@@ -93,7 +93,7 @@ export class ParseQuery {
   }
 
   private validate(): void {
-    new ParseQueryInitArg(this);
+    new QueryParseInitArg(this);
 
     const parseResult = sqliteParser(this.query);
     this.meta = parseResult
@@ -115,39 +115,39 @@ export class ParseQuery {
 
   private parseType() {
     const transactionActions = [
-      StatementType[0],
-      StatementType[1],
+      QueryType[0],
+      QueryType[1],
     ];
 
     const transactionEndActions = [
-      StatementType[2],
-      StatementType[3],
+      QueryType[2],
+      QueryType[3],
     ];
 
     const columnModifyActions = [
-      StatementType[7],
-      StatementType[6]
+      QueryType[7],
+      QueryType[6]
     ];
 
     const dataModifyActions = [
-      StatementType[8],
-      StatementType[9],
-      StatementType[11],
+      QueryType[8],
+      QueryType[9],
+      QueryType[11],
     ];
 
     if (transactionActions.includes(this.meta.action)) {
-      this.type = <ParseType>(<any>StatementType[this.meta.action]);
+      this.type = <ParseType>(<any>QueryType[this.meta.action]);
 
     } else if (transactionEndActions.includes(this.meta.action)) {
       this.type = ParseType.commit_transaction;
 
     } else if (
       this.meta.format === `table` &&
-      this.meta.variant === StatementType[4]
+      this.meta.variant === QueryType[4]
     ) {
       this.type = ParseType.create_table;
 
-    } else if (this.meta.action === StatementType[5]) {
+    } else if (this.meta.action === QueryType[5]) {
       this.type = ParseType.rename_table;
 
     } else if (
@@ -156,14 +156,14 @@ export class ParseQuery {
       this.type = ParseType.modify_table_columns;
     } else if (
       this.meta.format === `table` &&
-      this.meta.variant === StatementType[6]
+      this.meta.variant === QueryType[6]
     ) {
       this.type = ParseType.drop_table;
 
     } else if (dataModifyActions.includes(this.meta.variant)) {
       this.type = ParseType.modify_data;
 
-    } else if (this.meta.variant === StatementType[10]) {
+    } else if (this.meta.variant === QueryType[10]) {
       this.type = ParseType.select_data;
 
     } else {
@@ -174,11 +174,11 @@ export class ParseQuery {
     this.isRead = (
       this.type === ParseType.create_table &&
       this.meta.definition?.[ZERO]?.type === `statement` &&
-      this.meta.definition?.[ZERO]?.variant === StatementType[10]
+      this.meta.definition?.[ZERO]?.variant === QueryType[10]
     ) || (
       this.type === ParseType.modify_data &&
       this.meta.result?.type === `statement` &&
-      this.meta.result?.variant === StatementType[10]
+      this.meta.result?.variant === QueryType[10]
     );
   }
 
@@ -191,7 +191,7 @@ export class ParseQuery {
     for (let { node } of iterator) {
       if (
         node.type === `statement` &&
-        node.variant === StatementType[10]
+        node.variant === QueryType[10]
       ) {
         this.isRead = true;
         break;
@@ -281,7 +281,7 @@ export class ParseQuery {
     };
   }
 
-  toObject(): ParseQueryArg {
+  toObject(): QueryParseArg {
     return {
       query: this.query,
       params: this.params,
@@ -305,7 +305,7 @@ export class ParseQuery {
 }
 
 /* #region  Use schema to check the properties. */
-const ParseQueryInitArg = new ObjectModel({
+const QueryParseInitArg = new ObjectModel({
   query: String,
   params: ArrayModel(Any)
 });

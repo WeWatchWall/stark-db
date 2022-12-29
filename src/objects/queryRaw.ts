@@ -2,12 +2,12 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
 import { LazyValidator } from '../utils/lazyValidator';
 
-class RawQueryArg {
+class QueryRawArg {
   query: string;
   params: any[];
 }
 
-export class RawQuery {
+export class QueryRaw {
   validator: LazyValidator;
 
   query: string;
@@ -15,9 +15,9 @@ export class RawQuery {
 
   /**
    * Creates an instance of the class.
-   * @param [init] @type {RawQueryArg} The initial value.
+   * @param [init] @type {QueryRawArg} The initial value.
    */
-  constructor(init?: RawQueryArg) {
+  constructor(init?: QueryRawArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
     );
@@ -30,10 +30,10 @@ export class RawQuery {
   }
 
   private validate(): void {
-    new RawQueryInitArg(this);
+    new QueryRawInitArg(this);
   }
 
-  toObject(): RawQueryArg {
+  toObject(): QueryRawArg {
     return {
       query: this.query,
       params: this.params,
@@ -41,7 +41,7 @@ export class RawQuery {
   }
 }
 
-const RawQueryInitArg = new ObjectModel({
+const QueryRawInitArg = new ObjectModel({
   query: String,
   params: ArrayModel(Any),
 });
