@@ -21,7 +21,7 @@ import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variables } from '../utils/variables';
 import { Commit, CommitArg } from './commit';
-import { ParseType, Statement } from './statement';
+import { ParseType, Query } from './statement';
 
 export class CommitListArg {
   script?: string;
@@ -103,7 +103,7 @@ export class CommitList {
     });
 
     // Initialize the argument to the analyzation stack.
-    let commitList: Statement[] | LinkList<Statement>[]
+    let commitList: Query[] | LinkList<Query>[]
       = commitArg.statements;
 
     for (const commitAnalyzer of CommitList.commitAnalyzers) {
@@ -111,7 +111,7 @@ export class CommitList {
     }
 
     // Convert the commit list to a commit array.
-    this.commits = (<LinkList<Statement>[]>commitList)
+    this.commits = (<LinkList<Query>[]>commitList)
       .map((commit) => new Commit({
         statements: Array.from(commit)
       }));
@@ -123,10 +123,10 @@ export class CommitList {
     'writeTables'
   ];
 
-  splitCommits(statements: Statement[]): LinkList<Statement>[] {
-    const result: LinkList<Statement>[] = [];
+  splitCommits(statements: Query[]): LinkList<Query>[] {
+    const result: LinkList<Query>[] = [];
 
-    let currentCommit: LinkList<Statement>;
+    let currentCommit: LinkList<Query>;
 
     /* #region  Split up the statements into commits based on the */
     //   begin transaction statement.
@@ -135,7 +135,7 @@ export class CommitList {
         currentCommit == undefined ||
         statement.type === ParseType.begin_transaction
       ) {
-        currentCommit = new LinkList<Statement>();
+        currentCommit = new LinkList<Query>();
         result.push(currentCommit);
       }
 
@@ -155,8 +155,8 @@ export class CommitList {
       result.length > ZERO &&
       result[ZERO].front().type !== ParseType.begin_transaction
     ) {
-      result[ZERO].pushFront(new Statement({
-        statement: `BEGIN TRANSACTION;`,
+      result[ZERO].pushFront(new Query({
+        query: `BEGIN TRANSACTION;`,
         params: []
       }));
     }
@@ -169,8 +169,8 @@ export class CommitList {
       for (const commit of result) {
         if (commit.back().type === ParseType.commit_transaction) { continue; }
 
-        commit.pushBack(new Statement({
-          statement: `COMMIT TRANSACTION;`,
+        commit.pushBack(new Query({
+          query: `COMMIT TRANSACTION;`,
           params: []
         }));
       }
@@ -180,7 +180,7 @@ export class CommitList {
     return result;
   }
 
-  setFlags(commits: LinkList<Statement>[]): LinkList<Statement>[] {
+  setFlags(commits: LinkList<Query>[]): LinkList<Query>[] {
     // Remove the statements that update the isWAL flag.
     for (let cIndex = ZERO; cIndex < commits.length; cIndex++) {
       let commitList = commits[cIndex];
@@ -188,7 +188,7 @@ export class CommitList {
       const indexes = new Set<number>();
 
       for (let sIndex = ZERO; sIndex < commit.length; sIndex++) {
-        const statement: Statement = commit[sIndex];
+        const statement: Query = commit[sIndex];
 
         // Skip all statements that are not update variable statements.
         if (
@@ -206,7 +206,7 @@ export class CommitList {
           indexes.add(sIndex);
         }
 
-        const statementMeta = sqliteParser(statement.statement);
+        const statementMeta = sqliteParser(statement.query);
 
         /* #region  Search for the isWAL variable. */
         let isFound = false;
@@ -248,15 +248,15 @@ export class CommitList {
       // Remove the flag statements & update the commit list.
       if (indexes.size > ZERO) {
         commit = commit.filter((_, index) => !indexes.has(index));
-        commitList = new LinkList<Statement>(commit);
+        commitList = new LinkList<Query>(commit);
         commits[cIndex] = commitList;
       }
 
       // Add the isWAL statement to the beginning of the statements list.
       // The value is set in the worker. First, the value is true to
       //   extract the data. Then, the value is false to commit the data.
-      commitList.insert(ONE, new Statement({
-        statement:
+      commitList.insert(ONE, new Query({
+        query:
           `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
         params: [ZERO],
       }));
@@ -265,8 +265,8 @@ export class CommitList {
       if (this.isWait) { break; }
 
       // Add the isWAL statement to the end of the statements list.
-      commitList.insert(commitList.length - ONE, new Statement({
-        statement:
+      commitList.insert(commitList.length - ONE, new Query({
+        query:
           `UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
         params: [ONE],
       }));
@@ -275,7 +275,7 @@ export class CommitList {
     return commits;
   }
 
-  writeTables(commits: LinkList<Statement>[]): LinkList<Statement>[] {
+  writeTables(commits: LinkList<Query>[]): LinkList<Query>[] {
     const tableTypes = new Set<ParseType>([
       ParseType.create_table,
       ParseType.rename_table,
@@ -285,7 +285,7 @@ export class CommitList {
 
     for (const commit of commits) {
       const statements = Array.from(commit);
-      const results: Statement[][] = [];
+      const results: Query[][] = [];
 
       /* #region  Render the table statements. */
       for (let sIndex = 0; sIndex < statements.length; sIndex++) {
@@ -315,8 +315,8 @@ export class CommitList {
     return commits;
   }
 
-  static getTableQueries(statement: Statement, isMemory: boolean): Statement[] {
-    const results: Statement[] = [];
+  static getTableQueries(statement: Query, isMemory: boolean): Query[] {
+    const results: Query[] = [];
 
     switch (statement.type) {
       case ParseType.create_table:
@@ -324,12 +324,12 @@ export class CommitList {
         const diffTableName = `${DIFFS_TABLE_PREFIX}${statement.tables[ZERO]}`;
         const selectRegex = /AS[\s]+SELECT[\s\S]*/gi;
         const query = statement
-          .statement
+          .query
           .replace(selectRegex, STATEMENT_DELIMITER)
           .replace(statement.tables[ZERO], diffTableName);
 
-        results.push(new Statement({
-          statement: query,
+        results.push(new Query({
+          query: query,
           params: [],
         }));
         /* #endregion */
@@ -350,12 +350,12 @@ export class CommitList {
           columns
         );
 
-        results.push(new Statement({
-          statement: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
+        results.push(new Query({
+          query: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
           params: []
         }));
-        results.push(new Statement({
-          statement: triggerAddQuery,
+        results.push(new Query({
+          query: triggerAddQuery,
           params: [],
         }));
 
@@ -369,17 +369,17 @@ export class CommitList {
           columns
         );
 
-        results.push(new Statement({
-          statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
+        results.push(new Query({
+          query: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
           params: []
         }));
-        results.push(new Statement({
-          statement: triggerSetQuery,
+        results.push(new Query({
+          query: triggerSetQuery,
           params: [],
         }));
 
-        results.push(new Statement({
-          statement: `REPLACE INTO ${TABLES_TABLE} VALUES (?, ?, ?, ?);`,
+        results.push(new Query({
+          query: `REPLACE INTO ${TABLES_TABLE} VALUES (?, ?, ?, ?);`,
           params: [
             statement.tables[ZERO],
             JSON.stringify(statement.keys),
@@ -391,19 +391,19 @@ export class CommitList {
         break;
       case ParseType.rename_table:
       case ParseType.modify_table_columns:
-        results.push(new Statement({
-          statement: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
+        results.push(new Query({
+          query: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
           params: []
         }));
-        results.push(new Statement({
-          statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
+        results.push(new Query({
+          query: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
           params: []
         }));
 
         // Update the table name if it is renamed.
         if (statement.type === ParseType.rename_table) {
-          results.push(new Statement({
-            statement: `UPDATE ${TABLES_TABLE} SET name = ? WHERE name = ?;`,
+          results.push(new Query({
+            query: `UPDATE ${TABLES_TABLE} SET name = ? WHERE name = ?;`,
             params: statement.tables
           }));
         }
@@ -411,15 +411,15 @@ export class CommitList {
         const oldTableName = statement.type === ParseType.rename_table ?
           statement.tables[ONE] :
           statement.tables[ZERO];
-        results.push(new Statement({
-          statement: `SELECT sql FROM sqlite_master WHERE name = ?;`,
+        results.push(new Query({
+          query: `SELECT sql FROM sqlite_master WHERE name = ?;`,
           params: [oldTableName]
         }));
 
         // Expects this same method to be called again using the result
         //   of the previous statement.
-        results.push(new Statement({
-          statement: STATEMENT_PLACEHOLDER,
+        results.push(new Query({
+          query: STATEMENT_PLACEHOLDER,
           params: []
         }));
         break;

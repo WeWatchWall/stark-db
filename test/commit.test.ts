@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { Commit } from '../src/objects/commit';
-import { ParseType, Statement } from '../src/objects/statement';
+import { ParseType, Query } from '../src/objects/statement';
 
 const loadTests = [
   {
@@ -25,7 +25,7 @@ const loadTests = [
       params: [],
       statements: [
         {
-          statement: 'SELECT * FROM user;',
+          query: 'SELECT * FROM user;',
           params: [],
 
           isRead: false,
@@ -46,7 +46,7 @@ const loadTests = [
       params: [],
       statements: [
         {
-          statement: 'BEGIN;',
+          query: 'BEGIN;',
           params: [],
 
           isRead: false,
@@ -67,7 +67,7 @@ const loadTests = [
       params: [1, "Timber", "Saw", 25],
       statements: [
         {
-          statement: 'SELECT * FROM user;',
+          query: 'SELECT * FROM user;',
           params: [],
 
           isRead: false,
@@ -76,7 +76,7 @@ const loadTests = [
           keys: [],
           type: ParseType.select_data
         }, {
-          statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
+          query: 'INSERT INTO user VALUES (?, ?, ?, ?);',
           params: [1, "Timber", "Saw", 25],
 
           isRead: false,
@@ -97,7 +97,7 @@ const loadTests = [
       params: [1, "Timber", "Saw", 25],
       statements: [
         {
-          statement: 'SELECT * FROM user;',
+          query: 'SELECT * FROM user;',
           params: [],
 
           isRead: false,
@@ -106,7 +106,7 @@ const loadTests = [
           keys: [],
           type: ParseType.select_data
         }, {
-          statement: 'BEGIN;',
+          query: 'BEGIN;',
           params: [],
 
           isRead: false,
@@ -115,7 +115,7 @@ const loadTests = [
           keys: [],
           type: ParseType.begin_transaction
         }, {
-          statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
+          query: 'INSERT INTO user VALUES (?, ?, ?, ?);',
           params: [1, "Timber", "Saw", 25],
 
           isRead: false,
@@ -124,7 +124,7 @@ const loadTests = [
           keys: [],
           type: ParseType.modify_data
         }, {
-          statement: 'ROLLBACK TRANSACTION;',
+          query: 'ROLLBACK TRANSACTION;',
           params: [],
 
           isRead: false,
@@ -133,7 +133,7 @@ const loadTests = [
           keys: [],
           type: ParseType.rollback_transaction
         }, {
-          statement: 'END;',
+          query: 'END;',
           params: [],
 
           isRead: false,
@@ -142,7 +142,7 @@ const loadTests = [
           keys: [],
           type: ParseType.commit_transaction
         }, {
-          statement: 'SELECT * FROM user;',
+          query: 'SELECT * FROM user;',
           params: [],
 
           isRead: false,
@@ -187,7 +187,7 @@ const saveTests = [
     name: 'Single statement',
     statements: [
       {
-        statement: '\n SELECT * FROM user;',
+        query: '\n SELECT * FROM user;',
         params: []
       }
     ],
@@ -198,7 +198,7 @@ const saveTests = [
     name: 'Single statement - transaction',
     statements: [
       {
-        statement: 'BEGIN;',
+        query: 'BEGIN;',
         params: []
       }
     ],
@@ -209,10 +209,10 @@ const saveTests = [
     name: 'Multiple statements',
     statements: [
       {
-        statement: 'SELECT * FROM user;',
+        query: 'SELECT * FROM user;',
         params: []
       }, {
-        statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
+        query: 'INSERT INTO user VALUES (?, ?, ?, ?);',
         params: [1, "Timber", "Saw", 25],
       }
     ],
@@ -224,22 +224,22 @@ INSERT INTO user VALUES (?, ?, ?, ?);`,
     name: 'Multiple statements',
     statements: [
       {
-        statement: 'SELECT * FROM user;',
+        query: 'SELECT * FROM user;',
         params: []
       }, {
-        statement: 'BEGIN;',
+        query: 'BEGIN;',
         params: []
       }, {
-        statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
+        query: 'INSERT INTO user VALUES (?, ?, ?, ?);',
         params: [1, "Timber", "Saw", 25],
       }, {
-        statement: 'ROLLBACK TRANSACTION;',
+        query: 'ROLLBACK TRANSACTION;',
         params: []
       }, {
-        statement: 'END;',
+        query: 'END;',
         params: []
       }, {
-        statement: 'SELECT * FROM user;',
+        query: 'SELECT * FROM user;',
         params: []
       }
     ],
@@ -259,7 +259,7 @@ describe('Commits - Save.', function () {
 
     it(`${test.id}: ${test.name}`, async () => {
       const statements = test.statements.map((statement) => 
-        new Statement(statement)
+        new Query(statement)
       );
       const commit = new Commit({ statements });
 

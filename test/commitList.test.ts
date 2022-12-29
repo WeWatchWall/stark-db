@@ -46,14 +46,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -65,7 +65,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -74,7 +74,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.select_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -86,7 +86,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
@@ -125,14 +125,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -144,7 +144,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -153,7 +153,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.select_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -165,7 +165,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
@@ -200,14 +200,14 @@ SELECT * FROM user;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -219,7 +219,7 @@ SELECT * FROM user;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -268,14 +268,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -287,7 +287,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -296,7 +296,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.select_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -308,7 +308,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
@@ -326,14 +326,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -345,7 +345,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -354,7 +354,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.select_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -366,7 +366,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
@@ -411,14 +411,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -430,7 +430,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -439,7 +439,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.select_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -451,7 +451,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
@@ -469,14 +469,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -488,7 +488,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "SELECT * FROM user;",
+              query: "SELECT * FROM user;",
               tables: [
                 "user"
               ],
@@ -497,7 +497,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.select_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -509,7 +509,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               params: [],
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
@@ -549,14 +549,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -567,7 +567,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -578,7 +578,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -615,14 +615,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -633,7 +633,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -644,7 +644,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -681,14 +681,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -699,7 +699,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -710,7 +710,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -747,14 +747,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -765,7 +765,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -776,7 +776,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -813,14 +813,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -831,7 +831,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -842,7 +842,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -879,14 +879,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -897,7 +897,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -908,7 +908,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -945,14 +945,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -963,7 +963,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -974,7 +974,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],
@@ -1011,14 +1011,14 @@ COMMIT TRANSACTION;`,
             {
               isRead: false,
               params: [],
-              statement: "BEGIN TRANSACTION;",
+              query: "BEGIN TRANSACTION;",
               tables: [],
               columns: [],
               keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
               params: [ZERO],
               tables: [
@@ -1029,7 +1029,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement:
+              query:
                 `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
               params: [ONE],
               tables: [
@@ -1040,7 +1040,7 @@ COMMIT TRANSACTION;`,
               type: ParseType.modify_data
             }, {
               isRead: false,
-              statement: "COMMIT TRANSACTION;",
+              query: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
               columns: [],

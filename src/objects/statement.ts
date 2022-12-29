@@ -40,8 +40,8 @@ enum StatementType {
   delete = 11,
 }
 
-export class StatementArg {
-  statement: string;
+export class QueryArg {
+  query: string;
   params: any[];
 
   type?: ParseType;
@@ -60,10 +60,10 @@ export class StatementArg {
 
 // - SCHEMA NAME
 // - ATTACH DB
-export class Statement {
+export class Query {
   validator: LazyValidator;
 
-  statement: string;
+  query: string;
   params: any[];
 
   type: ParseType;
@@ -76,9 +76,9 @@ export class Statement {
 
   /**
    * Creates an instance of a SQL statement.
-   * @param [init] @type {StatementArg} The initial values.
+   * @param [init] @type {QueryArg} The initial values.
    */
-  constructor(init?: StatementArg) {
+  constructor(init?: QueryArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
       () => this.ready.apply(this, [])
@@ -87,7 +87,7 @@ export class Statement {
     // Copy the properties.
     if (init != undefined) {
       Object.assign(this, init);
-      this.statement = this.statement?.trim();
+      this.query = this.query?.trim();
       this.validator.valid();
     }
   }
@@ -95,7 +95,7 @@ export class Statement {
   private validate(): void {
     new StatementInitArg(this);
 
-    const parseResult = sqliteParser(this.statement);
+    const parseResult = sqliteParser(this.query);
     this.meta = parseResult
       ?.statement
       ?.[ZERO];
@@ -281,9 +281,9 @@ export class Statement {
     };
   }
 
-  toObject(): StatementArg {
+  toObject(): QueryArg {
     return {
-      statement: this.statement,
+      query: this.query,
       params: this.params,
 
       type: this.type,
@@ -300,13 +300,13 @@ export class Statement {
    * @memberof Statement
    */
   toString(): string {
-    return this.statement;
+    return this.query;
   }
 }
 
 /* #region  Use schema to check the properties. */
 const StatementInitArg = new ObjectModel({
-  statement: String,
+  query: String,
   params: ArrayModel(Any)
 });
 /* #endregion */

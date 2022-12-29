@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ParseType, Statement } from '../src/objects/statement';
+import { ParseType, Query } from '../src/objects/statement';
 
 const tests = [
   /* #region  Transactions. */
@@ -7,10 +7,10 @@ const tests = [
   {
     id: 0,
     name: 'Transaction - begin',
-    statement: 'BEGIN;',
+    query: 'BEGIN;',
     result: {
       isRead: false,
-      statement: 'BEGIN;',
+      query: 'BEGIN;',
       params: [],
       tables: [],
       columns: [],
@@ -21,10 +21,10 @@ const tests = [
   }, {
     id: 1,
     name: 'Transaction - begin trim',
-    statement: '\n  BEGIN;',
+    query: '\n  BEGIN;',
     result: {
       isRead: false,
-      statement: 'BEGIN;',
+      query: 'BEGIN;',
       params: [],
       tables: [],
       columns: [],
@@ -34,10 +34,10 @@ const tests = [
   }, {
     id: 2,
     name: 'Transaction - begin long',
-    statement: 'BEGIN TRANSACTION;',
+    query: 'BEGIN TRANSACTION;',
     result: {
       isRead: false,
-      statement: 'BEGIN TRANSACTION;',
+      query: 'BEGIN TRANSACTION;',
       params: [],
       tables: [],
       columns: [],
@@ -47,10 +47,10 @@ const tests = [
   }, {
     id: 3,
     name: 'Transaction - rollback',
-    statement: 'ROLLBACK;',
+    query: 'ROLLBACK;',
     result: {
       isRead: false,
-      statement: 'ROLLBACK;',
+      query: 'ROLLBACK;',
       params: [],
       tables: [],
       columns: [],
@@ -60,10 +60,10 @@ const tests = [
   }, {
     id: 4,
     name: 'Transaction - rollback long',
-    statement: 'ROLLBACK TRANSACTION;',
+    query: 'ROLLBACK TRANSACTION;',
     result: {
       isRead: false,
-      statement: 'ROLLBACK TRANSACTION;',
+      query: 'ROLLBACK TRANSACTION;',
       params: [],
       tables: [],
       columns: [],
@@ -73,10 +73,10 @@ const tests = [
   }, {
     id: 5,
     name: 'Transaction - commit',
-    statement: 'COMMIT;',
+    query: 'COMMIT;',
     result: {
       isRead: false,
-      statement: 'COMMIT;',
+      query: 'COMMIT;',
       params: [],
       tables: [],
       columns: [],
@@ -86,10 +86,10 @@ const tests = [
   }, {
     id: 6,
     name: 'Transaction - commit long',
-    statement: 'COMMIT TRANSACTION;',
+    query: 'COMMIT TRANSACTION;',
     result: {
       isRead: false,
-      statement: 'COMMIT TRANSACTION;',
+      query: 'COMMIT TRANSACTION;',
       params: [],
       tables: [],
       columns: [],
@@ -99,10 +99,10 @@ const tests = [
   }, {
     id: 7,
     name: 'Transaction - end',
-    statement: 'END;',
+    query: 'END;',
     result: {
       isRead: false,
-      statement: 'END;',
+      query: 'END;',
       params: [],
       tables: [],
       columns: [],
@@ -112,10 +112,10 @@ const tests = [
   }, {
     id: 8,
     name: 'Transaction - end long',
-    statement: 'END TRANSACTION;',
+    query: 'END TRANSACTION;',
     result: {
       isRead: false,
-      statement: 'END TRANSACTION;',
+      query: 'END TRANSACTION;',
       params: [],
       tables: [],
       columns: [],
@@ -130,10 +130,10 @@ const tests = [
   {
     id: 9,
     name: 'Table - create',
-    statement: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+    query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
       isRead: false,
-      statement: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+      query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
       params: [],
       tables: ["variables"],
       columns: ["id", "value"],
@@ -143,10 +143,10 @@ const tests = [
   }, {
     id: 10,
     name: 'Table - create temp',
-    statement: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+    query: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
       isRead: false,
-      statement: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
+      query: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
       params: [],
       tables: ["variables"],
       columns: ["id", "value"],
@@ -156,10 +156,10 @@ const tests = [
   }, {
     id: 11,
     name: 'Data - create table with select.',
-    statement: 'CREATE TABLE variables AS SELECT * FROM variables2;',
+    query: 'CREATE TABLE variables AS SELECT * FROM variables2;',
     result: {
       isRead: true,
-      statement: 'CREATE TABLE variables AS SELECT * FROM variables2;',
+      query: 'CREATE TABLE variables AS SELECT * FROM variables2;',
       params: [],
       tables: ["variables", "variables2"],
       columns: [],
@@ -170,10 +170,10 @@ const tests = [
   }, {
     id: 12,
     name: 'Table - drop',
-    statement: 'DROP TABLE "variables";',
+    query: 'DROP TABLE "variables";',
     result: {
       isRead: false,
-      statement: 'DROP TABLE "variables";',
+      query: 'DROP TABLE "variables";',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -183,10 +183,10 @@ const tests = [
   }, {
     id: 13,
     name: 'Table - drop conditional',
-    statement: 'DROP TABLE IF EXISTS "variables";',
+    query: 'DROP TABLE IF EXISTS "variables";',
     result: {
       isRead: false,
-      statement: 'DROP TABLE IF EXISTS "variables";',
+      query: 'DROP TABLE IF EXISTS "variables";',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -199,10 +199,10 @@ const tests = [
   {
     id: 14,
     name: 'Table - rename',
-    statement: 'ALTER TABLE "variables" RENAME TO "variables2";',
+    query: 'ALTER TABLE "variables" RENAME TO "variables2";',
     result: {
       isRead: false,
-      statement: 'ALTER TABLE "variables" RENAME TO "variables2";',
+      query: 'ALTER TABLE "variables" RENAME TO "variables2";',
       params: [],
       tables: ["variables2", "variables"],
       columns: [],
@@ -212,10 +212,10 @@ const tests = [
   }, {
     id: 15,
     name: 'Table - TODO: rename column',
-    statement: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
+    query: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
     result: {
       isRead: false,
-      statement: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
+      query: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
       params: [],
       tables: ["variables2", "variables"],
       columns: ["value", "value2"],
@@ -226,10 +226,10 @@ const tests = [
   }, {
     id: 16,
     name: 'Table - add column',
-    statement: 'ALTER TABLE "variables" ADD "value2";',
+    query: 'ALTER TABLE "variables" ADD "value2";',
     result: {
       isRead: false,
-      statement: 'ALTER TABLE "variables" ADD "value2";',
+      query: 'ALTER TABLE "variables" ADD "value2";',
       params: [],
       tables: ["variables"],
       columns: ["value2"],
@@ -239,11 +239,11 @@ const tests = [
   }, {
     id: 17,
     name: 'Table - add column long',
-    statement:
+    query:
       'ALTER TABLE "variables" ADD COLUMN "value2" VARCHAR PRIMARY KEY;',
     result: {
       isRead: false,
-      statement:
+      query:
         'ALTER TABLE "variables" ADD COLUMN "value2" VARCHAR PRIMARY KEY;',
       params: [],
       tables: ["variables"],
@@ -254,10 +254,10 @@ const tests = [
   }, {
     id: 18,
     name: 'Table - TODO: drop column',
-    statement: 'ALTER TABLE "variables" DROP "value2";',
+    query: 'ALTER TABLE "variables" DROP "value2";',
     result: {
       isRead: false,
-      statement: 'ALTER TABLE "variables" DROP "value2";',
+      query: 'ALTER TABLE "variables" DROP "value2";',
       params: [],
       tables: ["variables"],
       columns: ["value2"],
@@ -268,10 +268,10 @@ const tests = [
   }, {
     id: 19,
     name: 'Table - TODO: drop column long',
-    statement: 'ALTER TABLE "variables" DROP COLUMN "value2";',
+    query: 'ALTER TABLE "variables" DROP COLUMN "value2";',
     result: {
       isRead: false,
-      statement: 'ALTER TABLE "variables" DROP COLUMN "value2";',
+      query: 'ALTER TABLE "variables" DROP COLUMN "value2";',
       params: [],
       tables: ["variables"],
       columns: ["value2"],
@@ -286,10 +286,10 @@ const tests = [
   {
     id: 19,
     name: 'Data - insert',
-    statement: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
+    query: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
       isRead: false,
-      statement: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
+      query: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -299,10 +299,10 @@ const tests = [
   }, {
     id: 20,
     name: 'Data - insert with select.',
-    statement: 'INSERT INTO variables SELECT * FROM variables2;',
+    query: 'INSERT INTO variables SELECT * FROM variables2;',
     result: {
       isRead: true,
-      statement: 'INSERT INTO variables SELECT * FROM variables2;',
+      query: 'INSERT INTO variables SELECT * FROM variables2;',
       params: [],
       tables: ["variables", "variables2"],
       columns: [],
@@ -312,10 +312,10 @@ const tests = [
   }, {
     id: 21,
     name: 'Data - upsert',
-    statement: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
+    query: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
       isRead: false,
-      statement: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
+      query: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -325,10 +325,10 @@ const tests = [
   }, {
     id: 22,
     name: 'Data - UPSERT with select.',
-    statement: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
+    query: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
     result: {
       isRead: true,
-      statement: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
+      query: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
       params: [],
       tables: ["variables", "variables2"],
       columns: [],
@@ -339,10 +339,10 @@ const tests = [
   }, {
     id: 23,
     name: 'Data - update',
-    statement: 'UPDATE variables SET value = "new";',
+    query: 'UPDATE variables SET value = "new";',
     result: {
       isRead: false,
-      statement: 'UPDATE variables SET value = "new";',
+      query: 'UPDATE variables SET value = "new";',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -352,10 +352,10 @@ const tests = [
   }, {
     id: 24,
     name: 'Data - update with select',
-    statement: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
+    query: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
     result: {
       isRead: true,
-      statement: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
+      query: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -365,10 +365,10 @@ const tests = [
   }, {
     id: 25,
     name: 'Data - delete',
-    statement: 'DELETE FROM variables WHERE value = "new";',
+    query: 'DELETE FROM variables WHERE value = "new";',
     result: {
       isRead: false,
-      statement: 'DELETE FROM variables WHERE value = "new";',
+      query: 'DELETE FROM variables WHERE value = "new";',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -378,10 +378,10 @@ const tests = [
   }, {
     id: 26,
     name: 'Data - select',
-    statement: 'SELECT * FROM variables WHERE value = "new";',
+    query: 'SELECT * FROM variables WHERE value = "new";',
     result: {
       isRead: false,
-      statement: 'SELECT * FROM variables WHERE value = "new";',
+      query: 'SELECT * FROM variables WHERE value = "new";',
       params: [],
       tables: ["variables"],
       columns: [],
@@ -391,10 +391,10 @@ const tests = [
   }, {
     id: 27,
     name: 'Data - select with join',
-    statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
+    query: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
     result: {
       isRead: false,
-      statement: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
+      query: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
       params: [],
       tables: ["variables", "variables2"],
       columns: [],
@@ -408,10 +408,10 @@ const tests = [
   {
     id: 28,
     name: 'Other - add pragma',
-    statement: 'PRAGMA pragma_name = value;',
+    query: 'PRAGMA pragma_name = value;',
     result: {
       isRead: false,
-      statement: 'PRAGMA pragma_name = value;',
+      query: 'PRAGMA pragma_name = value;',
       params: [],
       tables: [],
       columns: [],
@@ -427,8 +427,8 @@ describe('Statements.', function () {
     if (test.isSkip) { continue; }
 
     it(`${test.id}: ${test.name}`, async () => {
-      const statement = new Statement({
-        statement: test.statement,
+      const statement = new Query({
+        query: test.query,
         params: []
       });
       statement.validator.ready();
