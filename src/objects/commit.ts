@@ -3,7 +3,7 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import { NEWLINE, STATEMENT_DELIMITER, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Query, QueryArg } from './statement';
+import { Query, QueryArg } from './query';
 
 export class CommitArg {
   script?: string;

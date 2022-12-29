@@ -21,7 +21,7 @@ import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variables } from '../utils/variables';
 import { Commit, CommitArg } from './commit';
-import { ParseType, Query } from './statement';
+import { ParseType, Query } from './query';
 
 export class CommitListArg {
   script?: string;

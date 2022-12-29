@@ -2,7 +2,7 @@ import { ArrayModel, ObjectModel } from 'objectmodel';
 
 import { Target } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Query } from './query';
+import { RawQuery } from './rawQuery';
 import { Result, ResultArg } from './result';
 
 /* #region  Multiple results. */
@@ -87,7 +87,7 @@ export class ResultList {
     };
   }
 
-  toUpdate(): Query[] {
+  toUpdate(): RawQuery[] {
     return this.results.map((result) => result.toUpdate());
   }
 }

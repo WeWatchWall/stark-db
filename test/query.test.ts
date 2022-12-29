@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { ParseType, Query } from '../src/objects/statement';
+import { ParseType, Query } from '../src/objects/query';
 
 const tests = [
   /* #region  Transactions. */

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 
 import { Commit } from '../src/objects/commit';
-import { ParseType, Query } from '../src/objects/statement';
+import { ParseType, Query } from '../src/objects/query';
 
 const loadTests = [
   {
