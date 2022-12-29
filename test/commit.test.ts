@@ -30,6 +30,8 @@ const loadTests = [
 
           isRead: false,
           tables: ["user"],
+          columns: [],
+          keys: [],
           type: ParseType.select_data
         }
       ]
@@ -49,6 +51,8 @@ const loadTests = [
 
           isRead: false,
           tables: [],
+          columns: [],
+          keys: [],
           type: ParseType.begin_transaction
         }
       ]
@@ -68,6 +72,8 @@ const loadTests = [
 
           isRead: false,
           tables: ["user"],
+          columns: [],
+          keys: [],
           type: ParseType.select_data
         }, {
           statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
@@ -75,6 +81,8 @@ const loadTests = [
 
           isRead: false,
           tables: ["user"],
+          columns: [],
+          keys: [],
           type: ParseType.modify_data
         }
       ]
@@ -94,6 +102,8 @@ const loadTests = [
 
           isRead: false,
           tables: ["user"],
+          columns: [],
+          keys: [],
           type: ParseType.select_data
         }, {
           statement: 'BEGIN;',
@@ -101,6 +111,8 @@ const loadTests = [
 
           isRead: false,
           tables: [],
+          columns: [],
+          keys: [],
           type: ParseType.begin_transaction
         }, {
           statement: 'INSERT INTO user VALUES (?, ?, ?, ?);',
@@ -108,6 +120,8 @@ const loadTests = [
 
           isRead: false,
           tables: ["user"],
+          columns: [],
+          keys: [],
           type: ParseType.modify_data
         }, {
           statement: 'ROLLBACK TRANSACTION;',
@@ -115,6 +129,8 @@ const loadTests = [
 
           isRead: false,
           tables: [],
+          columns: [],
+          keys: [],
           type: ParseType.rollback_transaction
         }, {
           statement: 'END;',
@@ -122,6 +138,8 @@ const loadTests = [
 
           isRead: false,
           tables: [],
+          columns: [],
+          keys: [],
           type: ParseType.commit_transaction
         }, {
           statement: 'SELECT * FROM user;',
@@ -129,6 +147,8 @@ const loadTests = [
 
           isRead: false,
           tables: ["user"],
+          columns: [],
+          keys: [],
           type: ParseType.select_data
         }
       ]

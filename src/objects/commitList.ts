@@ -3,7 +3,19 @@ import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 import RecursiveIterator from 'recursive-iterator';
 import sqliteParser from 'sqlite-parser';
 
-import { NEWLINE, ONE, VARS_TABLE, ZERO } from '../utils/constants';
+import {
+  DIFFS_TABLE_PREFIX,
+  NEWLINE,
+  ONE,
+  STATEMENT_DELIMITER,
+  STATEMENT_PLACEHOLDER,
+  TRIGGER_ADD,
+  TRIGGER_PREFIX,
+  TRIGGER_SET,
+  VALUE_DELIMITER,
+  VARS_TABLE,
+  ZERO
+} from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variables } from '../utils/variables';
@@ -107,6 +119,7 @@ export class CommitList {
   private static commitAnalyzers = [
     'splitCommits',
     'setFlags',
+    'writeTables'
   ];
 
   splitCommits(statements: Statement[]): LinkList<Statement>[] {
@@ -253,12 +266,177 @@ export class CommitList {
       // Add the isWAL statement to the end of the statements list.
       commitList.insert(commitList.length - ONE, new Statement({
         statement:
-`UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
+          `UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
         params: [ONE],
       }));
     }
 
     return commits;
+  }
+
+  writeTables(commits: LinkList<Statement>[]): LinkList<Statement>[] {
+    const tableTypes = new Set<ParseType>([
+      ParseType.create_table,
+      ParseType.rename_table,
+      ParseType.modify_table_columns,
+      ParseType.drop_table,
+    ]);
+
+    for (const commit of commits) {
+      const statements = Array.from(commit);
+      const results: Statement[][] = [];
+
+      /* #region  Render the table statements. */
+      for (let sIndex = 0; sIndex < statements.length; sIndex++) {
+        const statement = statements[sIndex];
+
+        // Skip all statements that are not table statements.
+        if (!tableTypes.has(statement.type)) { continue; }
+
+        results[sIndex] = this.writeTable(statement);
+      }
+      /* #endregion */
+
+      /* #region  Write the table statements to the statements list. */
+      for (let sIndex = 0; sIndex < results.length; sIndex++) {
+        const result = results[sIndex];
+
+        if (!result) { continue; }
+
+        // Insert the result statements in reverse order.
+        for (let rIndex = result.length - ONE; rIndex >= ZERO; rIndex--) {
+          commit.insert(sIndex + ONE, result[rIndex]);
+        }
+      }
+      /* #endregion */
+    }
+
+    return commits;
+  }
+
+  writeTable(statement: Statement): Statement[] {
+    const results: Statement[] = [];
+
+    switch (statement.type) {
+      case ParseType.create_table:
+        /* #region  Create the diffs table. */
+        const diffTableName = `${DIFFS_TABLE_PREFIX}${statement.tables[ZERO]}`;
+        const selectRegex = /AS[\s]+SELECT[\s\S]*/gi;
+        const query = statement
+          .statement
+          .replace(selectRegex, STATEMENT_DELIMITER)
+          .replace(statement.tables[ZERO], diffTableName);
+
+        results.push(new Statement({
+          statement: query,
+          params: [],
+        }));
+        /* #endregion */
+
+        /* #region  Create the triggers. */
+        const columns = statement
+          .columns
+          .map(column => `NEW.${column}`)
+          .join(`${VALUE_DELIMITER} `);
+
+        const triggerAddName =
+          `${TRIGGER_PREFIX}${TRIGGER_ADD}${statement.tables[ZERO]}`;
+        const triggerAddQuery = this.getTrigger(
+          `insert`,
+          triggerAddName,
+          statement.tables[ZERO],
+          diffTableName,
+          columns
+        );
+
+        results.push(new Statement({
+          statement: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
+          params: []
+        }));
+        results.push(new Statement({
+          statement: triggerAddQuery,
+          params: [],
+        }));
+
+        const triggerSetName =
+          `${TRIGGER_PREFIX}${TRIGGER_SET}${statement.tables[ZERO]}`;
+        const triggerSetQuery = this.getTrigger(
+          `update`,
+          triggerSetName,
+          statement.tables[ZERO],
+          diffTableName,
+          columns
+        );
+
+        results.push(new Statement({
+          statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
+          params: []
+        }));
+        results.push(new Statement({
+          statement: triggerSetQuery,
+          params: [],
+        }));
+        /* #endregion */
+        break;
+      case ParseType.rename_table:
+      case ParseType.modify_table_columns:
+        results.push(new Statement({
+          statement: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
+          params: []
+        }));
+        results.push(new Statement({
+          statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
+          params: []
+        }));
+
+        const oldTableName = statement.type === ParseType.rename_table ?
+          statement.tables[ONE] :
+          statement.tables[ZERO];
+        results.push(new Statement({
+          statement: `SELECT sql FROM sqlite_master WHERE name = ?;`,
+          params: [oldTableName]
+        }));
+
+        // Expects this same method to be called again using the result
+        //   of the previous statement.
+        results.push(new Statement({
+          statement: STATEMENT_PLACEHOLDER,
+          params: []
+        }));
+        break;
+      case ParseType.drop_table:
+        results.push(new Statement({
+          statement: `DROP TRIGGER IF EXISTS ${triggerAddName};`,
+          params: []
+        }));
+        results.push(new Statement({
+          statement: `DROP TRIGGER IF EXISTS ${triggerSetName};`,
+          params: []
+        }));
+        break;
+      default:
+        break;
+    }
+
+    return results;
+  }
+
+  private getTrigger(
+    op: `insert` | `update`,
+    name: string,
+    table: string,
+    diffName: string,
+    columns: string
+  ) {
+    return `CREATE TRIGGER
+IF NOT EXISTS ${name}
+  AFTER ${op}
+  ON ${table}
+  WHEN (SELECT value FROM ${VARS_TABLE} WHERE id = "${Variables.isWAL}") IN (1)
+BEGIN
+  INSERT INTO ${diffName}
+  VALUES (${columns});
+END;`;
   }
 
   /* #region  Saves to the script string. */

@@ -234,13 +234,13 @@ export class Statement {
     );
 
     for (let { node } of iterator) {
-      const conditions = [
+      const conditions = new Set<boolean>([
         node.type === `identifier`,
         node.variant === `table` || node.format === `table`,
         !!node.name
-      ];
+      ]);
 
-      if (conditions.includes(false)) { continue; }
+      if (conditions.has(false)) { continue; }
 
       tables.add(node.name);
     }

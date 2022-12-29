@@ -48,6 +48,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -57,6 +59,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -65,6 +69,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }, {
               isRead: false,
@@ -74,12 +80,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               params: [],
               statement: "COMMIT TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -117,6 +127,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -126,6 +138,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -134,6 +148,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }, {
               isRead: false,
@@ -143,12 +159,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               params: [],
               statement: "COMMIT TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -182,6 +202,8 @@ SELECT * FROM user;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -191,6 +213,8 @@ SELECT * FROM user;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -199,6 +223,8 @@ SELECT * FROM user;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }
           ]
@@ -244,6 +270,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -253,6 +281,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -261,6 +291,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }, {
               isRead: false,
@@ -270,12 +302,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               params: [],
               statement: "COMMIT TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -292,6 +328,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -301,6 +339,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -309,6 +349,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }, {
               isRead: false,
@@ -318,12 +360,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               params: [],
               statement: "COMMIT TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -367,6 +413,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -376,6 +424,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -384,6 +434,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }, {
               isRead: false,
@@ -393,12 +445,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               params: [],
               statement: "COMMIT TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -415,6 +471,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -424,6 +482,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -432,6 +492,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 "user"
               ],
+              columns: [],
+              keys: [],
               type: ParseType.select_data
             }, {
               isRead: false,
@@ -441,12 +503,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               params: [],
               statement: "COMMIT TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -485,6 +551,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -494,6 +562,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -503,12 +573,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -543,6 +617,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -552,6 +628,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -561,12 +639,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -601,6 +683,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -610,6 +694,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -619,12 +705,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -659,6 +749,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -668,6 +760,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -677,12 +771,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -717,6 +815,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -726,6 +826,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -735,12 +837,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -775,6 +881,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -784,6 +892,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -793,12 +903,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -833,6 +947,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -842,6 +958,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -851,12 +969,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
@@ -891,6 +1013,8 @@ COMMIT TRANSACTION;`,
               params: [],
               statement: "BEGIN TRANSACTION;",
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.begin_transaction
             }, {
               isRead: false,
@@ -900,6 +1024,8 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
@@ -909,12 +1035,16 @@ COMMIT TRANSACTION;`,
               tables: [
                 VARS_TABLE
               ],
+              columns: [],
+              keys: [],
               type: ParseType.modify_data
             }, {
               isRead: false,
               statement: "COMMIT TRANSACTION;",
               params: [],
               tables: [],
+              columns: [],
+              keys: [],
               type: ParseType.commit_transaction
             }
           ]
