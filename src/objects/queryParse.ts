@@ -190,8 +190,8 @@ export class QueryParse {
 
     for (let { node } of iterator) {
       if (
-        node.type === `statement` &&
-        node.variant === QueryType[10]
+        node?.type === `statement` &&
+        node?.variant === QueryType[10]
       ) {
         this.isRead = true;
         break;
@@ -235,9 +235,9 @@ export class QueryParse {
 
     for (let { node } of iterator) {
       const conditions = new Set<boolean>([
-        node.type === `identifier`,
-        node.variant === `table` || node.format === `table`,
-        !!node.name
+        node?.type === `identifier`,
+        node?.variant === `table` || node?.format === `table`,
+        !!node?.name
       ]);
 
       if (conditions.has(false)) { continue; }

@@ -215,7 +215,7 @@ export class CommitList {
           ONE, // Breath-first.
         );
         for (let { node } of iterator) {
-          if (node.name !== Variables.isWAL) { continue; }
+          if (node?.name !== Variables.isWAL) { continue; }
 
           isFound = true;
           break;
@@ -233,7 +233,7 @@ export class CommitList {
           ONE, // Breath-first.
         );
         for (let { node } of iterator) {
-          if (node.name !== Variables.isMemory) { continue; }
+          if (node?.name !== Variables.isMemory) { continue; }
 
           isFound = true;
           break;
@@ -294,6 +294,7 @@ export class CommitList {
         // Skip all statements that are not table statements.
         if (!tableTypes.has(statement.type)) { continue; }
 
+        this.isLong = true;
         results[sIndex] = CommitList.getTableQueries(statement, this.isMemory);
       }
       /* #endregion */
@@ -421,6 +422,12 @@ export class CommitList {
         results.push(new QueryParse({
           query: STATEMENT_PLACEHOLDER,
           params: []
+        }));
+        break;
+      case ParseType.drop_table:
+        results.push(new QueryParse({
+          query: `DELETE FROM ${TABLES_TABLE} WHERE name = ?;`,
+          params: statement.tables
         }));
         break;
       default:

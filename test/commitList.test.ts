@@ -526,7 +526,7 @@ COMMIT TRANSACTION;`,
   },
   /* #endregion */
 
-  /* #region  Manage the isWAL flag. */
+  /* #region  Manage the flags. */
   {
     id: 6,
     name: 'Flags - Update query',
@@ -1055,9 +1055,186 @@ COMMIT TRANSACTION;`,
       isWait: false
     },
     isSkip: false
-  }
+  },
   /* #endregion */
 
+  /* #region  Manage the schema. */
+  {
+    id: 14,
+    name: 'Schema - Add table',
+    script: `CREATE TABLE IF NOT EXISTS "variables" ("id" VARCHAR PRIMARY KEY NOT NULL, "value" text NOT NULL);`,
+    params: [],
+    result: {
+      script: `BEGIN TRANSACTION;
+UPDATE _stark_vars SET value = ? WHERE id = \"isWAL\";
+CREATE TABLE IF NOT EXISTS \"variables\" (\"id\" VARCHAR PRIMARY KEY NOT NULL, \"value\" text NOT NULL);
+CREATE TABLE IF NOT EXISTS \"_stark_diffs_variables\" (\"id\" VARCHAR PRIMARY KEY NOT NULL, \"value\" text NOT NULL);
+DROP TRIGGER IF EXISTS _stark_trigger_add_variables;
+CREATE TRIGGER
+IF NOT EXISTS _stark_trigger_add_variables
+  AFTER insert
+  ON variables
+  WHEN (SELECT value FROM _stark_vars WHERE id = \"isWAL\") IN (1)
+BEGIN
+  INSERT INTO _stark_diffs_variables
+  VALUES (NEW.id, NEW.value);
+END;
+DROP TRIGGER IF EXISTS _stark_trigger_set_variables;
+CREATE TRIGGER
+IF NOT EXISTS _stark_trigger_set_variables
+  AFTER update
+  ON variables
+  WHEN (SELECT value FROM _stark_vars WHERE id = \"isWAL\") IN (1)
+BEGIN
+  INSERT INTO _stark_diffs_variables
+  VALUES (NEW.id, NEW.value);
+END;
+REPLACE INTO _stark_tables VALUES (?, ?, ?, ?);
+UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
+COMMIT TRANSACTION;`,
+      params: [ZERO, 'variables', '["id"]', ONE, ZERO, ONE],
+      commits: [{
+        script: `BEGIN TRANSACTION;
+UPDATE _stark_vars SET value = ? WHERE id = \"isWAL\";
+CREATE TABLE IF NOT EXISTS \"variables\" (\"id\" VARCHAR PRIMARY KEY NOT NULL, \"value\" text NOT NULL);
+CREATE TABLE IF NOT EXISTS \"_stark_diffs_variables\" (\"id\" VARCHAR PRIMARY KEY NOT NULL, \"value\" text NOT NULL);
+DROP TRIGGER IF EXISTS _stark_trigger_add_variables;
+CREATE TRIGGER
+IF NOT EXISTS _stark_trigger_add_variables
+  AFTER insert
+  ON variables
+  WHEN (SELECT value FROM _stark_vars WHERE id = \"isWAL\") IN (1)
+BEGIN
+  INSERT INTO _stark_diffs_variables
+  VALUES (NEW.id, NEW.value);
+END;
+DROP TRIGGER IF EXISTS _stark_trigger_set_variables;
+CREATE TRIGGER
+IF NOT EXISTS _stark_trigger_set_variables
+  AFTER update
+  ON variables
+  WHEN (SELECT value FROM _stark_vars WHERE id = \"isWAL\") IN (1)
+BEGIN
+  INSERT INTO _stark_diffs_variables
+  VALUES (NEW.id, NEW.value);
+END;
+REPLACE INTO _stark_tables VALUES (?, ?, ?, ?);
+UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
+COMMIT TRANSACTION;`,
+        params: [ZERO, 'variables', '["id"]', ONE, ZERO, ONE],
+        statements: [{
+          query: `BEGIN TRANSACTION;`,
+          params: [],
+          type: 0,
+          isRead: false,
+          tables: [],
+          columns: [],
+          keys: []
+        }, {
+          query: `UPDATE _stark_vars SET value = ? WHERE id = "isWAL";`,
+          params: [ZERO],
+          type: 7,
+          isRead: false,
+          tables: ["_stark_vars"],
+          columns: [],
+          keys: []
+        }, {
+          query: `CREATE TABLE IF NOT EXISTS "variables" ("id" VARCHAR PRIMARY KEY NOT NULL, "value" text NOT NULL);`,
+          params: [],
+          type: 3,
+          isRead: false,
+          tables: ["variables"],
+          columns: ["id", "value"],
+          keys: ["id"]
+        }, {
+          query: `CREATE TABLE IF NOT EXISTS "_stark_diffs_variables" ("id" VARCHAR PRIMARY KEY NOT NULL, "value" text NOT NULL);`,
+          params: [],
+          type: 3,
+          isRead: false,
+          tables: ["_stark_diffs_variables"],
+          columns: ["id", "value"],
+          keys: ["id"]
+        }, {
+          query: `DROP TRIGGER IF EXISTS _stark_trigger_add_variables;`,
+          params: [],
+          type: 9,
+          isRead: false,
+          tables: [],
+          columns: [],
+          keys: []
+        }, {
+          query: `CREATE TRIGGER
+IF NOT EXISTS _stark_trigger_add_variables
+  AFTER insert
+  ON variables
+  WHEN (SELECT value FROM _stark_vars WHERE id = "isWAL") IN (1)
+BEGIN
+  INSERT INTO _stark_diffs_variables
+  VALUES (NEW.id, NEW.value);
+END;`,
+          params: [],
+          type: 9,
+          isRead: true,
+          tables: [],
+          columns: [],
+          keys: []
+        }, {
+          query: `DROP TRIGGER IF EXISTS _stark_trigger_set_variables;`,
+          params: [],
+          type: 9,
+          isRead: false,
+          tables: [],
+          columns: [],
+          keys: []
+        }, {
+          query: `CREATE TRIGGER
+IF NOT EXISTS _stark_trigger_set_variables
+  AFTER update
+  ON variables
+  WHEN (SELECT value FROM _stark_vars WHERE id = "isWAL") IN (1)
+BEGIN
+  INSERT INTO _stark_diffs_variables
+  VALUES (NEW.id, NEW.value);
+END;`,
+          params: [],
+          type: 9,
+          isRead: true,
+          tables: [],
+          columns: [],
+          keys: []
+        }, {
+          query: `REPLACE INTO _stark_tables VALUES (?, ?, ?, ?);`,
+          params: ["variables", '["id"]', 1, 0],
+          type: 7,
+          isRead: false,
+          tables: ["_stark_tables"],
+          columns: [],
+          keys: []
+        }, {
+          query: `UPDATE _stark_vars SET value = ? WHERE id IN ("isWAL", "isMemory");`,
+          params: [1],
+          type: 7,
+          isRead: false,
+          tables: ["_stark_vars"],
+          columns: [],
+          keys: []
+        }, {
+          query: `COMMIT TRANSACTION;`,
+          params: [],
+          type: 2,
+          isRead: false,
+          tables: [],
+          columns: [],
+          keys: []
+        }]
+      }],
+      isLong: true,
+      isMemory: true,
+      isWait: false
+    },
+    isSkip: false
+  },
+  /* #endregion */
 ];
 
 describe('CommitList - Load & Save.', function () {
