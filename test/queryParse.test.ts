@@ -143,14 +143,14 @@ const tests = [
   }, {
     id: 10,
     name: 'Table - create multiple keys',
-    query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "value"));',
+    query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "type" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "type"));',
     result: {
       isRead: false,
-      query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "value"));',
+      query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "type" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "type"));',
       params: [],
       tables: ["variables"],
-      columns: ["id", "value"],
-      keys: ["id", "value"],
+      columns: ["id", "type", "value"],
+      keys: ["id", "type"],
       type: ParseType.create_table,
     }
   }, {
