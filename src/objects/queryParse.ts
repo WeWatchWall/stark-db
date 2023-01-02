@@ -261,16 +261,30 @@ export class QueryParse {
     const columns = []; const keys = [];
     for (let definition of definitions) {
       if (definition.type !== `definition`) { continue; }
-      columns.push(definition.name);
 
-      for (const constraint of definition.definition) {
-        if (constraint.type !== `constraint`) { continue; }
+      if (definition.variant === `column`) {
+        columns.push(definition.name);
 
-        if (constraint.variant === `primary key`) {
-          keys.push(definition.name);
-          break;
+        for (const constraint of definition.definition) {
+          if (constraint.type !== `constraint`) { continue; }
+  
+          if (constraint.variant === `primary key`) {
+            keys.push(definition.name);
+            break;
+          }
+        }
+      } else if (
+        definition.variant === `constraint` &&
+        (<any[]>definition.definition).findIndex(constraint => 
+          constraint.type === `constraint` &&
+          constraint.variant === `primary key`
+        ) > -ONE
+      ) {
+        for (const column of definition.columns) {
+          keys.push(column.name);
         }
       }
+     
     }
     /* #endregion */
 

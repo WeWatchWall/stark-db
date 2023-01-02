@@ -142,6 +142,19 @@ const tests = [
     }
   }, {
     id: 10,
+    name: 'Table - create multiple keys',
+    query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "value"));',
+    result: {
+      isRead: false,
+      query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "value"));',
+      params: [],
+      tables: ["variables"],
+      columns: ["id", "value"],
+      keys: ["id", "value"],
+      type: ParseType.create_table,
+    }
+  }, {
+    id: 11,
     name: 'Table - create temp',
     query: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
@@ -154,7 +167,7 @@ const tests = [
       type: ParseType.create_table,
     }
   }, {
-    id: 11,
+    id: 12,
     name: 'Data - create table with select.',
     query: 'CREATE TABLE variables AS SELECT * FROM variables2;',
     result: {
@@ -168,7 +181,7 @@ const tests = [
     },
     isSkip: false
   }, {
-    id: 12,
+    id: 13,
     name: 'Table - drop',
     query: 'DROP TABLE "variables";',
     result: {
@@ -181,7 +194,7 @@ const tests = [
       type: ParseType.drop_table,
     }
   }, {
-    id: 13,
+    id: 14,
     name: 'Table - drop conditional',
     query: 'DROP TABLE IF EXISTS "variables";',
     result: {
@@ -197,7 +210,7 @@ const tests = [
 
   // https://www.sqlite.org/lang_altertable.html
   {
-    id: 14,
+    id: 15,
     name: 'Table - rename',
     query: 'ALTER TABLE "variables" RENAME TO "variables2";',
     result: {
@@ -210,7 +223,7 @@ const tests = [
       type: ParseType.rename_table
     }
   }, {
-    id: 15,
+    id: 16,
     name: 'Table - TODO: rename column',
     query: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
     result: {
@@ -224,7 +237,7 @@ const tests = [
     },
     isSkip: true
   }, {
-    id: 16,
+    id: 17,
     name: 'Table - add column',
     query: 'ALTER TABLE "variables" ADD "value2";',
     result: {
@@ -237,7 +250,7 @@ const tests = [
       type: ParseType.modify_table_columns
     }
   }, {
-    id: 17,
+    id: 18,
     name: 'Table - add column long',
     query:
       'ALTER TABLE "variables" ADD COLUMN "value2" VARCHAR PRIMARY KEY;',
@@ -252,7 +265,7 @@ const tests = [
       type: ParseType.modify_table_columns,
     }
   }, {
-    id: 18,
+    id: 19,
     name: 'Table - TODO: drop column',
     query: 'ALTER TABLE "variables" DROP "value2";',
     result: {
@@ -266,7 +279,7 @@ const tests = [
     },
     isSkip: true
   }, {
-    id: 19,
+    id: 20,
     name: 'Table - TODO: drop column long',
     query: 'ALTER TABLE "variables" DROP COLUMN "value2";',
     result: {
@@ -284,7 +297,7 @@ const tests = [
 
   /* #region  Data. */
   {
-    id: 19,
+    id: 21,
     name: 'Data - insert',
     query: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
@@ -297,7 +310,7 @@ const tests = [
       type: ParseType.modify_data,
     }
   }, {
-    id: 20,
+    id: 22,
     name: 'Data - insert with select.',
     query: 'INSERT INTO variables SELECT * FROM variables2;',
     result: {
@@ -310,7 +323,7 @@ const tests = [
       type: ParseType.modify_data
     }
   }, {
-    id: 21,
+    id: 23,
     name: 'Data - upsert',
     query: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
@@ -323,7 +336,7 @@ const tests = [
       type: ParseType.modify_data
     }
   }, {
-    id: 22,
+    id: 24,
     name: 'Data - UPSERT with select.',
     query: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
     result: {
@@ -337,7 +350,7 @@ const tests = [
     },
     isSkip: false
   }, {
-    id: 23,
+    id: 25,
     name: 'Data - update',
     query: 'UPDATE variables SET value = "new";',
     result: {
@@ -350,7 +363,7 @@ const tests = [
       type: ParseType.modify_data
     }
   }, {
-    id: 24,
+    id: 26,
     name: 'Data - update with select',
     query: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
     result: {
@@ -363,7 +376,7 @@ const tests = [
       type: ParseType.modify_data
     }
   }, {
-    id: 25,
+    id: 27,
     name: 'Data - delete',
     query: 'DELETE FROM variables WHERE value = "new";',
     result: {
@@ -376,7 +389,7 @@ const tests = [
       type: ParseType.modify_data
     }
   }, {
-    id: 26,
+    id: 28,
     name: 'Data - select',
     query: 'SELECT * FROM variables WHERE value = "new";',
     result: {
@@ -389,7 +402,7 @@ const tests = [
       type: ParseType.select_data
     }
   }, {
-    id: 27,
+    id: 29,
     name: 'Data - select with join',
     query: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
     result: {
@@ -406,7 +419,7 @@ const tests = [
 
   /* #region  Other. */
   {
-    id: 28,
+    id: 30,
     name: 'Other - add pragma',
     query: 'PRAGMA pragma_name = value;',
     result: {
