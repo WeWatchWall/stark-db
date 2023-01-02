@@ -18,6 +18,7 @@ const loadTests = [
       params: [],
       commits: [],
       isLong: false,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -96,6 +97,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: false,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -175,6 +177,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: false,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -231,6 +234,7 @@ SELECT * FROM user;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: true,
       isWait: true
     },
@@ -376,6 +380,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: false,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -519,6 +524,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: false,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -589,6 +595,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -655,6 +662,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: false,
+      isSchema: false,
       isMemory: false,
       isWait: false
     },
@@ -721,6 +729,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: false,
       isWait: false
     },
@@ -787,6 +796,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -853,6 +863,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: true,
       isWait: false
     },
@@ -919,6 +930,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: false,
       isWait: false
     },
@@ -985,6 +997,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: false,
       isWait: false
     },
@@ -1051,6 +1064,7 @@ COMMIT TRANSACTION;`,
         }
       ],
       isLong: true,
+      isSchema: false,
       isMemory: false,
       isWait: false
     },
@@ -1228,7 +1242,8 @@ END;`,
           keys: []
         }]
       }],
-      isLong: true,
+      isLong: false,
+      isSchema: true,
       isMemory: true,
       isWait: false
     },

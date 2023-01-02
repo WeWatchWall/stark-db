@@ -29,6 +29,7 @@ export class CommitListArg {
   commits?: CommitArg[] | Commit[];
 
   isLong?: boolean;
+  isSchema?: boolean;
   isMemory?: boolean;
   isWait?: boolean;
 }
@@ -42,6 +43,7 @@ export class CommitList {
   commits: Commit[];
 
   isLong: boolean;
+  isSchema: boolean;
   isMemory: boolean;
   isWait: boolean;
 
@@ -93,6 +95,7 @@ export class CommitList {
   private loadReady(): void {
     // Set the flags.
     this.isLong = false;
+    this.isSchema = false;
     this.isMemory = true;
     this.isWait = false;
 
@@ -294,7 +297,7 @@ export class CommitList {
         // Skip all statements that are not table statements.
         if (!tableTypes.has(statement.type)) { continue; }
 
-        this.isLong = true;
+        this.isSchema = true;
         results[sIndex] = CommitList.getTableQueries(statement, this.isMemory);
       }
       /* #endregion */
@@ -481,6 +484,7 @@ END;`;
       commits: this.commits.map((commit) => commit.toObject()),
 
       isLong: this.isLong,
+      isSchema: this.isSchema,
       isMemory: this.isMemory,
       isWait: this.isWait,
     };
