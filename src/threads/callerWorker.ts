@@ -1,5 +1,5 @@
 import { ResultList } from '../objects/resultList';
-import { ThreadCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCall';
 import { ICaller, IWorker } from './IThreads';
 
 export class WorkerCallerBase implements ICaller, IWorker {

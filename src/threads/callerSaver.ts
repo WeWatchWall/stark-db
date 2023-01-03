@@ -1,6 +1,6 @@
 import { ResultList } from '../objects/resultList';
 import { Target } from '../utils/constants';
-import { ThreadCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCall';
 import { ICaller, ISaver } from './IThreads';
 
 export class SaverCallerBase implements ICaller, ISaver {

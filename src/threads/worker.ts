@@ -2,7 +2,7 @@ import { DataSource } from 'typeorm';
 
 import { ResultList } from '../objects/resultList';
 import { SAVER_CHANNEL, Target, WORKER_CHANNEL } from '../utils/constants';
-import { ThreadCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
 
 export abstract class WorkerBase implements IWorker, IEngine {

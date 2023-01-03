@@ -1,4 +1,4 @@
-export enum Variables {
+export enum Variable {
   isChanged = 'isChanged',
   isWAL = 'isWAL',
   isMemory = 'isMemory',

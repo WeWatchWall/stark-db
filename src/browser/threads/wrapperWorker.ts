@@ -1,6 +1,6 @@
 import Multee from 'multee-browser';
 
-import { ThreadCall } from '../../utils/threadCalls';
+import { ThreadCall } from '../../utils/threadCall';
 import { Worker } from './threads';
 
 const multee = Multee();

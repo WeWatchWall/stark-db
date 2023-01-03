@@ -1,7 +1,7 @@
 import Multee from 'multee';
 import { ResultList } from '../../objects/resultList';
 
-import { ThreadCall } from '../../utils/threadCalls';
+import { ThreadCall } from '../../utils/threadCall';
 import { Queue } from './threads';
 
 const multee = Multee('worker');

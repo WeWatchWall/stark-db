@@ -19,7 +19,7 @@ import {
 } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Variables } from '../utils/variables';
+import { Variable } from '../utils/variable';
 import { Commit, CommitArg } from './commit';
 import { ParseType, QueryParse } from './queryParse';
 
@@ -200,11 +200,11 @@ export class CommitList {
         ) { continue; }
 
         // Check the parameters for the variables.
-        if (statement.params.includes(Variables.isWAL)) {
+        if (statement.params.includes(Variable.isWAL)) {
           this.isLong = true;
           indexes.add(sIndex);
         }
-        if (statement.params.includes(Variables.isMemory)) {
+        if (statement.params.includes(Variable.isMemory)) {
           this.isMemory = false;
           indexes.add(sIndex);
         }
@@ -218,7 +218,7 @@ export class CommitList {
           ONE, // Breath-first.
         );
         for (let { node } of iterator) {
-          if (node?.name !== Variables.isWAL) { continue; }
+          if (node?.name !== Variable.isWAL) { continue; }
 
           isFound = true;
           break;
@@ -236,7 +236,7 @@ export class CommitList {
           ONE, // Breath-first.
         );
         for (let { node } of iterator) {
-          if (node?.name !== Variables.isMemory) { continue; }
+          if (node?.name !== Variable.isMemory) { continue; }
 
           isFound = true;
           break;
@@ -260,7 +260,7 @@ export class CommitList {
       //   extract the data. Then, the value is false to commit the data.
       commitList.insert(ONE, new QueryParse({
         query:
-          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+          `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
         params: [ZERO],
       }));
 
@@ -270,7 +270,7 @@ export class CommitList {
       // Add the isWAL statement to the end of the statements list.
       commitList.insert(commitList.length - ONE, new QueryParse({
         query:
-          `UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
+          `UPDATE ${VARS_TABLE} SET value = ? WHERE id IN ("${Variable.isWAL}", "${Variable.isMemory}");`,
         params: [ONE],
       }));
     }
@@ -451,7 +451,7 @@ export class CommitList {
 IF NOT EXISTS ${name}
   AFTER ${op}
   ON ${table}
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE id = "${Variables.isWAL}") IN (1)
+  WHEN (SELECT value FROM ${VARS_TABLE} WHERE id = "${Variable.isWAL}") IN (1)
 BEGIN
   INSERT INTO ${diffName}
   VALUES (${columns});

@@ -12,7 +12,7 @@ import {
   Target,
   ZERO
 } from '../utils/constants';
-import { ThreadCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCall';
 import { IQueue } from './IThreads';
 
 export abstract class QueueBase implements IQueue {

@@ -4,7 +4,7 @@ import { CommitArg } from '../src/objects/commit';
 import { CommitList, CommitListMem } from '../src/objects/commitList';
 import { ParseType } from '../src/objects/queryParse';
 import { ONE, VARS_TABLE, ZERO } from '../src/utils/constants';
-import { Variables } from '../src/utils/variables';
+import { Variable } from '../src/utils/variable';
 
 const tests = [
   /* #region  Split transactions. */
@@ -55,7 +55,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -135,7 +135,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -211,7 +211,7 @@ SELECT * FROM user;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -280,7 +280,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -338,7 +338,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -424,7 +424,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -482,7 +482,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -536,18 +536,18 @@ COMMIT TRANSACTION;`,
   {
     id: 6,
     name: 'Flags - Update query',
-    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variables.isWAL}";`,
+    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variable.isWAL}";`,
     params: [ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -563,7 +563,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -603,18 +603,18 @@ COMMIT TRANSACTION;`,
   }, {
     id: 7,
     name: 'Flags - Update query',
-    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variables.isMemory}";`,
+    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variable.isMemory}";`,
     params: [ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -630,7 +630,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -670,18 +670,18 @@ COMMIT TRANSACTION;`,
   }, {
     id: 8,
     name: 'Flags - Update IN query',
-    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id IN ("${Variables.isWAL}", "${Variables.isMemory}");`,
+    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id IN ("${Variable.isWAL}", "${Variable.isMemory}");`,
     params: [ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -697,7 +697,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -737,18 +737,18 @@ COMMIT TRANSACTION;`,
   }, {
     id: 9,
     name: 'Flags - Insert or replace query',
-    script: `REPLACE INTO ${VARS_TABLE} VALUES ("${Variables.isWAL}", ?);`,
+    script: `REPLACE INTO ${VARS_TABLE} VALUES ("${Variable.isWAL}", ?);`,
     params: [ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -764,7 +764,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -805,17 +805,17 @@ COMMIT TRANSACTION;`,
     id: 10,
     name: 'Flags - Query with params',
     script: `REPLACE INTO ${VARS_TABLE} VALUES (?, ?);`,
-    params: [Variables.isWAL, ZERO],
+    params: [Variable.isWAL, ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -831,7 +831,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -872,17 +872,17 @@ COMMIT TRANSACTION;`,
     id: 11,
     name: 'Flags - Query with params 2',
     script: `REPLACE INTO ${VARS_TABLE} VALUES (?, ?), (?, ?);`,
-    params: [Variables.isWAL, ZERO, Variables.isMemory, ZERO],
+    params: [Variable.isWAL, ZERO, Variable.isMemory, ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -898,7 +898,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -938,18 +938,18 @@ COMMIT TRANSACTION;`,
   }, {
     id: 12,
     name: 'Flags - Query with params 3',
-    script: `REPLACE INTO ${VARS_TABLE} VALUES (?, ?), ("${Variables.isMemory}", ?);`,
-    params: [Variables.isWAL, ZERO, ZERO],
+    script: `REPLACE INTO ${VARS_TABLE} VALUES (?, ?), ("${Variable.isMemory}", ?);`,
+    params: [Variable.isWAL, ZERO, ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -965,7 +965,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -1005,18 +1005,18 @@ COMMIT TRANSACTION;`,
   }, {
     id: 13,
     name: 'Flags - Query with params 4',
-    script: `REPLACE INTO ${VARS_TABLE} VALUES ("${Variables.isMemory}", ?), (?, ?);`,
-    params: [ZERO, Variables.isWAL, ZERO],
+    script: `REPLACE INTO ${VARS_TABLE} VALUES ("${Variable.isMemory}", ?), (?, ?);`,
+    params: [ZERO, Variable.isWAL, ZERO],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -1032,7 +1032,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE
@@ -1294,19 +1294,19 @@ const testsMem = [
   }, {
     id: 1,
     name: 'Flags - Update query',
-    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variables.isWAL}";`,
+    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variable.isWAL}";`,
     params: [ZERO],
     tables: [VARS_TABLE],
     result: {
       script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
       params: [ZERO, ONE],
       commits: [
         {
           script: `BEGIN TRANSACTION;
-UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";
 UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
 COMMIT TRANSACTION;`,
           params: [ZERO, ONE],
@@ -1322,7 +1322,7 @@ COMMIT TRANSACTION;`,
             }, {
               isRead: false,
               query:
-                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variable.isWAL}";`,
               params: [ZERO],
               tables: [
                 VARS_TABLE

@@ -11,7 +11,7 @@ import { ResultList } from '../../src/objects/resultList';
 import { UserDB } from '../../src/server/objects/DBUser';
 import { Saver } from '../../src/server/threads/threads';
 import { DB_DRIVER, SAVER_CHANNEL, Target } from '../../src/utils/constants';
-import { ThreadCall } from '../../src/utils/threadCalls';
+import { ThreadCall } from '../../src/utils/threadCall';
 
 const DB_PATH = './test';
 const DB_FILE = 'test.db';

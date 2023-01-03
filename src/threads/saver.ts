@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { Commit } from '../entity/commit';
 import { ResultList } from '../objects/resultList';
 import { COMMITS_TABLE, SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
-import { ThreadCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCall';
 import { IEngine, ISaver } from './IThreads';
 
 export abstract class SaverBase implements ISaver, IEngine {

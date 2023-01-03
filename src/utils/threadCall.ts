@@ -7,6 +7,7 @@ export enum ThreadCall {
 
   // Queue: add a transaction to the queue.
   // Saver: add a transaction to the DB.
+  // Worker: add a commit list to the DB.
   add = 'add',
 
   // Queue: Update the threads with new WAL entries.
