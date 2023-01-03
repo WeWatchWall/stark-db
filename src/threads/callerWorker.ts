@@ -1,4 +1,5 @@
 import { ResultList } from '../objects/resultList';
+import { Target } from '../utils/constants';
 import { ThreadCall } from '../utils/threadCall';
 import { ICaller, IWorker } from './IThreads';
 
@@ -26,6 +27,37 @@ export class WorkerCallerBase implements ICaller, IWorker {
       args: [
         query,
         args,
+      ]
+    });
+  }
+
+  async get(target: Target, threadID: number, commitIDs: number[]): Promise<void> {
+    return await this.worker.run({
+      name: ThreadCall.get,
+      args: [
+        target,
+        threadID,
+        commitIDs,
+      ]
+    });
+  }
+
+  async set(target: Target, results: ResultList): Promise<void> {
+    return await this.worker.run({
+      name: ThreadCall.set,
+      args: [
+        target,
+        results,
+      ]
+    });
+  }
+
+  async del(target: Target, commitID: number): Promise<void> {
+    return await this.worker.run({
+      name: ThreadCall.del,
+      args: [
+        target,
+        commitID
       ]
     });
   }

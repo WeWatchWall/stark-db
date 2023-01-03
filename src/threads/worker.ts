@@ -49,6 +49,19 @@ export abstract class WorkerBase implements IWorker, IEngine {
   async add(_query: string, _args: any[]): Promise<ResultList> {
     throw new Error("Method not implemented.");
   }
+  
+  get(_target: Target, _threadID: number, _commitIDs: number[]): Promise<void> {
+    // if (threadID !== this.id) { return; }
+    throw new Error('Method not implemented.');
+  }
+
+  set(_target: Target, _results: ResultList): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+
+  del(_target: Target, _commitID: number): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
 
   async destroy(): Promise<void> {
     if (this.DB == undefined) { return; }
@@ -57,7 +70,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
     delete this.DB;
   }
 
-  protected async callMethod(event: any): Promise<any> {
+  protected async callMethod(event: any, target = Target.DB): Promise<any> {
     const { name, args }: {
       name: ThreadCall, args: any[]
     } = event.data;
@@ -65,6 +78,17 @@ export abstract class WorkerBase implements IWorker, IEngine {
     switch (name) {
       case ThreadCall.add:
         return await this.add(args[0], args[1]);
+
+      // From the queue.
+      case ThreadCall.get:
+        return await this.get(target, args[0], args[0]);
+      case ThreadCall.set:
+        return await this.set(target, ResultList.init(args[0]));
+      
+      // From the saver.
+      case ThreadCall.del:
+        return await this.del(target, args[0]);
+
       case ThreadCall.destroy:
         return await this.destroy();
       default:

@@ -5,7 +5,7 @@ import { User } from '../entity/user';
 import { Variable } from '../entity/variable';
 import { ADMIN_DB, ADMIN_USER, DB_IDENTIFIER, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
-import { Variable } from '../utils/variable';
+import { Variable as VariableType } from '../utils/variable';
 import { IDB, IDBArg } from './IDB';
 
 const PRAGMA = 'user_version';
@@ -74,27 +74,27 @@ export abstract class PersistentDBBase implements IDB {
 
     /* #region  Set up the variables. */
     const isChanged = new Variable({
-      name: Variable.isChanged,
+      name: VariableType.isChanged,
       value: false
     });
 
     const isWALVar = new Variable({
-      name: Variable.isWAL,
+      name: VariableType.isWAL,
       value: true
     });
 
     const isMemoryVar = new Variable({
-      name: Variable.isMemory,
+      name: VariableType.isMemory,
       value: true
     });
 
     const numChangesVar = new Variable({
-      name: Variable.numChanges,
+      name: VariableType.numChanges,
       value: ZERO
     });
 
     const lastAccessVar = new Variable({
-      name: Variable.lastAccess,
+      name: VariableType.lastAccess,
       value: Date.now()
     });
 

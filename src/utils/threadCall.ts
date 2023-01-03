@@ -14,8 +14,7 @@ export enum ThreadCall {
   //   Gets called only internally. Also on outbound messages.
   // Saver: Gets called internally when finished the DB update.
   set = 'set',
-  
-  // Queue: NOOP.
+
   // Saver: Delete from the WAL.
   //   Gets called only internally. Also on outbound messages.
   del = 'del',

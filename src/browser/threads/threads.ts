@@ -48,12 +48,14 @@ export class Worker extends WorkerBase {
     super.out = new BroadcastChannel(this.outName);
     this.in.onmessage = async (message: any) => this.callMethod(message);
 
-    // TODO: Hook up the queue channels.
     super.queueIn = new BroadcastChannel(this.queueInName);
     super.queueDBOut = new BroadcastChannel(this.queueDBOutName);
+    this.queueDBOut.onmessage =
+      async (message: any) => this.callMethod(message);
 
-    // TODO: Hook up the saver channels.
     super.saverDBOut = new BroadcastChannel(this.saverDBOutName);
+    this.saverDBOut.onmessage =
+      async (message: any) => this.callMethod(message);
 
     // Connect to the DataSources.
     super.DB = await getDBConnection(this.name, Target.DB);
