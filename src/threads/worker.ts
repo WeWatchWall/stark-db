@@ -1,3 +1,4 @@
+import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
 
 import { ResultList } from '../objects/resultList';
@@ -29,6 +30,9 @@ export abstract class WorkerBase implements IWorker, IEngine {
   protected saverDBOutName: string;
   protected saverMemOutName: string;
 
+  protected taskLock: AwaitLock;
+  protected getPromiseDB: Promise<number[]>;
+
   constructor(name: string, id: number) {
     this.name = name;
     this.id = id;
@@ -46,11 +50,13 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   abstract init(): Promise<void>;
 
-  async add(_query: string, _args: any[]): Promise<ResultList> {
-    throw new Error("Method not implemented.");
-  }
+  abstract add(query: string, args: any[]): Promise<ResultList>;
   
-  async get(_target: Target, threadID: number, _commitIDs: number[]): Promise<void> {
+  async get(
+    _target: Target,
+    threadID: number,
+    _commitIDs: number[]
+  ): Promise<void> {
     if (threadID !== this.id) { return; }
 
     throw new Error('Method not implemented.');

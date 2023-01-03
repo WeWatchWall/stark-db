@@ -3,6 +3,7 @@ import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm';
 
 import { Commit } from '../../entity/commit';
+import { ResultList } from '../../objects/resultList';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
@@ -60,6 +61,10 @@ export class Worker extends WorkerBase {
     // Connect to the DataSources.
     super.DB = await getDBConnection(this.name, Target.DB);
     await this.DB.initialize();
+  }
+
+  async add(_query: string, _args: any[]): Promise<ResultList> {
+    throw new Error("Method not implemented.");
   }
 }
 

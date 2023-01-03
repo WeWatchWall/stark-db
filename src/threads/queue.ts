@@ -62,19 +62,14 @@ export abstract class QueueBase implements IQueue {
 
   async get(
     threadID: number,
-    target: Target,
 
-    queries: string[][],
+    commitList: string[][],
     params: any[][][],
 
-    isLong: boolean,
-    count = ONE
+    isLong: boolean
   ): Promise<number[]> {
-    // Don't run on the wrong target.
-    if (this.target === Target.mem && target !== Target.mem) { return []; }
-
     // Set count to be the minimum of all the argument lengths.
-    count = Math.min(queries.length, params.length, count);
+    const count = commitList.length;
     if (count < ONE) { return []; }
 
     await this.commitLock.acquireAsync();
@@ -92,7 +87,7 @@ export abstract class QueueBase implements IQueue {
       // Create the commit entities.
       for (let i = 0; i < commitIds.length; i++) {
         const commitId = commitIds[i];
-        const commitQueries = queries[i];
+        const commitQueries = commitList[i];
         const commitParams = params[i];
 
         const commitEntity = new Commit({
@@ -223,8 +218,7 @@ export abstract class QueueBase implements IQueue {
           args[0],
           args[1],
           args[2],
-          args[3],
-          args[4]
+          args[3]
         );
       case ThreadCall.add:
         return await this.add(ResultList.init(args[0]));

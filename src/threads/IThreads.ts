@@ -23,9 +23,8 @@ export interface IQueue extends IThread {
 
   get(
     threadID: number,
-    target: Target,
 
-    queries: string[][],
+    commitList: string[][],
     params: any[][][],
 
     isLong: boolean

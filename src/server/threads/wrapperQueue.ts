@@ -30,8 +30,6 @@ const job = multee.createHandler(
           callArgs.args[1],
           callArgs.args[2],
           callArgs.args[3],
-          callArgs.args[4],
-          callArgs.args[5],
         );
       case ThreadCall.add:
         return await instance.add(

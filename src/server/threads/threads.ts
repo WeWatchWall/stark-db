@@ -1,12 +1,21 @@
+import FlatPromise from 'flat-promise';
 import sqlite3 from 'sqlite3';
 import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../entity/commit';
+import { ResultList } from '../../objects/resultList';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
-import { COMMITS_TABLE, DB_DRIVER, ONE, Target, ZERO } from '../../utils/constants';
+import {
+  COMMITS_TABLE,
+  DB_DRIVER,
+  ONE,
+  Target,
+  ZERO
+} from '../../utils/constants';
+import { ThreadCall } from '../../utils/threadCall';
 
 export class Queue extends QueueBase {
   async init(): Promise<void> {
@@ -89,6 +98,8 @@ export class Worker extends WorkerBase {
   queueMemOut: any;
   saverMemOut: any;
 
+  protected getPromiseMem: Promise<number[]>;
+
   async init(): Promise<void> {
     // Set up the Broadcast channels.
     super.in = new BroadcastChannel(this.inName);
@@ -116,6 +127,53 @@ export class Worker extends WorkerBase {
     this.DBMem = getDBConnection(this.name, Target.mem);
     await this.DB.initialize();
     await this.DBMem.initialize();
+  }
+
+  async add(_query: string, _args: any[]): Promise<ResultList> {
+    await this.taskLock.acquireAsync();
+
+    // Create the get promises.
+    const getPromiseDB = new FlatPromise();
+    const getPromiseMem = new FlatPromise();
+
+    super.getPromiseDB = getPromiseDB.promise;
+    this.getPromiseMem = getPromiseMem.promise;
+
+    // TODO: Parse the query.
+    const queries: string[][] = [];
+    const params: any[][][] = [];
+    const isLong = false;
+
+    // Send the query to the queue.
+    this.queueIn.postMessage({
+      method: ThreadCall.get,
+      args: [
+        this.id,
+
+        queries,
+        params,
+
+        isLong
+      ]
+    });
+
+    const [commitDBIds, commitMemIds]: number[][] = await Promise.all([
+      this.getPromiseDB,
+      this.getPromiseMem
+    ]);
+
+    if (
+      commitDBIds[ZERO] != commitMemIds[ZERO] ||
+      commitDBIds.length !== commitMemIds.length
+    ) {
+      throw new Error("Commit IDs don't match.");
+    }
+
+    // Allow the next task to run.
+    this.taskLock.release();
+    
+    // TODO: return the resultList.
+    throw new Error("Method not implemented.");
   }
 
   async destroy(): Promise<void> {

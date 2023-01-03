@@ -1,5 +1,5 @@
 import { ResultList } from '../objects/resultList';
-import { Target } from '../utils/constants';
+import { ONE, Target } from '../utils/constants';
 import { ThreadCall } from '../utils/threadCall';
 import { ICaller, IQueue } from './IThreads';
 
@@ -23,23 +23,23 @@ export class QueueCallerBase implements ICaller, IQueue {
 
   async get(
     threadID: number,
-    target: Target,
 
     queries: string[][],
     params: any[][][],
 
-    isLong: boolean
+    isLong: boolean,
+    count = ONE
   ): Promise<number[]> {
     return await this.worker.run({
       name: ThreadCall.get,
       args: [
         threadID,
-        target,
 
         queries,
         params,
 
-        isLong
+        isLong,
+        count
       ]
     });
   }
