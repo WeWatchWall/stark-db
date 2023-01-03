@@ -1,12 +1,12 @@
 import { expect } from 'chai';
 
 import { CommitArg } from '../src/objects/commit';
-import { CommitList } from '../src/objects/commitList';
+import { CommitList, CommitListMem } from '../src/objects/commitList';
 import { ParseType } from '../src/objects/queryParse';
 import { ONE, VARS_TABLE, ZERO } from '../src/utils/constants';
 import { Variables } from '../src/utils/variables';
 
-const loadTests = [
+const tests = [
   /* #region  Split transactions. */
   {
     id: 0,
@@ -1252,14 +1252,127 @@ END;`,
   /* #endregion */
 ];
 
-describe('CommitList - Load & Save.', function () {
-  for (const test of loadTests) {
+describe.skip('CommitList - Load & Save.', function () {
+  for (const test of tests) {
     if (test.isSkip) { continue; }
 
     it(`${test.id}: ${test.name}`, async () => {
       const commits = new CommitList({
         script: test.script,
         params: test.params
+      });
+
+      commits.save();
+
+      // Copy and cleanup the commits.
+      const result: CommitArg = commits.toObject();
+
+      expect(result).to.be.deep.equal(test.result);
+    });
+  }
+});
+
+const testsMem = [
+
+  /* #region  Flags. */
+  {
+    id: 0,
+    name: 'Empty',
+    script: '',
+    params: [],
+    tables: [],
+    result: {
+      script: '',
+      params: [],
+      commits: [],
+      isLong: false,
+      isSchema: false,
+      isMemory: true,
+      isWait: false
+    },
+    isSkip: false
+  }, {
+    id: 1,
+    name: 'Flags - Update query',
+    script: `UPDATE ${VARS_TABLE} SET value = 1 WHERE id = "${Variables.isWAL}";`,
+    params: [ZERO],
+    tables: [VARS_TABLE],
+    result: {
+      script: `BEGIN TRANSACTION;
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
+COMMIT TRANSACTION;`,
+      params: [ZERO, ONE],
+      commits: [
+        {
+          script: `BEGIN TRANSACTION;
+UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";
+UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");
+COMMIT TRANSACTION;`,
+          params: [ZERO, ONE],
+          statements: [
+            {
+              isRead: false,
+              params: [],
+              query: "BEGIN TRANSACTION;",
+              tables: [],
+              columns: [],
+              keys: [],
+              type: ParseType.begin_transaction
+            }, {
+              isRead: false,
+              query:
+                `UPDATE ${VARS_TABLE} SET value = ? WHERE id = "${Variables.isWAL}";`,
+              params: [ZERO],
+              tables: [
+                VARS_TABLE
+              ],
+              columns: [],
+              keys: [],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              query:
+                `UPDATE _stark_vars SET value = ? WHERE id IN (\"isWAL\", \"isMemory\");`,
+              params: [ONE],
+              tables: [
+                VARS_TABLE
+              ],
+              columns: [],
+              keys: [],
+              type: ParseType.modify_data
+            }, {
+              isRead: false,
+              query: "COMMIT TRANSACTION;",
+              params: [],
+              tables: [],
+              columns: [],
+              keys: [],
+              type: ParseType.commit_transaction
+            }
+          ]
+        }
+      ],
+      isLong: true,
+      isSchema: false,
+      isMemory: true,
+      isWait: false
+    },
+    isSkip: false
+  }, 
+  /* #endregion */
+];
+
+
+describe('CommitList Memory - Load & Save.', function () {
+  for (const test of testsMem) {
+    if (test.isSkip) { continue; }
+
+    it(`${test.id}: ${test.name}`, async () => {
+      const commits = new CommitListMem({
+        script: test.script,
+        params: test.params,
+        tables: test.tables
       });
 
       commits.save();

@@ -88,11 +88,11 @@ export class CommitList {
     this.validator.ready();
   }
 
-  private loadValidate(): void {
+  protected loadValidate(): void {
     new CommitListLoad(this);
   }
 
-  private loadReady(): void {
+  protected loadReady(): void {
     // Set the flags.
     this.isLong = false;
     this.isSchema = false;
@@ -109,7 +109,7 @@ export class CommitList {
     let commitList: QueryParse[] | LinkList<QueryParse>[]
       = commitArg.statements;
 
-    for (const commitAnalyzer of CommitList.commitAnalyzers) {
+    for (const commitAnalyzer of this.commitAnalyzers) {
       commitList = this[commitAnalyzer](commitList);
     }
 
@@ -120,7 +120,7 @@ export class CommitList {
       }));
   }
 
-  private static commitAnalyzers = [
+  protected commitAnalyzers = [
     'splitCommits',
     'setFlags',
     'writeTables'
@@ -510,5 +510,143 @@ const CommitListSave = new ObjectModel({
   script: [String],
   params: [ArrayModel(Any)],
   commits: ArrayModel(Commit),
+});
+/* #endregion */
+
+/* #region  Memory commit list. */
+export class CommitListMemArg extends CommitListArg {
+  tables?: string[];
+  isAllMemory?: boolean;
+}
+
+export class CommitListMem extends CommitList {
+  tables: string[];
+  
+  isAllMemory: boolean;
+
+  constructor(arg: CommitListMemArg) {
+    super(arg);
+  }
+
+  protected loadValidate(): void {
+    new CommitListMemLoad(this);
+  }
+
+  protected loadReady(): void {
+    super.commitAnalyzers = [
+      'splitCommits',
+      'setFlags',
+      'delMemTables',
+      'delMemData',
+      'writeTables'
+    ];
+
+    this.isAllMemory = true;
+
+    super.loadReady();
+  }
+
+  delMemTables(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
+    if (this.isMemory) { return commits; }
+
+    // Remove other statements if the memory flag is set to false.
+    for (let cIndex = ZERO; cIndex < commits.length; cIndex++) {
+      let commitList = commits[cIndex];
+      let commit = Array.from(commitList);
+      const indexes = new Set<number>();
+
+      for (let sIndex = ZERO; sIndex < commit.length; sIndex++) {
+        const statement = commit[sIndex];
+
+        if (
+          statement.type === ParseType.create_table ||
+          statement.type === ParseType.other ||
+
+          (
+            !this.tables.includes(statement.tables[ONE]) &&
+            statement.type === ParseType.rename_table
+          ) ||
+
+          !this.tables.includes(statement.tables[ZERO]) &&
+          (
+            statement.type === ParseType.modify_table_columns ||
+            statement.type === ParseType.drop_table
+          )
+        ) {
+          this.isAllMemory = false;
+          indexes.add(sIndex);
+        }
+      }
+
+      // Remove the flag statements & update the commit list.
+      if (indexes.size > ZERO) {
+        commit = commit.filter((_, index) => !indexes.has(index));
+        commitList = new LinkList<QueryParse>(commit);
+        commits[cIndex] = commitList;
+      }
+    }
+
+    return commits;
+  }
+  
+  delMemData(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
+    // Remove other statements if the memory flag is set to false.
+    for (let cIndex = ZERO; cIndex < commits.length; cIndex++) {
+      let commitList = commits[cIndex];
+      let commit = Array.from(commitList);
+      const indexes = new Set<number>();
+
+      for (let sIndex = ZERO; sIndex < commit.length; sIndex++) {
+        const statement = commit[sIndex];
+
+        // Remove select statements that include non-memory tables. Those run
+        //   only on the DB.
+        if (statement.type === ParseType.select_data) {
+          const isMem = statement
+            .tables
+            .every((table) => this.tables.includes(table));
+
+          if (!isMem) {
+            this.isAllMemory = false;
+            indexes.add(sIndex);
+          }
+        }
+
+        // Remove modification statements that don't include any memory tables.
+        //   Those run only on the DB.
+        else if (statement.type === ParseType.modify_data) {
+          const tables = statement.tables;
+          const isMem = tables
+            .some((table) => this.tables.includes(table));
+          const isMemAll = tables
+            .every((table) => this.tables.includes(table));
+          
+          if (!isMemAll) {
+            this.isAllMemory = false;
+          }
+          if (!isMem) {
+            indexes.add(sIndex);
+          }
+        }
+      }
+
+      // Remove the flag statements & update the commit list.
+      if (indexes.size > ZERO) {
+        commit = commit.filter((_, index) => !indexes.has(index));
+        commitList = new LinkList<QueryParse>(commit);
+        commits[cIndex] = commitList;
+      }
+    }
+
+    return commits;
+  }
+}
+
+const CommitListMemLoad = new ObjectModel({
+  script: String,
+  params: ArrayModel(Any),
+  commits: undefined,
+
+  tables: ArrayModel(String),
 });
 /* #endregion */
