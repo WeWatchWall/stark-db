@@ -8,15 +8,6 @@ import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
 import { Target } from '../../utils/constants';
 
-export class Worker extends WorkerBase {
-  async init(): Promise<void> {
-    // TODO:
-    // Init DataSource: this.target === targets.DB ? this.DB = ...
-    // Setup Broadcast Channel(s)
-    throw new Error("Method not implemented.");
-  }
-}
-
 export class Queue extends QueueBase {
   async init(): Promise<void> {
     // Set up the broadcast channels.
@@ -47,6 +38,15 @@ export class Saver extends SaverBase {
     // Connect to the DataSource.
     super.DB = await getDBConnection(this.name, this.target);
     await this.DB.initialize();
+  }
+}
+
+export class Worker extends WorkerBase {
+  async init(): Promise<void> {
+    // TODO:
+    // Init DataSource: this.target === targets.DB ? this.DB = ...
+    // Setup Broadcast Channel(s)
+    throw new Error("Method not implemented.");
   }
 }
 

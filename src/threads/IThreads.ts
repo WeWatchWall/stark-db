@@ -46,5 +46,4 @@ export interface IWorker extends IThread {
   id: number;
 
   run(query: string, args: any[]): Promise<ResultList>;
-  pause(id: number, target: Target): Promise<void>;
 }

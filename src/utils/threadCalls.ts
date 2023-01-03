@@ -27,6 +27,5 @@ export enum WorkerCall {
   init = 'init',
 
   run = 'run', // Run a query.
-  pause = 'pause', // Pause the thread for long transactions.
   stop = 'stop', // Stop the thread and destroy it.
 }

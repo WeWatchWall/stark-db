@@ -8,15 +8,6 @@ import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
 import { COMMITS_TABLE, DB_DRIVER, ONE, Target, ZERO } from '../../utils/constants';
 
-export class Worker extends WorkerBase {
-  async init(): Promise<void> {
-    // TODO:
-    // Init DataSource: this.DB = this.target === targets.DB ? ... : ...
-    // Setup Broadcast Channel(s)
-    throw new Error("Method not implemented.");
-  }
-}
-
 export class Queue extends QueueBase {
   async init(): Promise<void> {
     // Set up the broadcast channels.
@@ -125,3 +116,12 @@ function getDBConnection(name: string, target: Target): DataSource {
       throw new Error(`Invalid target: ${target}`);
   }
 };
+
+export class Worker extends WorkerBase {
+  async init(): Promise<void> {
+    // TODO:
+    // Init DataSource: this.DB = this.target === targets.DB ? ... : ...
+    // Setup Broadcast Channel(s)
+    throw new Error("Method not implemented.");
+  }
+}

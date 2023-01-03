@@ -1,5 +1,4 @@
 import { ResultList } from '../objects/resultList';
-import { Target } from '../utils/constants';
 import { WorkerCall } from '../utils/threadCalls';
 import { ICaller, IWorker } from './IThreads';
 
@@ -27,16 +26,6 @@ export class WorkerCallerBase implements ICaller, IWorker {
       args: [
         query,
         args,
-      ]
-    });
-  }
-
-  async pause(id: number, target: Target): Promise<void> {
-    return await this.worker.run({
-      name: WorkerCall.pause,
-      args: [
-        id,
-        target,
       ]
     });
   }
