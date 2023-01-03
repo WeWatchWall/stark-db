@@ -24,7 +24,9 @@ export const TRIGGER_PREFIX = '_stark_trigger_';
 export const TRIGGER_ADD = 'add_';
 export const TRIGGER_SET = 'set_';
 
-export const LONG_COMMIT_DEFAULT = 200;
+export const ENTITIES_MAX = 2e2;
+export const PARAMS_MAX = ENTITIES_MAX * 2e1;
+export const QUERY_MAX = 2e8;
 
 export enum Target { DB = 'DB', mem = 'mem' }
 

@@ -17,7 +17,8 @@ const tests = [
       script: '',
       params: [],
       commits: [],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -96,7 +97,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -176,7 +178,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -233,7 +236,8 @@ SELECT * FROM user;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: true
@@ -379,7 +383,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -523,7 +528,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -594,7 +600,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -661,7 +668,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: false,
       isWait: false
@@ -728,7 +736,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: false,
       isWait: false
@@ -795,7 +804,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -862,7 +872,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -929,7 +940,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: false,
       isWait: false
@@ -996,7 +1008,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: false,
       isWait: false
@@ -1063,7 +1076,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: false,
       isWait: false
@@ -1242,7 +1256,8 @@ END;`,
           keys: []
         }]
       }],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: true,
       isMemory: true,
       isWait: false
@@ -1285,7 +1300,8 @@ const testsMem = [
       script: '',
       params: [],
       commits: [],
-      isLong: false,
+      isLongUser: false,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false
@@ -1353,7 +1369,8 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isLong: true,
+      isLongUser: true,
+      isLongMax: false,
       isSchema: false,
       isMemory: true,
       isWait: false

@@ -7,6 +7,8 @@ import {
   DIFFS_TABLE_PREFIX,
   NEWLINE,
   ONE,
+  PARAMS_MAX,
+  QUERY_MAX,
   STATEMENT_DELIMITER,
   STATEMENT_PLACEHOLDER,
   TABLES_TABLE,
@@ -28,7 +30,8 @@ export class CommitListArg {
   params?: any[];
   commits?: CommitArg[] | Commit[];
 
-  isLong?: boolean;
+  isLongUser?: boolean;
+  isLongMax?: boolean;
   isSchema?: boolean;
   isMemory?: boolean;
   isWait?: boolean;
@@ -42,7 +45,8 @@ export class CommitList {
   params: any[];
   commits: Commit[];
 
-  isLong: boolean;
+  isLongUser: boolean;
+  isLongMax: boolean;
   isSchema: boolean;
   isMemory: boolean;
   isWait: boolean;
@@ -94,7 +98,8 @@ export class CommitList {
 
   protected loadReady(): void {
     // Set the flags.
-    this.isLong = false;
+    this.isLongUser = false;
+    this.isLongMax = false;
     this.isSchema = false;
     this.isMemory = true;
     this.isWait = false;
@@ -122,6 +127,7 @@ export class CommitList {
 
   protected commitAnalyzers = [
     'splitCommits',
+    'countMax',
     'setFlags',
     'writeTables'
   ];
@@ -150,7 +156,6 @@ export class CommitList {
     this.isWait = result.length === ONE &&
       result[ZERO].front().type === ParseType.begin_transaction &&
       result[ZERO].back().type !== ParseType.commit_transaction;
-    this.isLong = this.isWait;
 
     /* #region  Check the first statement begins with a */
     //   begin transaction statement.
@@ -183,6 +188,30 @@ export class CommitList {
     return result;
   }
 
+  countMax(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
+    // Counters.    
+    let queryCount = ZERO;
+    let paramCount = ZERO;
+
+    for (const commit of commits) {
+      if (this.isLongMax) { break; }
+
+      for (const statement of commit) {
+        queryCount += statement.query.length;
+        paramCount += statement.params.length;
+      }
+
+      if (
+        queryCount > QUERY_MAX ||
+        paramCount > PARAMS_MAX
+      ) {
+        this.isLongMax = true;
+      }
+    }
+    
+    return commits;
+  }
+
   setFlags(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
     // Remove the statements that update the isWAL flag.
     for (let cIndex = ZERO; cIndex < commits.length; cIndex++) {
@@ -201,7 +230,7 @@ export class CommitList {
 
         // Check the parameters for the variables.
         if (statement.params.includes(Variable.isWAL)) {
-          this.isLong = true;
+          this.isLongUser = true;
           indexes.add(sIndex);
         }
         if (statement.params.includes(Variable.isMemory)) {
@@ -225,7 +254,7 @@ export class CommitList {
         }
         if (isFound) {
           indexes.add(sIndex);
-          this.isLong = true;
+          this.isLongUser = true;
         }
         /* #endregion */
 
@@ -483,7 +512,8 @@ END;`;
       params: this.params,
       commits: this.commits.map((commit) => commit.toObject()),
 
-      isLong: this.isLong,
+      isLongUser: this.isLongUser,
+      isLongMax: this.isLongMax,
       isSchema: this.isSchema,
       isMemory: this.isMemory,
       isWait: this.isWait,
@@ -535,6 +565,7 @@ export class CommitListMem extends CommitList {
   protected loadReady(): void {
     super.commitAnalyzers = [
       'splitCommits',
+      'countMax',
       'setFlags',
       'delMemTables',
       'delMemData',
