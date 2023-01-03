@@ -117,6 +117,20 @@ export class Worker extends WorkerBase {
     await this.DB.initialize();
     await this.DBMem.initialize();
   }
+
+  async destroy(): Promise<void> {
+    if (this.DB == undefined) { return; }
+
+    // Close the Broadcast channels.
+    this.queueMemOut.close();
+    this.saverMemOut.close();
+
+    // Close the DataSource.
+    await this.DBMem.destroy();
+
+    // Call the parent destroy method.
+    await super.destroy();
+  }
 }
 
 function getDBConnection(name: string, target: Target): DataSource {

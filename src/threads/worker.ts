@@ -50,21 +50,29 @@ export abstract class WorkerBase implements IWorker, IEngine {
     throw new Error("Method not implemented.");
   }
   
-  get(_target: Target, _threadID: number, _commitIDs: number[]): Promise<void> {
-    // if (threadID !== this.id) { return; }
+  async get(_target: Target, threadID: number, _commitIDs: number[]): Promise<void> {
+    if (threadID !== this.id) { return; }
+
     throw new Error('Method not implemented.');
   }
 
-  set(_target: Target, _results: ResultList): Promise<void> {
+  async set(_target: Target, _results: ResultList): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
-  del(_target: Target, _commitID: number): Promise<void> {
+  async del(_target: Target, _commitID: number): Promise<void> {
     throw new Error('Method not implemented.');
   }
 
   async destroy(): Promise<void> {
     if (this.DB == undefined) { return; }
+    
+    // Clean up the Broadcast Channels.
+    this.in.close();
+    this.out.close();
+    this.queueIn.close();
+    this.queueDBOut.close();
+    this.saverDBOut.close();
 
     await this.DB.destroy();
     delete this.DB;

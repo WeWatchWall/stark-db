@@ -84,7 +84,7 @@ export abstract class SaverBase implements ISaver, IEngine {
   async destroy(): Promise<void> {
     if (this.in == undefined) { return; }
 
-    // Clean up the Broadcast Channel.
+    // Clean up the Broadcast Channels.
     this.in.close();
     this.out.close();
     delete this.in;

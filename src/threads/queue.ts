@@ -194,7 +194,7 @@ export abstract class QueueBase implements IQueue {
       await this.currentPromise;
     }
 
-    // Clean up the Broadcast Channel.
+    // Clean up the Broadcast Channels.
     this.in.close();
     this.out.close();
     this.saverIn.close();
