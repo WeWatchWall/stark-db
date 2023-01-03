@@ -43,10 +43,21 @@ export class Saver extends SaverBase {
 
 export class Worker extends WorkerBase {
   async init(): Promise<void> {
-    // TODO:
-    // Init DataSource: this.target === targets.DB ? this.DB = ...
-    // Setup Broadcast Channel(s)
-    throw new Error("Method not implemented.");
+    // Set up the Broadcast channels.
+    super.in = new BroadcastChannel(this.inName);
+    super.out = new BroadcastChannel(this.outName);
+    this.in.onmessage = async (message: any) => this.callMethod(message);
+
+    // TODO: Hook up the queue channels.
+    super.queueIn = new BroadcastChannel(this.queueInName);
+    super.queueDBOut = new BroadcastChannel(this.queueDBOutName);
+
+    // TODO: Hook up the saver channels.
+    super.saverDBOut = new BroadcastChannel(this.saverDBOutName);
+
+    // Connect to the DataSources.
+    super.DB = await getDBConnection(this.name, Target.DB);
+    await this.DB.initialize();
   }
 }
 

@@ -1,6 +1,6 @@
 import { ResultList } from '../objects/resultList';
 import { Target } from '../utils/constants';
-import { PersistCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCalls';
 import { ICaller, IQueue } from './IThreads';
 
 export class QueueCallerBase implements ICaller, IQueue {
@@ -16,7 +16,7 @@ export class QueueCallerBase implements ICaller, IQueue {
 
   async init(): Promise<void> {
     await this.worker.run({
-      name: PersistCall.init,
+      name: ThreadCall.init,
       args: [this.name, this.target]
     });
   }
@@ -31,7 +31,7 @@ export class QueueCallerBase implements ICaller, IQueue {
     isLong: boolean
   ): Promise<number[]> {
     return await this.worker.run({
-      name: PersistCall.get,
+      name: ThreadCall.get,
       args: [
         threadID,
         target,
@@ -48,7 +48,7 @@ export class QueueCallerBase implements ICaller, IQueue {
     results: ResultList,
   ): Promise<void> {
     await this.worker.run({
-      name: PersistCall.add,
+      name: ThreadCall.add,
       args: [
         results.toObject(),
       ]
@@ -59,7 +59,7 @@ export class QueueCallerBase implements ICaller, IQueue {
     results: ResultList,
   ): Promise<void> {
     await this.worker.run({
-      name: PersistCall.set,
+      name: ThreadCall.set,
       args: [
         results.toObject(),
       ]
@@ -70,7 +70,7 @@ export class QueueCallerBase implements ICaller, IQueue {
     IDs: number[],
   ): Promise<void> {
     await this.worker.run({
-      name: PersistCall.del,
+      name: ThreadCall.del,
       args: [
         IDs,
       ]
@@ -81,7 +81,7 @@ export class QueueCallerBase implements ICaller, IQueue {
     if (!this.worker) { return; }
 
     await this.worker.run({
-      name: PersistCall.destroy,
+      name: ThreadCall.destroy,
       args: []
     });
 

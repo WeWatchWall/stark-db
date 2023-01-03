@@ -1,5 +1,5 @@
 import { ResultList } from '../objects/resultList';
-import { WorkerCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCalls';
 import { ICaller, IWorker } from './IThreads';
 
 export class WorkerCallerBase implements ICaller, IWorker {
@@ -15,14 +15,14 @@ export class WorkerCallerBase implements ICaller, IWorker {
 
   async init(): Promise<void> {
     return await this.worker.run({
-      name: WorkerCall.init,
+      name: ThreadCall.init,
       args: [this.name, this.id]
     });
   }
 
-  async run(query: string, args: any[]): Promise<ResultList> {
+  async add(query: string, args: any[]): Promise<ResultList> {
     return await this.worker.run({
-      name: WorkerCall.run,
+      name: ThreadCall.add,
       args: [
         query,
         args,
@@ -34,7 +34,7 @@ export class WorkerCallerBase implements ICaller, IWorker {
     if (!this.worker) { return; }
 
     await this.worker.run({
-      name: WorkerCall.stop,
+      name: ThreadCall.destroy,
       args: []
     });
 

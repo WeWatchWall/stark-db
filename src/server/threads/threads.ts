@@ -72,7 +72,7 @@ export class Queue extends QueueBase {
 
 export class Saver extends SaverBase {
   async init(): Promise<void> {
-    // Set up the Broadcast channel.
+    // Set up the Broadcast channels.
     super.in = new BroadcastChannel(this.inName);
     super.out = new BroadcastChannel(this.outName);
     this.in.onmessage =  async (message: any) => this.callMethod(message);
@@ -80,6 +80,35 @@ export class Saver extends SaverBase {
     // Connect to the DataSource, based conditionally on target.
     super.DB = getDBConnection(this.name, this.target);
     await this.DB.initialize();
+  }
+}
+
+export class Worker extends WorkerBase {
+  DBMem: DataSource;
+
+  queueMemOut: any;
+  saverMemOut: any;
+
+  async init(): Promise<void> {
+    // Set up the Broadcast channels.
+    super.in = new BroadcastChannel(this.inName);
+    super.out = new BroadcastChannel(this.outName);
+    this.in.onmessage = async (message: any) => this.callMethod(message);
+
+    // TODO: Hook up the queue channels.
+    super.queueIn = new BroadcastChannel(this.queueInName);
+    super.queueDBOut = new BroadcastChannel(this.queueDBOutName);
+    this.queueMemOut = new BroadcastChannel(this.queueMemOutName);
+
+    // TODO: Hook up the saver channels.
+    super.saverDBOut = new BroadcastChannel(this.saverDBOutName);
+    this.saverMemOut = new BroadcastChannel(this.saverMemOutName);
+
+    // Connect to the DataSources.
+    super.DB = getDBConnection(this.name, Target.DB);
+    this.DBMem = getDBConnection(this.name, Target.mem);
+    await this.DB.initialize();
+    await this.DBMem.initialize();
   }
 }
 
@@ -116,12 +145,3 @@ function getDBConnection(name: string, target: Target): DataSource {
       throw new Error(`Invalid target: ${target}`);
   }
 };
-
-export class Worker extends WorkerBase {
-  async init(): Promise<void> {
-    // TODO:
-    // Init DataSource: this.DB = this.target === targets.DB ? ... : ...
-    // Setup Broadcast Channel(s)
-    throw new Error("Method not implemented.");
-  }
-}

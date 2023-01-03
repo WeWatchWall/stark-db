@@ -1,6 +1,8 @@
 import { DataSource } from 'typeorm';
 
 import { ResultList } from '../objects/resultList';
+import { SAVER_CHANNEL, Target, WORKER_CHANNEL } from '../utils/constants';
+import { ThreadCall } from '../utils/threadCalls';
 import { IEngine, IWorker } from './IThreads';
 
 export abstract class WorkerBase implements IWorker, IEngine {
@@ -9,18 +11,64 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   DB: DataSource;
 
+  in: any;
+  out: any;
+
+  queueIn: any;
+  queueDBOut: any;
+
+  saverDBOut: any;
+
+  protected inName: string;
+  protected outName: string;
+
+  protected queueInName: string;
+  protected queueDBOutName: string;
+  protected queueMemOutName: string;
+  
+  protected saverDBOutName: string;
+  protected saverMemOutName: string;
+
   constructor(name: string, id: number) {
     this.name = name;
     this.id = id;
+
+    this.inName = `${WORKER_CHANNEL}-${this.id}-${this.name}-in`;
+    this.outName = `${WORKER_CHANNEL}-${this.id}-${this.name}-out`;
+
+    this.queueInName = `${SAVER_CHANNEL}-${this.name}-in`;
+    this.queueDBOutName = `${SAVER_CHANNEL}-${Target.DB}-${this.name}-out`;
+    this.queueMemOutName = `${SAVER_CHANNEL}-${Target.mem}-${this.name}-out`;
+
+    this.saverDBOutName = `${SAVER_CHANNEL}-${Target.DB}-${this.name}-out`;
+    this.saverMemOutName = `${SAVER_CHANNEL}-${Target.mem}-${this.name}-out`;
   }
 
   abstract init(): Promise<void>;
 
-  async run(_query: string, _args: any[]): Promise<ResultList> {
+  async add(_query: string, _args: any[]): Promise<ResultList> {
     throw new Error("Method not implemented.");
   }
 
   async destroy(): Promise<void> {
-    throw new Error("Method not implemented.");
+    if (this.DB == undefined) { return; }
+
+    await this.DB.destroy();
+    delete this.DB;
+  }
+
+  protected async callMethod(event: any): Promise<any> {
+    const { name, args }: {
+      name: ThreadCall, args: any[]
+    } = event.data;
+
+    switch (name) {
+      case ThreadCall.add:
+        return await this.add(args[0], args[1]);
+      case ThreadCall.destroy:
+        return await this.destroy();
+      default:
+        break;
+    }
   }
 }

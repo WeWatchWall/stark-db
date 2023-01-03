@@ -45,5 +45,5 @@ export interface ISaver extends IThread {
 export interface IWorker extends IThread {
   id: number;
 
-  run(query: string, args: any[]): Promise<ResultList>;
+  add(query: string, args: any[]): Promise<ResultList>;
 }

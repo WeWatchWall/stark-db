@@ -1252,7 +1252,7 @@ END;`,
   /* #endregion */
 ];
 
-describe.skip('CommitList - Load & Save.', function () {
+describe('CommitList - Load & Save.', function () {
   for (const test of tests) {
     if (test.isSkip) { continue; }
 

@@ -11,7 +11,7 @@ import { ResultList } from '../../src/objects/resultList';
 import { UserDB } from '../../src/server/objects/DBUser';
 import { Saver } from '../../src/server/threads/threads';
 import { DB_DRIVER, SAVER_CHANNEL, Target } from '../../src/utils/constants';
-import { PersistCall } from '../../src/utils/threadCalls';
+import { ThreadCall } from '../../src/utils/threadCalls';
 
 const DB_PATH = './test';
 const DB_FILE = 'test.db';
@@ -175,7 +175,7 @@ async function runTestBC(test: any, target: Target) {
         args: [number];
       } = event.data;
 
-      if (name === PersistCall.del) {
+      if (name === ThreadCall.del) {
         const [id] = args;
         promise.resolve(id);
       } else {
@@ -187,7 +187,7 @@ async function runTestBC(test: any, target: Target) {
     args.target = target;
 
     BCIn.postMessage({
-      name: PersistCall.add,
+      name: ThreadCall.add,
       args: [args]
     });
 

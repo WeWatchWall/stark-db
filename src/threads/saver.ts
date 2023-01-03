@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import { Commit } from '../entity/commit';
 import { ResultList } from '../objects/resultList';
 import { COMMITS_TABLE, SAVER_CHANNEL, Target, ZERO } from '../utils/constants';
-import { PersistCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCalls';
 import { IEngine, ISaver } from './IThreads';
 
 export abstract class SaverBase implements ISaver, IEngine {
@@ -11,14 +11,17 @@ export abstract class SaverBase implements ISaver, IEngine {
   target: Target;
 
   DB: DataSource;
+
   in: any;
   out: any;
-  inName: string;
-  outName: string;
+
+  protected inName: string;
+  protected outName: string;
 
   constructor(name: string, target: Target) {
     this.name = name;
     this.target = target;
+
     this.inName = `${SAVER_CHANNEL}-${this.target}-${this.name}-in`;
     this.outName = `${SAVER_CHANNEL}-${this.target}-${this.name}-out`;
   }
@@ -73,7 +76,7 @@ export abstract class SaverBase implements ISaver, IEngine {
 
   async del(commit: number): Promise<void> {
     this.out.postMessage({
-      name: PersistCall.del,
+      name: ThreadCall.del,
       args: [commit]
     });
   }
@@ -94,11 +97,11 @@ export abstract class SaverBase implements ISaver, IEngine {
 
   protected async callMethod(event: any): Promise<any> {
     const { name, args }: {
-      name: PersistCall, args: any[]
+      name: ThreadCall, args: any[]
     } = event.data;
 
     switch (name) {
-      case PersistCall.add:
+      case ThreadCall.add:
         return await this.add(ResultList.init(args[0]));
       default:
         break;

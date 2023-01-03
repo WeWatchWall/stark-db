@@ -12,7 +12,7 @@ import {
   Target,
   ZERO
 } from '../utils/constants';
-import { PersistCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCalls';
 import { IQueue } from './IThreads';
 
 export abstract class QueueBase implements IQueue {
@@ -20,8 +20,10 @@ export abstract class QueueBase implements IQueue {
   target: Target;
 
   DB?: DataSource;
+
   in: any;
   out: any;
+
   saverIn: any;
   saverOut: any;
 
@@ -111,7 +113,7 @@ export abstract class QueueBase implements IQueue {
 
     // Send the response.
     this.out.postMessage({
-      name: PersistCall.get,
+      name: ThreadCall.get,
       args: [threadID, commitIds]
     });
 
@@ -142,7 +144,7 @@ export abstract class QueueBase implements IQueue {
 
     // Call the saver with the task.
     this.saverIn.postMessage({
-      name: PersistCall.add,
+      name: ThreadCall.add,
       args: [results]
     });
   }
@@ -150,7 +152,7 @@ export abstract class QueueBase implements IQueue {
   async set(results: ResultList): Promise<void> {
     // Call the workers with the task results.
     this.out.postMessage({
-      name: PersistCall.set,
+      name: ThreadCall.set,
       args: [results]
     });
 
@@ -212,11 +214,11 @@ export abstract class QueueBase implements IQueue {
   
   protected async callMethod(event: any): Promise<any> {
     const { name, args }: {
-      name: PersistCall, args: any[]
+      name: ThreadCall, args: any[]
     } = event.data;
 
     switch (name) {
-      case PersistCall.get:
+      case ThreadCall.get:
         return await this.get(
           args[0],
           args[1],
@@ -224,9 +226,9 @@ export abstract class QueueBase implements IQueue {
           args[3],
           args[4]
         );
-      case PersistCall.add:
+      case ThreadCall.add:
         return await this.add(ResultList.init(args[0]));
-      case PersistCall.del:
+      case ThreadCall.del:
         return await this.del(args[0]);
       default:
         break;

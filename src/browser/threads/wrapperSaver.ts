@@ -1,7 +1,7 @@
 import Multee from 'multee-browser';
 
 import { ResultList } from '../../objects/resultList';
-import { PersistCall } from '../../utils/threadCalls';
+import { ThreadCall } from '../../utils/threadCalls';
 import { Saver } from './threads';
 
 const multee = Multee();
@@ -11,11 +11,11 @@ let instance: Saver;
 const job = multee.createHandler(
   'job',
   async (callArgs: {
-    name: PersistCall,
+    name: ThreadCall,
     args: any[]
   }): Promise<any> => {
     switch (callArgs.name) {
-      case PersistCall.init:
+      case ThreadCall.init:
         instance = new Saver(
           callArgs.args[0],
           callArgs.args[1],
@@ -23,20 +23,20 @@ const job = multee.createHandler(
         return await instance.init();
 
       // Inbound through the Broadcast Channel. This is just for testing.
-      case PersistCall.get:
+      case ThreadCall.get:
         return await instance.get();
-      case PersistCall.add:
+      case ThreadCall.add:
         return await instance.add(
           ResultList.init(callArgs.args[0]),
         );
 
       // Outbound through the BC. This is just for testing.
-      case PersistCall.del:
+      case ThreadCall.del:
         return await instance.del(
           callArgs.args[0],
         );
 
-      case PersistCall.destroy:
+      case ThreadCall.destroy:
         return await instance.destroy();
     }
   }

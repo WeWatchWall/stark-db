@@ -1,4 +1,4 @@
-export enum PersistCall {
+export enum ThreadCall {
   init = 'init',
 
   // Queue: Get a transaction ID through a Broadcast Channel.
@@ -21,11 +21,4 @@ export enum PersistCall {
 
   // Finish all the transactions and destroy all the resources.
   destroy = 'destroy',
-}
-
-export enum WorkerCall {
-  init = 'init',
-
-  run = 'run', // Run a query.
-  stop = 'stop', // Stop the thread and destroy it.
 }

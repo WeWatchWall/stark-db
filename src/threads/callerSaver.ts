@@ -1,6 +1,6 @@
 import { ResultList } from '../objects/resultList';
 import { Target } from '../utils/constants';
-import { PersistCall } from '../utils/threadCalls';
+import { ThreadCall } from '../utils/threadCalls';
 import { ICaller, ISaver } from './IThreads';
 
 export class SaverCallerBase implements ICaller, ISaver {
@@ -16,14 +16,14 @@ export class SaverCallerBase implements ICaller, ISaver {
 
   async init(): Promise<void> {
     await this.worker.run({
-      name: PersistCall.init,
+      name: ThreadCall.init,
       args: [this.name, this.target]
     });
   }
 
   async get(): Promise<number> {
     return await this.worker.run({
-      name: PersistCall.get,
+      name: ThreadCall.get,
       args: []
     });
   }
@@ -32,7 +32,7 @@ export class SaverCallerBase implements ICaller, ISaver {
     results: ResultList
   ): Promise<void> {
     await this.worker.run({
-      name: PersistCall.add,
+      name: ThreadCall.add,
       args: [
         results.toObject(),
       ]
@@ -41,7 +41,7 @@ export class SaverCallerBase implements ICaller, ISaver {
 
   async del(commit: number): Promise<void> {
     await this.worker.run({
-      name: PersistCall.del,
+      name: ThreadCall.del,
       args: [commit]
     });
   }
@@ -50,7 +50,7 @@ export class SaverCallerBase implements ICaller, ISaver {
     if (!this.worker) { return; }
 
     await this.worker.run({
-      name: PersistCall.destroy,
+      name: ThreadCall.destroy,
       args: []
     });
 
