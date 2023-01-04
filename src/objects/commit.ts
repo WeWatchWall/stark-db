@@ -1,6 +1,6 @@
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
-import { NEWLINE, STATEMENT_DELIMITER, ZERO } from '../utils/constants';
+import { NEWLINE, ONE, STATEMENT_DELIMITER, ZERO } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';
 import { QueryParse, QueryParseArg } from './queryParse';
@@ -129,6 +129,39 @@ export class Commit {
     this.script = statements.join(NEWLINE);
   }
   /* #endregion */
+  
+  /**
+   * Search each statement query and params, starting at the given index.
+   * @param query @type {string} The query to search for.
+   * @param params @type {any[]} The params of the query.
+   * @param [start] @type {number} The index to start searching at.
+   * 
+   * @returns search @type {number} 
+   *   The index of the statement, or -1 if not found.
+   */
+  search(query: string, params: any[], start = ZERO): number {
+    for(let i = start; i < this.statements.length; i++) {
+      const statement = this.statements[i];
+
+      if (
+        statement.query === query &&
+        statement.params.length === params.length
+      ) {
+        let match = true;
+
+        for (let j = ZERO; j < statement.params.length; j++) {
+          if (statement.params[j] !== params[j]) {
+            match = false;
+            break;
+          }
+        }
+
+        if (match) { return i; }
+      }
+    }
+
+    return -ONE;
+  }
 
   toObject(): CommitArg {
     return {
