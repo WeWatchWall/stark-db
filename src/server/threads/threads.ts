@@ -140,11 +140,7 @@ export class Worker extends WorkerBase {
     );
   }
 
-  private async listenQueueDB(message: any): Promise<any> {
-    return this.callMethod(message, Target.DB);
-  }
-
-  private async listenQueueMem(message: any): Promise<any> {
+  protected async listenQueueMem(message: any): Promise<any> {
     return this.callMethod(message, Target.mem);
   }
 

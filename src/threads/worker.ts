@@ -2,7 +2,12 @@ import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
 
 import { ResultList } from '../objects/resultList';
-import { SAVER_CHANNEL, Target, WORKER_CHANNEL } from '../utils/constants';
+import {
+  SAVER_CHANNEL,
+  Target,
+  WORKER_CHANNEL,
+  ZERO
+} from '../utils/constants';
 import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
 
@@ -12,6 +17,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   DB: DataSource;
 
+  /* #region  Declare the Broadcast Channels. */
   in: any;
   out: any;
 
@@ -26,17 +32,21 @@ export abstract class WorkerBase implements IWorker, IEngine {
   protected queueInName: string;
   protected queueDBOutName: string;
   protected queueMemOutName: string;
-  
+
   protected saverDBOutName: string;
   protected saverMemOutName: string;
+  /* #endregion */
 
   protected taskLock: AwaitLock;
   protected getPromiseDB: Promise<number[]>;
+
+  protected saveID: number;
 
   constructor(name: string, id: number) {
     this.name = name;
     this.id = id;
 
+    /* #region  Declare the Broadcast Channel names. */
     this.inName = `${WORKER_CHANNEL}-${this.id}-${this.name}-in`;
     this.outName = `${WORKER_CHANNEL}-${this.id}-${this.name}-out`;
 
@@ -46,18 +56,28 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
     this.saverDBOutName = `${SAVER_CHANNEL}-${Target.DB}-${this.name}-out`;
     this.saverMemOutName = `${SAVER_CHANNEL}-${Target.mem}-${this.name}-out`;
+    /* #endregion */
+
+    this.saveID = ZERO;
   }
 
   abstract init(): Promise<void>;
 
   abstract add(query: string, args: any[]): Promise<ResultList[]>;
-  
+
+  protected async listenQueueDB(message: any): Promise<any> {
+    return this.callMethod(message, Target.DB);
+  }
+
   async get(
     _target: Target,
     threadID: number,
+    saveID: number,
     _commitIDs: number[]
   ): Promise<void> {
     if (threadID !== this.id) { return; }
+
+    this.saveID = saveID;
 
     throw new Error('Method not implemented.');
   }
@@ -72,7 +92,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   async destroy(): Promise<void> {
     if (this.DB == undefined) { return; }
-    
+
     // Clean up the Broadcast Channels.
     this.in.close();
     this.out.close();
@@ -95,10 +115,10 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
       // From the queue.
       case ThreadCall.get:
-        return await this.get(target, args[0], args[0]);
+        return await this.get(target, args[0], args[1], args[2]);
       case ThreadCall.set:
         return await this.set(target, ResultList.init(args[0]));
-      
+
       // From the saver.
       case ThreadCall.del:
         return await this.del(target, args[0]);

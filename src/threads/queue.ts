@@ -37,6 +37,7 @@ export abstract class QueueBase implements IQueue {
   private commitLong?: number;
 
   private currentCommit: number;
+  private saveID: number;
   private currentPromise: FlatPromise;
   private lastCommit: number;
   private queue: Queue<ResultList>;
@@ -53,6 +54,7 @@ export abstract class QueueBase implements IQueue {
 
     this.commitLock = new AwaitLock();
     this.currentCommit = ZERO;
+    this.saveID = ZERO;
     this.currentPromise = new FlatPromise();
     this.lastCommit = commit;
     this.queue = new Queue<ResultList>();
@@ -75,18 +77,18 @@ export abstract class QueueBase implements IQueue {
     await this.commitLock.acquireAsync();
     
     // Assign the commit IDs and update the last commit.
-    const commitIds = Array
+    const commitIDs = Array
       .from(Array(count))
       .map((_value, index: number) => this.lastCommit + index + ONE);
-    this.lastCommit = commitIds[commitIds.length - ONE];
+    this.lastCommit = commitIDs[commitIDs.length - ONE];
 
     // Add the commit to the queue table if targeting the server DB.
     if (this.DB != undefined && this.target === Target.DB) {
       const commits: Commit[] = [];
 
       // Create the commit entities.
-      for (let i = 0; i < commitIds.length; i++) {
-        const commitId = commitIds[i];
+      for (let i = 0; i < commitIDs.length; i++) {
+        const commitId = commitIDs[i];
         const commitQueries = commitList[i];
         const commitParams = params[i];
 
@@ -109,7 +111,7 @@ export abstract class QueueBase implements IQueue {
     // Send the response.
     this.out.postMessage({
       name: ThreadCall.get,
-      args: [threadID, commitIds]
+      args: [threadID, this.saveID, commitIDs]
     });
 
     // Conditionally release the lock if this isn't a long transaction.
@@ -121,7 +123,7 @@ export abstract class QueueBase implements IQueue {
       this.commitLock.release();
     }
 
-    return commitIds;
+    return commitIDs;
   }
 
   async add(results: ResultList): Promise<void> {
@@ -145,6 +147,9 @@ export abstract class QueueBase implements IQueue {
   }
 
   async set(results: ResultList): Promise<void> {
+    // Update the latest save.
+    this.saveID = results.id;
+
     // Call the workers with the task results.
     this.out.postMessage({
       name: ThreadCall.set,
