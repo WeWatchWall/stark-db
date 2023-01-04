@@ -44,7 +44,7 @@ export interface ISaver extends IThread {
 export interface IWorker extends IThread {
   id: number;
 
-  add(query: string, args: any[]): Promise<ResultList>;
+  add(query: string, args: any[]): Promise<ResultList[]>;
 
   // From the queue.
   get(target: Target, threadID: number, commitIDs: number[]): Promise<void>;

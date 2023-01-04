@@ -5,7 +5,9 @@ import { IEntity, IEntityArg } from './IEntity';
 
 export class TableArg implements IEntityArg {
   name?: string;
+  keys?: string[];
   isMemory?: boolean;
+  changeCount?: number;
 }
 
 @Entity({name: TABLES_TABLE})

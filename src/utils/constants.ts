@@ -18,6 +18,7 @@ export const ADMIN_USER = 'system';
 export const COMMITS_TABLE = '_stark_commits';
 export const TABLES_TABLE = '_stark_tables';
 export const VARS_TABLE = '_stark_vars';
+export const ERRORS_TABLE = '_stark_errors';
 
 export const DIFFS_TABLE_PREFIX = '_stark_diffs_';
 export const TRIGGER_PREFIX = '_stark_trigger_';

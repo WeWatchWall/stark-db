@@ -50,7 +50,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   abstract init(): Promise<void>;
 
-  abstract add(query: string, args: any[]): Promise<ResultList>;
+  abstract add(query: string, args: any[]): Promise<ResultList[]>;
   
   async get(
     _target: Target,
