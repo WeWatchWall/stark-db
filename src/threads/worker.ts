@@ -1,8 +1,12 @@
 import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
 
+import { CommitList, CommitListMem } from '../objects/commitList';
+import { Result } from '../objects/result';
 import { ResultList } from '../objects/resultList';
 import {
+  ERRORS_TABLE,
+  ONE,
   SAVER_CHANNEL,
   Target,
   WORKER_CHANNEL,
@@ -10,6 +14,15 @@ import {
 } from '../utils/constants';
 import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
+
+type QueueItem = {
+  id: number;
+  DB: ResultList;
+  mem?: ResultList;
+
+  isDB: boolean;
+  isMem?: boolean;
+};
 
 export abstract class WorkerBase implements IWorker, IEngine {
   name: string;
@@ -38,9 +51,34 @@ export abstract class WorkerBase implements IWorker, IEngine {
   /* #endregion */
 
   protected taskLock: AwaitLock;
-  protected getPromiseDB: Promise<number[]>;
 
+  protected getPromiseDB: any;
+  protected getPromiseMem: any;
+
+  protected isWait: boolean;
+
+  protected commitIDs: number[];
   protected saveID: number;
+  protected queue: { [key: number]: QueueItem };
+
+  static errorResults = [
+    new ResultList({
+      id: -ONE,
+      isLong: true,
+      target: Target.DB,
+      results: [
+        new Result({
+          name: ERRORS_TABLE,
+          keys: ['id'],
+          rows: [{
+            id: ZERO,
+            name: 'RangeError',
+            message: 'Query is too long.'
+          }]
+        })
+      ]
+    })
+  ];
 
   constructor(name: string, id: number) {
     this.name = name;
@@ -58,36 +96,128 @@ export abstract class WorkerBase implements IWorker, IEngine {
     this.saverMemOutName = `${SAVER_CHANNEL}-${Target.mem}-${this.name}-out`;
     /* #endregion */
 
+    this.isWait = false;
+
     this.saveID = ZERO;
+    this.queue = {};
   }
 
   abstract init(): Promise<void>;
 
-  abstract add(query: string, args: any[]): Promise<ResultList[]>;
+  async add(
+    query: string,
+    args: any[]
+  ): Promise<ResultList[]> {
+    // Parse the queries.
+    const commitListDB = new CommitList({
+      script: query,
+      params: args,
+    });
 
+    if (this.isWait || commitListDB.isWait) {
+      return await this.addWait(query, args, commitListDB);
+    }
+
+    return await this.addFull(query, args, commitListDB);
+  }
+
+  protected abstract addWait(
+    query: string,
+    args: any[],
+    commitListDB: CommitList
+  ): Promise<ResultList[]>;
+
+  protected abstract addFull(
+    query: string,
+    args: any[],
+    commitListDB: CommitList,
+    isLongInit?: boolean
+  ): Promise<ResultList[]>;
+
+  /* #region  Dynamic queue listeners. */
   protected async listenQueueDB(message: any): Promise<any> {
     return this.callMethod(message, Target.DB);
   }
+  protected async listenQueueMem(message: any): Promise<any> {
+    return this.callMethod(message, Target.mem);
+  }
+  /* #endregion */
 
   async get(
-    _target: Target,
+    target: Target,
     threadID: number,
     saveID: number,
-    _commitIDs: number[]
+    commitIDs: number[]
   ): Promise<void> {
     if (threadID !== this.id) { return; }
 
-    this.saveID = saveID;
+    if (target === Target.DB) { this.saveID = saveID; }
 
-    throw new Error('Method not implemented.');
+    switch (target) {
+      case Target.DB: this.getPromiseDB.resolve(commitIDs); break;
+      case Target.mem: this.getPromiseMem.resolve(commitIDs); break;
+      default: break;
+    }
   }
 
-  async set(_target: Target, _results: ResultList): Promise<void> {
-    throw new Error('Method not implemented.');
+  protected abstract getQueue(
+    commitListDB: CommitList,
+    isLong: boolean
+  ): Promise<number[]>;
+
+  protected abstract runDry(
+    commitListDB: CommitList,
+    commitListMem: CommitListMem,
+    hasUpdate?: boolean
+  ): Promise<[ResultList[], ResultList[], boolean]>
+
+  async set(target: Target, results: ResultList): Promise<void> {
+    let item: QueueItem = this.queue[results.id];
+
+    // Create the queue item if necessary.
+    if (item == undefined) {
+      item = {
+        id: results.id,
+        DB: undefined,
+        isDB: false,
+        isMem: false
+      };
+
+      this.queue[results.id] = item;
+    }
+
+    // Update the queue results.
+    switch (target) {
+      case Target.DB: item.DB = results; break;
+      case Target.mem: item.mem = results; break;
+      default: break;
+    }
   }
 
-  async del(_target: Target, _commitID: number): Promise<void> {
-    throw new Error('Method not implemented.');
+  async del(target: Target, commitID: number): Promise<void> {
+    let item: QueueItem = this.queue[commitID];
+
+    // #region   Create the queue item if necessary.
+    if (item == undefined) {
+      item = {
+        id: commitID,
+        DB: undefined,
+        isDB: target === Target.DB,
+        isMem: target === Target.mem
+      };
+
+      this.queue[commitID] = item;
+    }
+
+    // Update the queue completion flags.
+    switch (target) {
+      case Target.DB: item.isDB = true; break;
+      case Target.mem: item.isMem = true; break;
+      default: break;
+    }
+
+    // TODO: Trigger & debounce queue re-evaluation.
+    // TODO: Trim the queue if there is no transaction and it gets too long.
   }
 
   async destroy(): Promise<void> {

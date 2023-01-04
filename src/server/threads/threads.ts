@@ -5,7 +5,7 @@ import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../entity/commit';
 import { CommitList, CommitListMem } from '../../objects/commitList';
-import { Result } from '../../objects/result';
+// import { Result } from '../../objects/result';
 import { ResultList } from '../../objects/resultList';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
@@ -13,7 +13,6 @@ import { WorkerBase } from '../../threads/worker';
 import {
   COMMITS_TABLE,
   DB_DRIVER,
-  ERRORS_TABLE,
   ONE,
   TABLES_TABLE,
   Target,
@@ -103,15 +102,14 @@ export class Saver extends SaverBase {
 export class Worker extends WorkerBase {
   DBMem: DataSource;
 
+  // Broadcast channels for the memory database.
   queueMemOut: any;
   saverMemOut: any;
 
   tablesMem: string[];
 
-  protected getPromiseMem: Promise<number[]>;
-
   async init(): Promise<void> {
-    // Set up the Broadcast channels.
+    /* #region  Set up the Broadcast channels. */
     super.in = new BroadcastChannel(this.inName);
     super.out = new BroadcastChannel(this.outName);
     this.in.onmessage = async (message: any) => this.callMethod(message);
@@ -127,12 +125,14 @@ export class Worker extends WorkerBase {
       async (message: any) => this.callMethod(message, Target.DB);
     this.saverMemOut.onmessage =
       async (message: any) => this.callMethod(message, Target.mem);
+    /* #endregion */
 
-    // Connect to the DataSources.
+    /* #region  Connect to the DataSources. */
     super.DB = getDBConnection(this.name, Target.DB);
     this.DBMem = getDBConnection(this.name, Target.mem);
     await this.DB.initialize();
     await this.DBMem.initialize();
+    /* #endregion */
 
     // Get the memory tables from the database.
     this.tablesMem = await this.DBMem.query(
@@ -140,100 +140,34 @@ export class Worker extends WorkerBase {
     );
   }
 
-  protected async listenQueueMem(message: any): Promise<any> {
-    return this.callMethod(message, Target.mem);
-  }
-
-  async add(
+  protected async addFull(
     query: string,
     args: any[],
+    commitListDB: CommitList,
     isLongInit = false
   ): Promise<ResultList[]> {
-    if (!isLongInit) { await this.taskLock.acquireAsync(); }
-
-    // Create the get promises.
-    const getPromiseDB = new FlatPromise();
-    const getPromiseMem = new FlatPromise();
-
-    super.getPromiseDB = getPromiseDB.promise;
-    this.getPromiseMem = getPromiseMem.promise;
-
-    // Parse the queries.
-    const commitListDB = new CommitList({
-      script: query,
-      params: args,
-    });
 
     /* #region  Error checking for query length. */
     if (commitListDB.isLongMax) {
       if (!isLongInit) { this.taskLock.release(); }
 
-      return [
-        new ResultList({
-          id: -ONE,
-          isLong: true,
-          target: Target.DB,
-          results: [
-            new Result({
-              name: ERRORS_TABLE,
-              keys: ['id'],
-              rows: [{
-                id: ZERO,
-                name: 'RangeError',
-                message: 'Query is too long.'
-              }]
-            })
-          ]
-        })
-      ];
+      return WorkerBase.errorResults;
     }
-    /* #endregion */
 
     // Check if the query is long.
     const isLong = isLongInit ||
       commitListDB.isLongUser ||
       commitListDB.isLongData ||
       commitListDB.isSchema;
-
-    /* #region  Send the query to the queue. */
-    this.queueDBOut.onmessage = this.listenQueueDB;
-    this.queueMemOut.onmessage = this.listenQueueMem;
-
-    this.queueIn.postMessage({
-      method: ThreadCall.get,
-      args: [
-        this.id,
-
-        commitListDB.commits.map(
-          commit => commit.statements.map(statement => statement.query)
-        ),
-        commitListDB.commits.map(
-          commit => commit.statements.map(statement => statement.params)
-        ),
-
-        isLong
-      ]
-    });
     /* #endregion */
 
-    /* #region  Wait for the queue to respond with the commit IDs. */
-    const [commitDBIds, commitMemIds]: number[][] = await Promise.all([
-      this.getPromiseDB,
-      this.getPromiseMem
-    ]);
-
-    // Sanity check between DB and memory. Also cleanup the noisy channels.
-    try {
-      if (
-        commitDBIds[ZERO] != commitMemIds[ZERO] ||
-        commitDBIds.length !== commitMemIds.length
-      ) {
-        throw new Error("Commit IDs don't match.");
-      }
-    } finally {
-      this.queueDBOut.removeEventListener('message', this.listenQueueDB);
-      this.queueMemOut.removeEventListener('message', this.listenQueueMem);
+    if (!isLongInit) {
+      await this.taskLock.acquireAsync();
     }
+
+    /* #region  Send the query to the queue. */
+    // Create the get promises.
+    super.commitIDs = await this.getQueue(commitListDB, isLong);
     /* #endregion */
 
     // Parse the queries for the memory.
@@ -247,7 +181,7 @@ export class Worker extends WorkerBase {
     let
       [resultListDB, resultListMem, isLongLate]:
         [ResultList[], ResultList[], boolean] =
-        await this.getDryRun(commitListDB, commitListMem);
+        await this.runDry(commitListDB, commitListMem);
 
     if (!isLong && isLongLate) {
       /* #region  Cancel the current run. */
@@ -279,7 +213,7 @@ export class Worker extends WorkerBase {
       /* #endregion */
 
       /* #region  Re-run the query and return the results. */
-      const resultList = await this.add(query, args, true);
+      const resultList = await this.addFull(query, args, commitListDB, true);
       this.taskLock.release();
 
       return resultList;
@@ -313,9 +247,66 @@ export class Worker extends WorkerBase {
     return resultListDB;
   }
 
-  getDryRun(
+  protected async addWait(
+    _query: string,
+    _args: any[],
     _commitListDB: CommitList,
-    _commitListMem: CommitListMem
+  ): Promise<ResultList[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  protected async getQueue(
+    commitListDB: CommitList,
+    isLong: boolean
+  ): Promise<number[]> {
+    super.getPromiseDB = new FlatPromise();
+    super.getPromiseMem = new FlatPromise();
+
+    this.queueDBOut.onmessage = this.listenQueueDB;
+    this.queueMemOut.onmessage = this.listenQueueMem;
+
+    this.queueIn.postMessage({
+      method: ThreadCall.get,
+      args: [
+        this.id,
+
+        commitListDB.commits.map(
+          commit => commit.statements.map(statement => statement.query)
+        ),
+        commitListDB.commits.map(
+          commit => commit.statements.map(statement => statement.params)
+        ),
+
+        isLong
+      ]
+    });
+
+    // Wait for the queue to respond with the commit IDs.
+    const [commitDBIds, commitMemIds]: number[][] = await Promise.all([
+      this.getPromiseDB.promise,
+      this.getPromiseMem.promise
+    ]);
+
+    // Sanity check between DB and memory. Also cleanup the noisy channels.
+    try {
+      if (
+        commitDBIds[ZERO] != commitMemIds[ZERO] ||
+        commitDBIds.length !== commitMemIds.length
+      ) {
+        throw new Error("Commit IDs don't match.");
+      }
+    } finally {
+      this.queueDBOut.removeEventListener('message', this.listenQueueDB);
+      this.queueMemOut.removeEventListener('message', this.listenQueueMem);
+    }
+
+    return commitDBIds;
+  }
+
+  protected async runDry(
+    _commitListDB: CommitList,
+    _commitListMem: CommitListMem,
+    _hasUpdate = false
   ): Promise<[ResultList[], ResultList[], boolean]> {
     throw new Error('Method not implemented.');
   }

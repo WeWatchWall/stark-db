@@ -17,7 +17,7 @@ import {
   TRIGGER_SET,
   VALUE_DELIMITER,
   VARS_TABLE,
-  ZERO
+  ZERO,
 } from '../utils/constants';
 import { LazyLoader } from '../utils/lazyLoader';
 import { LazyValidator } from '../utils/lazyValidator';

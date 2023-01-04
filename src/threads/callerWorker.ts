@@ -14,14 +14,7 @@ export class WorkerCallerBase implements ICaller, IWorker {
     this.id = id;
   }
 
-  async init(): Promise<void> {
-    return await this.worker.run({
-      name: ThreadCall.init,
-      args: [this.name, this.id]
-    });
-  }
-
-  async add(query: string, args: any[]): Promise<ResultList> {
+  async add(query: string, args: any[]): Promise<ResultList[]> {
     return await this.worker.run({
       name: ThreadCall.add,
       args: [
@@ -31,16 +24,30 @@ export class WorkerCallerBase implements ICaller, IWorker {
     });
   }
 
-  async get(target: Target, threadID: number, commitIDs: number[]): Promise<void> {
+  async get(
+    target: Target,
+    threadID: number,
+    saveID: number,
+    commitIDs: number[]
+  ): Promise<void> {
     return await this.worker.run({
       name: ThreadCall.get,
       args: [
         target,
         threadID,
+        saveID,
         commitIDs,
       ]
     });
   }
+
+  async init(): Promise<void> {
+    return await this.worker.run({
+      name: ThreadCall.init,
+      args: [this.name, this.id]
+    });
+  }
+
 
   async set(target: Target, results: ResultList): Promise<void> {
     return await this.worker.run({
