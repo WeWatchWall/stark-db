@@ -6,7 +6,7 @@ const tests = [
   // https://www.sqlite.org/lang_transaction.html
   {
     id: 0,
-    name: 'Transaction - begin',
+    name: 'Query Transaction - begin',
     query: 'BEGIN;',
     result: {
       isRead: false,
@@ -20,7 +20,7 @@ const tests = [
     isSkip: false
   }, {
     id: 1,
-    name: 'Transaction - begin trim',
+    name: 'Query Transaction - begin trim',
     query: '\n  BEGIN;',
     result: {
       isRead: false,
@@ -33,7 +33,7 @@ const tests = [
     }
   }, {
     id: 2,
-    name: 'Transaction - begin long',
+    name: 'Query Transaction - begin long',
     query: 'BEGIN TRANSACTION;',
     result: {
       isRead: false,
@@ -46,7 +46,7 @@ const tests = [
     }
   }, {
     id: 3,
-    name: 'Transaction - rollback',
+    name: 'Query Transaction - rollback',
     query: 'ROLLBACK;',
     result: {
       isRead: false,
@@ -59,7 +59,7 @@ const tests = [
     }
   }, {
     id: 4,
-    name: 'Transaction - rollback long',
+    name: 'Query Transaction - rollback long',
     query: 'ROLLBACK TRANSACTION;',
     result: {
       isRead: false,
@@ -72,7 +72,7 @@ const tests = [
     }
   }, {
     id: 5,
-    name: 'Transaction - commit',
+    name: 'Query Transaction - commit',
     query: 'COMMIT;',
     result: {
       isRead: false,
@@ -85,7 +85,7 @@ const tests = [
     }
   }, {
     id: 6,
-    name: 'Transaction - commit long',
+    name: 'Query Transaction - commit long',
     query: 'COMMIT TRANSACTION;',
     result: {
       isRead: false,
@@ -98,7 +98,7 @@ const tests = [
     }
   }, {
     id: 7,
-    name: 'Transaction - end',
+    name: 'Query Transaction - end',
     query: 'END;',
     result: {
       isRead: false,
@@ -111,7 +111,7 @@ const tests = [
     }
   }, {
     id: 8,
-    name: 'Transaction - end long',
+    name: 'Query Transaction - end long',
     query: 'END TRANSACTION;',
     result: {
       isRead: false,
@@ -129,7 +129,7 @@ const tests = [
   // https://www.sqlite.org/lang_createtable.html
   {
     id: 9,
-    name: 'Table - create',
+    name: 'Query Table - create',
     query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
       isRead: false,
@@ -142,7 +142,7 @@ const tests = [
     }
   }, {
     id: 10,
-    name: 'Table - create multiple keys',
+    name: 'Query Table - create multiple keys',
     query: 'CREATE TABLE IF NOT EXISTS "variables" ("id" varchar NOT NULL, "type" varchar NOT NULL, "value" text NOT NULL, PRIMARY KEY("id", "type"));',
     result: {
       isRead: false,
@@ -155,7 +155,7 @@ const tests = [
     }
   }, {
     id: 11,
-    name: 'Table - create temp',
+    name: 'Query Table - create temp',
     query: 'CREATE TEMPORARY TABLE IF NOT EXISTS "variables" ("id" varchar PRIMARY KEY NOT NULL, "value" text NOT NULL);',
     result: {
       isRead: false,
@@ -168,7 +168,7 @@ const tests = [
     }
   }, {
     id: 12,
-    name: 'Data - create table with select.',
+    name: 'Query Data - create table with select.',
     query: 'CREATE TABLE variables AS SELECT * FROM variables2;',
     result: {
       isRead: true,
@@ -182,7 +182,7 @@ const tests = [
     isSkip: false
   }, {
     id: 13,
-    name: 'Table - drop',
+    name: 'Query Table - drop',
     query: 'DROP TABLE "variables";',
     result: {
       isRead: false,
@@ -195,7 +195,7 @@ const tests = [
     }
   }, {
     id: 14,
-    name: 'Table - drop conditional',
+    name: 'Query Table - drop conditional',
     query: 'DROP TABLE IF EXISTS "variables";',
     result: {
       isRead: false,
@@ -211,7 +211,7 @@ const tests = [
   // https://www.sqlite.org/lang_altertable.html
   {
     id: 15,
-    name: 'Table - rename',
+    name: 'Query Table - rename',
     query: 'ALTER TABLE "variables" RENAME TO "variables2";',
     result: {
       isRead: false,
@@ -224,7 +224,7 @@ const tests = [
     }
   }, {
     id: 16,
-    name: 'Table - TODO: rename column',
+    name: 'Query Table - TODO: rename column',
     query: 'ALTER TABLE "variables" RENAME COLUMN "value" TO "value2";',
     result: {
       isRead: false,
@@ -238,7 +238,7 @@ const tests = [
     isSkip: true
   }, {
     id: 17,
-    name: 'Table - add column',
+    name: 'Query Table - add column',
     query: 'ALTER TABLE "variables" ADD "value2";',
     result: {
       isRead: false,
@@ -251,7 +251,7 @@ const tests = [
     }
   }, {
     id: 18,
-    name: 'Table - add column long',
+    name: 'Query Table - add column long',
     query:
       'ALTER TABLE "variables" ADD COLUMN "value2" VARCHAR PRIMARY KEY;',
     result: {
@@ -266,7 +266,7 @@ const tests = [
     }
   }, {
     id: 19,
-    name: 'Table - TODO: drop column',
+    name: 'Query Table - TODO: drop column',
     query: 'ALTER TABLE "variables" DROP "value2";',
     result: {
       isRead: false,
@@ -280,7 +280,7 @@ const tests = [
     isSkip: true
   }, {
     id: 20,
-    name: 'Table - TODO: drop column long',
+    name: 'Query Table - TODO: drop column long',
     query: 'ALTER TABLE "variables" DROP COLUMN "value2";',
     result: {
       isRead: false,
@@ -298,7 +298,7 @@ const tests = [
   /* #region  Data. */
   {
     id: 21,
-    name: 'Data - insert',
+    name: 'Query Data - insert',
     query: 'INSERT INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
       isRead: false,
@@ -311,7 +311,7 @@ const tests = [
     }
   }, {
     id: 22,
-    name: 'Data - insert with select.',
+    name: 'Query Data - insert with select.',
     query: 'INSERT INTO variables SELECT * FROM variables2;',
     result: {
       isRead: true,
@@ -324,7 +324,7 @@ const tests = [
     }
   }, {
     id: 23,
-    name: 'Data - upsert',
+    name: 'Query Data - upsert',
     query: 'INSERT OR REPLACE INTO variables (id, value) VALUES ("isWAL", 1);',
     result: {
       isRead: false,
@@ -337,7 +337,7 @@ const tests = [
     }
   }, {
     id: 24,
-    name: 'Data - UPSERT with select.',
+    name: 'Query Data - UPSERT with select.',
     query: 'INSERT OR REPLACE INTO variables SELECT * FROM variables2;',
     result: {
       isRead: true,
@@ -351,7 +351,7 @@ const tests = [
     isSkip: false
   }, {
     id: 25,
-    name: 'Data - update',
+    name: 'Query Data - update',
     query: 'UPDATE variables SET value = "new";',
     result: {
       isRead: false,
@@ -364,7 +364,7 @@ const tests = [
     }
   }, {
     id: 26,
-    name: 'Data - update with select',
+    name: 'Query Data - update with select',
     query: 'UPDATE variables SET value = "new" WHERE id IN (SELECT id FROM variables);',
     result: {
       isRead: true,
@@ -377,7 +377,7 @@ const tests = [
     }
   }, {
     id: 27,
-    name: 'Data - delete',
+    name: 'Query Data - delete',
     query: 'DELETE FROM variables WHERE value = "new";',
     result: {
       isRead: false,
@@ -386,11 +386,11 @@ const tests = [
       tables: ["variables"],
       columns: [],
       keys: [],
-      type: ParseType.modify_data
+      type: ParseType.delete_data
     }
   }, {
     id: 28,
-    name: 'Data - select',
+    name: 'Query Data - select',
     query: 'SELECT * FROM variables WHERE value = "new";',
     result: {
       isRead: false,
@@ -403,7 +403,7 @@ const tests = [
     }
   }, {
     id: 29,
-    name: 'Data - select with join',
+    name: 'Query Data - select with join',
     query: 'SELECT * FROM variables A, variables2 B WHERE A.id = B.id;',
     result: {
       isRead: false,
@@ -420,7 +420,7 @@ const tests = [
   /* #region  Other. */
   {
     id: 30,
-    name: 'Other - add pragma',
+    name: 'Query Other - add pragma',
     query: 'PRAGMA pragma_name = value;',
     result: {
       isRead: false,

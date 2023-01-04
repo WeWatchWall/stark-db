@@ -38,7 +38,7 @@ export class Queue extends QueueBase {
     await this.DB.initialize();
 
     // Skip the rest if the database is in Memory.
-    if (this.target === Target.mem) { return; }
+    if (this.target !== Target.DB) { return; }
 
     const commitRepo = this.DB.getRepository(Commit);
 
@@ -196,6 +196,7 @@ export class Worker extends WorkerBase {
     // Check if the query is long.
     const isLong = isLongInit ||
       commitListDB.isLongUser ||
+      commitListDB.isLongData ||
       commitListDB.isSchema;
 
     /* #region  Send the query to the queue. */

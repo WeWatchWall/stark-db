@@ -18,8 +18,9 @@ export enum ParseType {
 
   modify_data = 7,
   select_data = 8,
+  delete_data = 9,
 
-  other = 9,
+  other = 10,
 }
 
 enum QueryType {
@@ -132,7 +133,6 @@ export class QueryParse {
     const dataModifyActions = [
       QueryType[8],
       QueryType[9],
-      QueryType[11],
     ];
 
     if (transactionActions.includes(this.meta.action)) {
@@ -154,6 +154,7 @@ export class QueryParse {
       columnModifyActions.includes(this.meta.action)
     ) {
       this.type = ParseType.modify_table_columns;
+
     } else if (
       this.meta.format === `table` &&
       this.meta.variant === QueryType[6]
@@ -163,7 +164,10 @@ export class QueryParse {
     } else if (dataModifyActions.includes(this.meta.variant)) {
       this.type = ParseType.modify_data;
 
-    } else if (this.meta.variant === QueryType[10]) {
+    } else if (this.meta.variant === QueryType[11]) {
+      this.type = ParseType.delete_data;
+
+    }  else if (this.meta.variant === QueryType[10]) {
       this.type = ParseType.select_data;
 
     } else {
@@ -211,6 +215,7 @@ export class QueryParse {
     const dataActions = [
       ParseType.modify_data,
       ParseType.select_data,
+      ParseType.delete_data,
     ];
 
     this.tables = []; this.columns = []; this.keys = [];

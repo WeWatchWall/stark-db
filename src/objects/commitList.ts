@@ -31,6 +31,7 @@ export class CommitListArg {
   commits?: CommitArg[] | Commit[];
 
   isLongUser?: boolean;
+  isLongData?: boolean;
   isLongMax?: boolean;
   isSchema?: boolean;
   isMemory?: boolean;
@@ -46,6 +47,7 @@ export class CommitList {
   commits: Commit[];
 
   isLongUser: boolean;
+  isLongData: boolean;
   isLongMax: boolean;
   isSchema: boolean;
   isMemory: boolean;
@@ -99,6 +101,7 @@ export class CommitList {
   protected loadReady(): void {
     // Set the flags.
     this.isLongUser = false;
+    this.isLongData = false;
     this.isLongMax = false;
     this.isSchema = false;
     this.isMemory = true;
@@ -127,6 +130,7 @@ export class CommitList {
 
   protected commitAnalyzers = [
     'splitCommits',
+    'getLongQueries',
     'countMax',
     'setFlags',
     'writeTables'
@@ -208,7 +212,25 @@ export class CommitList {
         this.isLongMax = true;
       }
     }
-    
+
+    return commits;
+  }
+
+  getLongQueries(commits: LinkList<QueryParse>[]): LinkList<QueryParse>[] {
+    for (const commit of commits) {
+      if (this.isLongData) { break; }
+
+      for (const statement of commit) {
+        if (
+          (statement.type === ParseType.modify_data && statement.isRead) ||
+          statement.type === ParseType.delete_data
+        ) {
+          this.isLongData = true;
+          break;
+        }
+      }
+    }
+
     return commits;
   }
 
@@ -513,6 +535,7 @@ END;`;
       commits: this.commits.map((commit) => commit.toObject()),
 
       isLongUser: this.isLongUser,
+      isLongData: this.isLongData,
       isLongMax: this.isLongMax,
       isSchema: this.isSchema,
       isMemory: this.isMemory,
@@ -565,6 +588,7 @@ export class CommitListMem extends CommitList {
   protected loadReady(): void {
     super.commitAnalyzers = [
       'splitCommits',
+      'getLongQueries',
       'countMax',
       'setFlags',
       'delMemTables',

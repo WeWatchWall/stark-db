@@ -39,7 +39,12 @@ export class ResultList {
   }
 
   static isIntersect(list: ResultList, newList: ResultList): boolean {
-    // Create data structure.
+    if (
+      list.results.length === ZERO ||
+      newList.results.length === ZERO
+    ) { return false; }
+
+    // Create the data structure.
     const tables: {
       [key: string]: {
         name: string;
@@ -107,20 +112,21 @@ export class ResultList {
   }
 
   static merge(...lists: ResultList[]): ResultList {
+    /* #region  Create the result list. */
     const results = new ResultList({
       id: -ONE,
       target: Target.DB,
       isLong: false,
       results: [],
     });
-
     if (lists.length > ZERO) {
       results.id = lists[lists.length - ONE].id;
       results.target = lists[ZERO].target;
       results.isLong = lists[ZERO].isLong;
     }
+    /* #endregion */
 
-    // Create data structure.
+    // Create the data structure.
     const tables: {
       [key: string]: {
         name: string;
