@@ -41,7 +41,7 @@ export class ChanQueue {
   async get(
     commitListDB: CommitList,
     isLong: boolean
-  ): Promise<number[]> {
+  ): Promise<[number, number[]]> {
     this.getPromiseDB = new FlatPromise();
     
     this.queueDBOut.onmessage = this.listenQueueDB;
@@ -67,6 +67,8 @@ export class ChanQueue {
       // Wait for the queue to respond with the commit IDs.
       commitDBIds = await this.getPromiseDB.promise;
 
+      return [this.saveID, commitDBIds];
+
     // Cleanup.
     } finally {
       // Cleanup the noisy channels.
@@ -76,8 +78,6 @@ export class ChanQueue {
       delete this.saveID;
       delete this.getPromiseDB;
     }
-
-    return commitDBIds;
   }
 
   async del(commitID: number): Promise<void> {
@@ -162,7 +162,7 @@ export class ChanQueueMem extends ChanQueue {
   async get(
     commitListDB: CommitList,
     isLong: boolean
-  ): Promise<number[]> {
+  ): Promise<[number, number[]]> {
     super.getPromiseDB = new FlatPromise();
     this.getPromiseMem = new FlatPromise();
 
@@ -202,6 +202,7 @@ export class ChanQueueMem extends ChanQueue {
         throw new Error("Commit IDs don't match.");
       }
 
+      return [this.saveID, commitDBIds];
     // Cleanup.
     } finally {
       // Cleanup the noisy channels.
@@ -213,8 +214,6 @@ export class ChanQueueMem extends ChanQueue {
       delete super.getPromiseDB;
       delete this.getPromiseMem;
     }
-
-    return commitDBIds;
   }
 
   async del(commitID: number): Promise<void> {

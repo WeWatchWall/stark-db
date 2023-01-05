@@ -137,10 +137,9 @@ export abstract class WorkerBase implements IWorker, IEngine {
       await this.taskLock.acquireAsync();
     }
 
-    /* #region  Send the query to the queue. */
-    // Create the get promises.
-    this.commitIDs = await this.chanQueue.get(commitListDB, isLong);
-    /* #endregion */
+    // Send the query to the queue.
+    [this.saveID, this.commitIDs] =
+      await this.chanQueue.get(commitListDB, isLong);
 
     // Get the result sets and check if the query is long.
     let
