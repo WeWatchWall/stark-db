@@ -4,9 +4,10 @@ import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../entity/commit';
-import { CommitList, CommitListMem } from '../../objects/commitList';
+import { CommitList } from '../../objects/commitList';
 // import { Result } from '../../objects/result';
 import { ResultList } from '../../objects/resultList';
+import { WorkQueueMem } from '../../services/workQueue';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
@@ -109,6 +110,9 @@ export class Worker extends WorkerBase {
   tablesMem: string[];
 
   async init(): Promise<void> {
+    super.workQueue = new WorkQueueMem();
+    super.isMemory = true;
+
     /* #region  Set up the Broadcast channels. */
     super.in = new BroadcastChannel(this.inName);
     super.out = new BroadcastChannel(this.outName);
@@ -140,122 +144,8 @@ export class Worker extends WorkerBase {
     );
   }
 
-  protected async addFull(
-    query: string,
-    args: any[],
-    commitListDB: CommitList,
-    isLongInit = false
-  ): Promise<ResultList[]> {
-
-    /* #region  Error checking for query length. */
-    if (commitListDB.isLongMax) {
-      if (!isLongInit) { this.taskLock.release(); }
-
-      return WorkerBase.errorResults;
-    }
-
-    // Check if the query is long.
-    const isLong = isLongInit ||
-      commitListDB.isLongUser ||
-      commitListDB.isLongData ||
-      commitListDB.isSchema;
-    /* #endregion */
-
-    if (!isLongInit) {
-      await this.taskLock.acquireAsync();
-    }
-
-    /* #region  Send the query to the queue. */
-    // Create the get promises.
-    super.commitIDs = await this.getQueue(commitListDB, isLong);
-    /* #endregion */
-
-    // Parse the queries for the memory.
-    const commitListMem = new CommitListMem({
-      script: query,
-      params: args,
-      tables: this.tablesMem,
-    });
-
-    // Get the result sets and check if the query is long.
-    let
-      [resultListDB, resultListMem, isLongLate]:
-        [ResultList[], ResultList[], boolean] =
-        await this.runDry(commitListDB, commitListMem);
-
-    if (!isLong && isLongLate) {
-      /* #region  Cancel the current run. */
-      for (const resultList of resultListDB) {
-        this.queueIn.postMessage({
-          method: ThreadCall.add,
-          args: [
-            new ResultList({
-              id: resultList.id,
-              isLong: false,
-              target: Target.DB,
-              results: []
-            }).toObject()
-          ]
-        });
-
-        this.queueIn.postMessage({
-          method: ThreadCall.add,
-          args: [
-            new ResultList({
-              id: resultList.id,
-              isLong: false,
-              target: Target.mem,
-              results: []
-            }).toObject()
-          ]
-        });
-      }
-      /* #endregion */
-
-      /* #region  Re-run the query and return the results. */
-      const resultList = await this.addFull(query, args, commitListDB, true);
-      this.taskLock.release();
-
-      return resultList;
-      /* #endregion */
-    }
-
-    // TODO: Wait until the WAL is fully written.
-
-    // TODO: Check if the resultLists intersect with the WAL.
-
-    // TODO: Rerun the query if the resultLists intersect with the WAL.
-
-    /* #region   Add the resultLists to the queues. */
-    for (const resultList of resultListDB) {
-      this.queueIn.postMessage({
-        method: ThreadCall.add,
-        args: [resultList]
-      });
-    }
-    for (const resultList of resultListMem) {
-      this.queueIn.postMessage({
-        method: ThreadCall.add,
-        args: [resultList]
-      });
-    }
-    /* #endregion */
-
-    // Allow the next task to run.
-    if (!isLongInit) { this.taskLock.release(); }
-
-    return resultListDB;
-  }
-
-  protected async addWait(
-    _query: string,
-    _args: any[],
-    _commitListDB: CommitList,
-  ): Promise<ResultList[]> {
-    throw new Error('Method not implemented.');
-  }
-
-  protected async getQueue(
+  /* #region  Queue helper functions. */
+  protected async queueGet(
     commitListDB: CommitList,
     isLong: boolean
   ): Promise<number[]> {
@@ -302,12 +192,22 @@ export class Worker extends WorkerBase {
 
     return commitDBIds;
   }
+  /* #endregion */
 
   protected async runDry(
+    _query: string,
+    _args: any[],
     _commitListDB: CommitList,
-    _commitListMem: CommitListMem,
     _hasUpdate = false
   ): Promise<[ResultList[], ResultList[], boolean]> {
+
+    // Parse the queries for the memory.
+    // const commitListMem = new CommitListMem({
+    //   script: query,
+    //   params: args,
+    //   tables: this.tablesMem,
+    // });
+
     throw new Error('Method not implemented.');
   }
 

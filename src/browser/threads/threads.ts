@@ -3,7 +3,7 @@ import initSqlJs from 'sql.js';
 import { DataSource } from 'typeorm';
 
 import { Commit } from '../../entity/commit';
-import { CommitList, CommitListMem } from '../../objects/commitList';
+import { CommitList } from '../../objects/commitList';
 import { ResultList } from '../../objects/resultList';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
@@ -44,7 +44,6 @@ export class Saver extends SaverBase {
 }
 
 export class Worker extends WorkerBase {
-
   async init(): Promise<void> {
     // Set up the Broadcast channels.
     super.in = new BroadcastChannel(this.inName);
@@ -65,16 +64,10 @@ export class Worker extends WorkerBase {
     await this.DB.initialize();
   }
 
-  protected addWait(_query: string, _args: any[], _commitListDB: CommitList): Promise<ResultList[]> {
+  protected queueGet(_commitListDB: CommitList, _isLong: boolean): Promise<number[]> {
     throw new Error('Method not implemented.');
   }
-  protected addFull(_query: string, _args: any[], _commitListDB: CommitList, _isLongInit?: boolean): Promise<ResultList[]> {
-    throw new Error('Method not implemented.');
-  }
-  protected getQueue(_commitListDB: CommitList, _isLong: boolean): Promise<number[]> {
-    throw new Error('Method not implemented.');
-  }
-  protected runDry(_commitListDB: CommitList, _commitListMem: CommitListMem, _hasUpdate?: boolean): Promise<[ResultList[], ResultList[], boolean]> {
+  protected runDry(_query: string, _args: any[], _commitListDB: CommitList, _hasUpdate?: boolean): Promise<[ResultList[], ResultList[], boolean]> {
     throw new Error('Method not implemented.');
   }
 }
