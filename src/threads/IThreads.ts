@@ -47,12 +47,7 @@ export interface IWorker extends IThread {
   add(query: string, args: any[]): Promise<ResultList[]>;
 
   // From the queue.
-  get(
-    target: Target,
-    threadID: number,
-    saveID: number,
-    commitIDs: number[]
-  ): Promise<void>;
+  get(): Promise<void>;
   set(target: Target, results: ResultList): Promise<void>;
 
   // From the saver.

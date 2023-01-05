@@ -25,19 +25,10 @@ export class WorkerCallerBase implements ICaller, IWorker {
   }
 
   async get(
-    target: Target,
-    threadID: number,
-    saveID: number,
-    commitIDs: number[]
   ): Promise<void> {
     return await this.worker.run({
       name: ThreadCall.get,
-      args: [
-        target,
-        threadID,
-        saveID,
-        commitIDs,
-      ]
+      args: []
     });
   }
 

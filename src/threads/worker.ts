@@ -5,15 +5,10 @@ import { CommitList } from '../objects/commitList';
 import { Result } from '../objects/result';
 import { ResultList } from '../objects/resultList';
 import { WorkItem } from '../objects/workItem';
+import { ChanQueue } from '../services/chanQueue';
 import { WorkQueue } from '../services/workQueue';
-import {
-  ERRORS_TABLE,
-  ONE,
-  SAVER_CHANNEL,
-  Target,
-  WORKER_CHANNEL,
-  ZERO
-} from '../utils/constants';
+import { ERRORS_TABLE, ONE, SAVER_CHANNEL, Target, WORKER_CHANNEL, ZERO } from '../utils/constants';
+import { Thread } from '../utils/thread';
 import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
 
@@ -30,15 +25,12 @@ export abstract class WorkerBase implements IWorker, IEngine {
   in: any;
   out: any;
 
-  queueIn: any;
   queueDBOut: any;
-
   saverDBOut: any;
 
   protected inName: string;
   protected outName: string;
 
-  protected queueInName: string;
   protected queueDBOutName: string;
   protected queueMemOutName: string;
 
@@ -56,6 +48,8 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   protected commitIDs: number[];
   protected saveID: number;
+
+  protected chanQueue: ChanQueue;
   protected workQueue: WorkQueue;
 
   static errorResults = [
@@ -87,7 +81,6 @@ export abstract class WorkerBase implements IWorker, IEngine {
     this.inName = `${WORKER_CHANNEL}-${this.id}-${this.name}-in`;
     this.outName = `${WORKER_CHANNEL}-${this.id}-${this.name}-out`;
 
-    this.queueInName = `${SAVER_CHANNEL}-${this.name}-in`;
     this.queueDBOutName = `${SAVER_CHANNEL}-${Target.DB}-${this.name}-out`;
     this.queueMemOutName = `${SAVER_CHANNEL}-${Target.mem}-${this.name}-out`;
 
@@ -146,7 +139,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
     /* #region  Send the query to the queue. */
     // Create the get promises.
-    this.commitIDs = await this.queueGet(commitListDB, isLong);
+    this.commitIDs = await this.chanQueue.get(commitListDB, isLong);
     /* #endregion */
 
     // Get the result sets and check if the query is long.
@@ -172,7 +165,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
     // TODO: Rerun the query if the resultLists intersect with the WAL.
 
-    await this.queueAdd(resultListDB, resultListMem);
+    await this.chanQueue.add(resultListDB, resultListMem);
 
     // Allow the next task to run.
     if (!isLongInit) { this.taskLock.release(); }
@@ -209,35 +202,10 @@ export abstract class WorkerBase implements IWorker, IEngine {
   async cancel(isLocal = false): Promise<void> {
     if (!this.isRun) { return; }
 
-    /* #region  Cancel the current run. */
+    // Cancel the current run.
     for (const commitID of this.commitIDs) {
-      this.queueIn.postMessage({
-        method: ThreadCall.add,
-        args: [
-          new ResultList({
-            id: commitID,
-            isLong: false,
-            target: Target.DB,
-            results: []
-          }).toObject()
-        ]
-      });
-
-      if (this.isMemory) {
-        this.queueIn.postMessage({
-          method: ThreadCall.add,
-          args: [
-            new ResultList({
-              id: commitID,
-              isLong: false,
-              target: Target.mem,
-              results: []
-            }).toObject()
-          ]
-        });
-      }
+      await this.chanQueue.del(commitID);
     }
-    /* #endregion */
 
     if (isLocal) {
       this.commitIDs = undefined;
@@ -262,60 +230,6 @@ export abstract class WorkerBase implements IWorker, IEngine {
   }
   /* #endregion */
 
-  /* #region  Dynamic queue listeners. */
-  protected async listenQueueDB(message: any): Promise<any> {
-    return this.callMethod(message, Target.DB);
-  }
-  protected async listenQueueMem(message: any): Promise<any> {
-    return this.callMethod(message, Target.mem);
-  }
-  /* #endregion */
-
-  async get(
-    target: Target,
-    threadID: number,
-    saveID: number,
-    commitIDs: number[]
-  ): Promise<void> {
-    if (threadID !== this.id) { return; }
-
-    if (target === Target.DB) { this.saveID = saveID; }
-
-    switch (target) {
-      case Target.DB: this.getPromiseDB.resolve(commitIDs); break;
-      case Target.mem: this.getPromiseMem.resolve(commitIDs); break;
-      default: break;
-    }
-  }
-
-  /* #region  Queue helper functions. */
-  protected abstract queueGet(
-    commitListDB: CommitList,
-    isLong: boolean
-  ): Promise<number[]>;
-
-  protected async queueAdd(
-    resultListDB: ResultList[],
-    resultListMem?: ResultList[]
-  ): Promise<void> {
-    for (const resultList of resultListDB) {
-      this.queueIn.postMessage({
-        method: ThreadCall.add,
-        args: [resultList]
-      });
-    }
-
-    if (!this.isMemory) { return; }
-
-    for (const resultList of resultListMem) {
-      this.queueIn.postMessage({
-        method: ThreadCall.add,
-        args: [resultList]
-      });
-    }
-  }
-  /* #endregion */
-
   protected abstract runDry(
     _query: string,
     _args: any[],
@@ -323,24 +237,8 @@ export abstract class WorkerBase implements IWorker, IEngine {
     _hasUpdate?: boolean
   ): Promise<[ResultList[], ResultList[], boolean]>
 
-  async set(target: Target, results: ResultList): Promise<void> {
-    /* #region  Update the work queue. */
-    const item: WorkItem = new WorkItem({
-      id: results.id,
-      DB: undefined,
-      isDB: false,
-      isMem: false
-    });
-
-    // Update the queue results.
-    switch (target) {
-      case Target.DB: item.DB = results; break;
-      case Target.mem: item.mem = results; break;
-      default: break;
-    }
-
-    this.workQueue.set(item);
-    /* #endregion */
+  get(): Promise<void> {
+    throw new Error('Method not implemented.');
   }
 
   async del(target: Target, commitID: number): Promise<void> {
@@ -366,41 +264,76 @@ export abstract class WorkerBase implements IWorker, IEngine {
     // TODO: Trim the queue if there is no transaction and it gets too long.
   }
 
+  async set(target: Target, results: ResultList): Promise<void> {
+    /* #region  Update the work queue. */
+    const item: WorkItem = new WorkItem({
+      id: results.id,
+      DB: undefined,
+      isDB: false,
+      isMem: false
+    });
+
+    // Update the queue results.
+    switch (target) {
+      case Target.DB: item.DB = results; break;
+      case Target.mem: item.mem = results; break;
+      default: break;
+    }
+
+    this.workQueue.set(item);
+    /* #endregion */
+  }
+
   async destroy(): Promise<void> {
     if (this.DB == undefined) { return; }
 
     // Clean up the Broadcast Channels.
     this.in.close();
     this.out.close();
-    this.queueIn.close();
     this.queueDBOut.close();
     this.saverDBOut.close();
 
+    delete this.in;
+    delete this.out;
+    delete this.queueDBOut;
+    delete this.saverDBOut;
+
+    // TODO: Free up other properties from memory.
     await this.DB.destroy();
+
     delete this.DB;
   }
 
-  protected async callMethod(event: any, target = Target.DB): Promise<any> {
+  protected async callMethod(
+    event: any,
+    thread: Thread,
+    target = Target.DB
+  ): Promise<any> {
     const { name, args }: {
       name: ThreadCall, args: any[]
     } = event.data;
 
-    switch (name) {
-      case ThreadCall.add:
-        return await this.add(args[0], args[1]);
+    switch (thread) {
+      case Thread.Worker:
+        switch (name) {
+          case ThreadCall.add: return await this.add(args[0], args[1]);
+          case ThreadCall.get: return await this.get();
+          default: break;
+        }
+        break;
 
-      // From the queue.
-      case ThreadCall.get:
-        return await this.get(target, args[0], args[1], args[2]);
-      case ThreadCall.set:
-        return await this.set(target, ResultList.init(args[0]));
+      case Thread.Queue:
+        if (name === ThreadCall.set) {
+          return await this.set(target, ResultList.init(args[0]));
+        }
+        break;
 
-      // From the saver.
-      case ThreadCall.del:
-        return await this.del(target, args[0]);
+      case Thread.Saver:
+        if (name === ThreadCall.del) {
+          return await this.del(target, args[0]);
+        }
+        break;
 
-      case ThreadCall.destroy:
-        return await this.destroy();
       default:
         break;
     }

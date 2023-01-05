@@ -1,4 +1,3 @@
-import FlatPromise from 'flat-promise';
 import sqlite3 from 'sqlite3';
 import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
@@ -7,6 +6,7 @@ import { Commit } from '../../entity/commit';
 import { CommitList } from '../../objects/commitList';
 // import { Result } from '../../objects/result';
 import { ResultList } from '../../objects/resultList';
+import { ChanQueueMem } from '../../services/chanQueue';
 import { WorkQueueMem } from '../../services/workQueue';
 import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
@@ -19,7 +19,7 @@ import {
   Target,
   ZERO
 } from '../../utils/constants';
-import { ThreadCall } from '../../utils/threadCall';
+import { Thread } from '../../utils/thread';
 
 export class Queue extends QueueBase {
   async init(): Promise<void> {
@@ -110,25 +110,30 @@ export class Worker extends WorkerBase {
   tablesMem: string[];
 
   async init(): Promise<void> {
+    super.chanQueue = new ChanQueueMem(this.id);
     super.workQueue = new WorkQueueMem();
+
     super.isMemory = true;
 
     /* #region  Set up the Broadcast channels. */
     super.in = new BroadcastChannel(this.inName);
     super.out = new BroadcastChannel(this.outName);
-    this.in.onmessage = async (message: any) => this.callMethod(message);
-
-    super.queueIn = new BroadcastChannel(this.queueInName);
+    this.in.onmessage = async (message: any) =>
+      this.callMethod(message, Thread.Worker);
 
     super.queueDBOut = new BroadcastChannel(this.queueDBOutName);
     this.queueMemOut = new BroadcastChannel(this.queueMemOutName);
+    this.queueDBOut.onmessage = async (message: any) =>
+      this.callMethod(message, Thread.Queue, Target.DB);
+    this.queueMemOut.onmessage = async (message: any) =>
+      this.callMethod(message, Thread.Queue, Target.mem);
 
     super.saverDBOut = new BroadcastChannel(this.saverDBOutName);
     this.saverMemOut = new BroadcastChannel(this.saverMemOutName);
-    this.saverDBOut.onmessage =
-      async (message: any) => this.callMethod(message, Target.DB);
-    this.saverMemOut.onmessage =
-      async (message: any) => this.callMethod(message, Target.mem);
+    this.saverDBOut.onmessage = async (message: any) =>
+        this.callMethod(message, Thread.Saver, Target.DB);
+    this.saverMemOut.onmessage = async (message: any) =>
+      this.callMethod(message, Thread.Saver, Target.mem);
     /* #endregion */
 
     /* #region  Connect to the DataSources. */
@@ -143,56 +148,6 @@ export class Worker extends WorkerBase {
       `SELECT name FROM ${TABLES_TABLE} WHERE isMemory = 1;`
     );
   }
-
-  /* #region  Queue helper functions. */
-  protected async queueGet(
-    commitListDB: CommitList,
-    isLong: boolean
-  ): Promise<number[]> {
-    super.getPromiseDB = new FlatPromise();
-    super.getPromiseMem = new FlatPromise();
-
-    this.queueDBOut.onmessage = this.listenQueueDB;
-    this.queueMemOut.onmessage = this.listenQueueMem;
-
-    this.queueIn.postMessage({
-      method: ThreadCall.get,
-      args: [
-        this.id,
-
-        commitListDB.commits.map(
-          commit => commit.statements.map(statement => statement.query)
-        ),
-        commitListDB.commits.map(
-          commit => commit.statements.map(statement => statement.params)
-        ),
-
-        isLong
-      ]
-    });
-
-    // Wait for the queue to respond with the commit IDs.
-    const [commitDBIds, commitMemIds]: number[][] = await Promise.all([
-      this.getPromiseDB.promise,
-      this.getPromiseMem.promise
-    ]);
-
-    // Sanity check between DB and memory. Also cleanup the noisy channels.
-    try {
-      if (
-        commitDBIds[ZERO] != commitMemIds[ZERO] ||
-        commitDBIds.length !== commitMemIds.length
-      ) {
-        throw new Error("Commit IDs don't match.");
-      }
-    } finally {
-      this.queueDBOut.removeEventListener('message', this.listenQueueDB);
-      this.queueMemOut.removeEventListener('message', this.listenQueueMem);
-    }
-
-    return commitDBIds;
-  }
-  /* #endregion */
 
   protected async runDry(
     _query: string,

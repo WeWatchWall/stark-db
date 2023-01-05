@@ -9,6 +9,7 @@ import { QueueBase } from '../../threads/queue';
 import { SaverBase } from '../../threads/saver';
 import { WorkerBase } from '../../threads/worker';
 import { Target } from '../../utils/constants';
+import { Thread } from '../../utils/thread';
 
 export class Queue extends QueueBase {
   async init(): Promise<void> {
@@ -48,25 +49,21 @@ export class Worker extends WorkerBase {
     // Set up the Broadcast channels.
     super.in = new BroadcastChannel(this.inName);
     super.out = new BroadcastChannel(this.outName);
-    this.in.onmessage = async (message: any) => this.callMethod(message);
+    this.in.onmessage = async (message: any) => this.callMethod(message, Thread.Worker);
 
-    super.queueIn = new BroadcastChannel(this.queueInName);
     super.queueDBOut = new BroadcastChannel(this.queueDBOutName);
     this.queueDBOut.onmessage =
-      async (message: any) => this.callMethod(message);
+      async (message: any) => this.callMethod(message, Thread.Queue, Target.DB);
 
     super.saverDBOut = new BroadcastChannel(this.saverDBOutName);
     this.saverDBOut.onmessage =
-      async (message: any) => this.callMethod(message);
+      async (message: any) => this.callMethod(message, Thread.Saver, Target.DB);
 
     // Connect to the DataSources.
     super.DB = await getDBConnection(this.name, Target.DB);
     await this.DB.initialize();
   }
 
-  protected queueGet(_commitListDB: CommitList, _isLong: boolean): Promise<number[]> {
-    throw new Error('Method not implemented.');
-  }
   protected runDry(_query: string, _args: any[], _commitListDB: CommitList, _hasUpdate?: boolean): Promise<[ResultList[], ResultList[], boolean]> {
     throw new Error('Method not implemented.');
   }
