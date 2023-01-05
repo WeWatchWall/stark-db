@@ -34,7 +34,35 @@ export class WorkQueue {
     return Object.assign(workItem, arg);
   }
 
-  get(start: number, end: number): boolean {
+  get(start: number, end: number): WorkItem[] {
+    if (!this.valid(start, end)) { return undefined; }
+      
+    const items: Array<WorkItem> = [];
+    for (let index = start; index < end; index++) {
+      items.push(this.lookup[index]);
+    }
+
+    return items;
+  }
+
+  del(ID: number): void {
+    const delItems: Array<WorkItem> = [];
+
+    // Determine the IDs to delete.
+    for (const workItem of this.queue) {
+      if (workItem.id >= ID) { break; }
+
+      delItems.push(workItem);
+    }
+
+    // Delete the IDs.
+    for (const delItem of delItems) {
+      this.queue.eraseElementByKey(delItem);
+      delete this.lookup[delItem.id];
+    }
+  }
+
+  valid(start: number, end: number): boolean {
     for (let index = start; index < end; index++) {
       const workItem = this.lookup[index];
       if (workItem == undefined) { return false; }
@@ -47,30 +75,13 @@ export class WorkQueue {
 
     return true;
   }
-
-  del(ID: number): void {
-    const delItems = new Set<WorkItem>();
-
-    // Determine the IDs to delete.
-    for (const workItem of this.queue) {
-      if (workItem.id >= ID) { break; }
-
-      delItems.add(workItem);
-    }
-
-    // Delete the IDs.
-    for (const delItem of delItems) {
-      this.queue.eraseElementByKey(delItem);
-      delete this.lookup[delItem.id];
-    }
-  }
 }
 
 /**
  * Work queue service that checks the memory results.
  */
 export class WorkQueueMem extends WorkQueue {
-  get(start: number, end: number): boolean {
+  valid(start: number, end: number): boolean {
     for (let index = start; index < end; index++) {
       const workItem = this.lookup[index];
       if (workItem == undefined) { return false; }
