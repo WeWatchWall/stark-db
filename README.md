@@ -24,13 +24,14 @@ are any collisions of target IDs.
 Long transactions are run serially and block up all the writes until
 they are complete. Long transactions are ones that:
 
+- specified long by setting the value of isWAL in the variables table
 - modify a parameter-specified number of rows (TODO: what parameter?)
 - modify the schema
 - read and write data in the same query -- i.e.:
   - `INSERT... SELECT FROM ...`
   - `CREATE TABLE ... AS SELECT ...`
 - delete data -- mark as inactive and subsequently clean the table
-- specified long by setting the value of isWAL in the variables table
+- all other queries that are not related to transactions, tables, or data.
 
 If the transaction is long because of the large set of changes,
 then it has to run twice - once to detect that it is long, and again to commit.
