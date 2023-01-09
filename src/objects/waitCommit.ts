@@ -90,6 +90,8 @@ export class WaitCommit {
         .commitList
         .commits[ZERO]
         .search(this.currentQuery.query, this.currentQuery.params);
+      // Ignore negative results, as this is the result of setting variables.
+      currentIndex = Math.max(currentIndex, ZERO);
     }
 
     this.setIsEnd();

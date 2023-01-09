@@ -21,7 +21,7 @@ The design for concurrent writes relies on a central queue that orders short
 transactions. Short results are communicated across threads, and re-run if there
 are any collisions of target IDs.
 
-Long transactions still block up all the writes until
+Long transactions are run serially and block up all the writes until
 they are complete. Long transactions are ones that:
 
 - modify a parameter-specified number of rows (TODO: what parameter?)
@@ -39,6 +39,20 @@ query and to check the length of the results against the long transaction
 parameter. Then, include the query to mark the transaction as long
 (isWAL = false): `UPDATE _stark_variable SET value = 0 WHERE name = 'isWAL'`.
 That variable's value is always reset to true (1) at the end of the transaction.
+
+### Interactive Transactions
+
+Interactive transactions are always treated as long-running ones.
+They are distinct in a few ways:
+
+- They wait for all other writes to complete.
+- Any changes to variable settings should be executed first,
+    or they are ignored.
+- Any queries after a rollback or commit transaction query are ignored.
+- The only way to run an interactive transaction is to begin a transaction
+    which runs only until it is commited.
+- If the query contains more than one transaction, it is not interactive and
+    it is auto-commited instead.
 
 ## Roadmap
 
