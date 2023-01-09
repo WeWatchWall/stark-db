@@ -22,23 +22,23 @@ transactions. Short results are communicated across threads, and re-run if there
 are any collisions of target IDs.
 
 Long transactions still block up all the writes until
-they are complete. Long transactions are ones that modify a parameter-specified
-number of rows (TODO: what parameter?).
-If the transaction is not marked as a long one,
+they are complete. Long transactions are ones that:
+
+- modify a parameter-specified number of rows (TODO: what parameter?)
+- modify the schema
+- read and write data in the same query -- i.e.:
+  - `INSERT... SELECT FROM ...`
+  - `CREATE TABLE ... AS SELECT ...`
+- delete data -- mark as inactive and subsequently clean the table
+- specified long by setting the value of isWAL in the variables table
+
+If the transaction is long because of the large set of changes,
 then it has to run twice - once to detect that it is long, and again to commit.
 A good way to avoid such issues is to run a `SELECT ... LIMIT ${PARAM + 1}`
 query and to check the length of the results against the long transaction
 parameter. Then, include the query to mark the transaction as long
 (isWAL = false): `UPDATE _stark_variable SET value = 0 WHERE name = 'isWAL'`.
 That variable's value is always reset to true (1) at the end of the transaction.
-
-Queries of the type `INSERT... SELECT FROM ...` are always
-treated as long queries due to their read-write nature. An alternative approach
-is to separate the reading and the writing at the application level.
-Deletion is always treaded as long transactions. An alternative approach
-is to use soft deletion -- i.e. mark the entity as inactive and date of the
-change -- and then run deletion of all inactive entities in a table on a
-schedule.
 
 ## Roadmap
 
