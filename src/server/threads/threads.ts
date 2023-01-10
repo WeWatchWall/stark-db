@@ -149,7 +149,7 @@ export class Worker extends WorkerBase {
     );
   }
 
-  protected async runDry(
+  protected async dryRun(
     _query: string,
     _args: any[],
     _commitListDB: CommitList,

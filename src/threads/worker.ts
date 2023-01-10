@@ -1,13 +1,17 @@
 import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
+import { Commit } from '../objects/commit';
 
 import { CommitList } from '../objects/commitList';
+import { QueryParse } from '../objects/queryParse';
+import { QueryRaw } from '../objects/queryRaw';
 import { Result } from '../objects/result';
 import { ResultList } from '../objects/resultList';
+import { WaitCommit } from '../objects/waitCommit';
 import { WorkItem } from '../objects/workItem';
 import { ChanQueue } from '../services/chanQueue';
 import { WorkQueue } from '../services/workQueue';
-import { ERRORS_TABLE, ONE, SAVER_CHANNEL, Target, WORKER_CHANNEL, ZERO } from '../utils/constants';
+import { ERRORS_TABLE, ONE, SAVER_CHANNEL, SELECT_RESULT, Target, WORKER_CHANNEL, ZERO } from '../utils/constants';
 import { Thread } from '../utils/thread';
 import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
@@ -44,7 +48,9 @@ export abstract class WorkerBase implements IWorker, IEngine {
   protected getPromiseMem: any;
 
   protected isRun: boolean;
+
   protected isWait: boolean;
+  protected waitCommit: WaitCommit;
 
   protected commitIDs: number[];
   protected saveID: number;
@@ -145,7 +151,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
     let
       [resultListDB, resultListMem, isLongLate]:
         [ResultList[], ResultList[], boolean] =
-        await this.runDry(query, args, commitListDB);
+        await this.dryRun(query, args, commitListDB);
 
     if (!isLong && isLongLate) {
       await this.cancel();
@@ -173,8 +179,8 @@ export abstract class WorkerBase implements IWorker, IEngine {
   }
 
   protected async addWait(
-    _query: string,
-    _args: any[],
+    query: string,
+    args: any[],
     commitListDB: CommitList,
   ): Promise<ResultList[]> {
     await this.taskLock.acquireAsync();
@@ -185,10 +191,41 @@ export abstract class WorkerBase implements IWorker, IEngine {
     }
 
     if (!this.isWait) {
+      this.waitCommit = new WaitCommit();
       this.isWait = true;
     }
 
-    throw new Error("Not implemented.");
+    const commit = new Commit({
+      script: query,
+      params: args,
+    });
+
+    const results: ResultList[] = [];
+
+    for (let queryI = 0; queryI < commit.statements.length; queryI++) {
+      const result = new Result({
+        name: `${SELECT_RESULT}${queryI}`,
+        keys: [],
+        rows: []
+      });
+
+      const resultList = new ResultList({
+        id: this.commitIDs[ZERO],
+        isLong: true,
+        target: Target.DB,
+        results: [result]
+      });
+      results.push(resultList);
+
+      // TODO: Run the query.
+      // const statement = commit.statements[queryI];
+      // const runQueries: QueryParse[] =
+      //   this.waitCommit.load(statement.query, statement.params);  
+    }
+
+    this.taskLock.release();
+    
+    return results;
   }
 
   /* #region  Cancellation logic. */
@@ -229,12 +266,45 @@ export abstract class WorkerBase implements IWorker, IEngine {
   }
   /* #endregion */
 
-  protected abstract runDry(
+  protected abstract dryRun(
     _query: string,
     _args: any[],
     _commitListDB: CommitList,
     _hasUpdate?: boolean
   ): Promise<[ResultList[], ResultList[], boolean]>
+
+  async runQuery(
+    _DB: DataSource,
+    statement?: QueryParse,
+    isDiff?: boolean,
+    resultList?: ResultList
+  ): Promise<[ResultList, ResultList]> {
+    if (!statement && !resultList) { return [undefined, undefined]; }
+
+    if (!statement) {
+      const rawQueries: QueryRaw[] = resultList.toUpdate();
+      statement = new QueryParse({
+        query: rawQueries.map(rawQuery => rawQuery.query).join(` `),
+        params: rawQueries.map(rawQuery => rawQuery.params).flat(),
+      });
+    }
+    
+    // TODO: Parse the raw results.
+    // const parserRaw = new ParserRaw({ DB, statement });
+    // await parserRaw.load();
+    // const rawResults = parserRaw.results;
+    const rawResults = new ResultList();
+
+    if (isDiff && !resultList) {
+      // TODO: Get the results from the database.
+      // const parserDiff = new ParserDiff({ DB });
+      // await parserDiff.load();
+      // const diffResults = parserDiff.results;
+      // resultList = diffResults;
+    }
+
+    return [rawResults, resultList];
+  }
 
   get(): Promise<void> {
     throw new Error('Method not implemented.');
