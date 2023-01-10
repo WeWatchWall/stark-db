@@ -1,23 +1,20 @@
-import { ArrayModel, ObjectModel } from 'objectmodel';
+import { ObjectModel } from 'objectmodel';
 
-import { ONE, Target, ZERO } from '../utils/constants';
+import { ONE, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Commit } from './commit';
-import { CommitList, CommitListMem } from './commitList';
+import { CommitList } from './commitList';
 import { ParseType, QueryParse } from './queryParse';
 import { QueryRaw } from './queryRaw';
 
 class WaitCommitArg {
-  target: Target;
-  tables?: string[];
+  script?: string;
+  params?: any[];
 }
 
 export class WaitCommit {
   validator: LazyValidator;
   
-  target: Target;
-  tables?: string[];
-
   script: string;
   params: any[];
 
@@ -33,7 +30,8 @@ export class WaitCommit {
    */
   constructor(init?: WaitCommitArg) {
     this.validator = new LazyValidator(
-      () => this.validate.apply(this, [])
+      () => this.validate.apply(this, []),
+      () => this.ready.apply(this, [])
     );
 
     // Copy the properties.
@@ -47,23 +45,17 @@ export class WaitCommit {
     new WaitCommitInit(this);
   }
 
-  init(script: string, params: any[]): void {
-    this.commit = new Commit({ script, params });
-
-    switch (this.target) {
-      case Target.DB:
-        this.commitList = new CommitList({ script, params }); break;
-      case Target.mem:
-        this.commitList = new CommitListMem({ script, params }); break;
-      default: break;
-    }
+  private ready(): void {
+    this.load(this.script, this.params);
   }
 
   load(script: string, params: any[]): QueryParse[] {
     let currentIndex = ZERO;
 
-    if (!this.commit) { this.init(script, params); }
-    else {
+    if (!this.commit) {
+      this.commit = new Commit({ script, params });
+      this.commitList = new CommitList({ script, params });
+    } else {
       const newCommit = new Commit({ script, params });
 
       // Avoid running any statements after a commit.
@@ -142,6 +134,6 @@ export class WaitCommit {
 }
 
 const WaitCommitInit = new ObjectModel({
-  target: [Target.DB, Target.mem],
-  tables: [ArrayModel(String), undefined],
+  script: String,
+  params: Array,
 });
