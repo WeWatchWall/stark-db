@@ -6,6 +6,14 @@ import { LazyValidator } from '../utils/lazyValidator';
 import { QueryRaw } from './queryRaw';
 import { Result, ResultArg } from './result';
 
+type ResultCache = {
+  [key: string]: {
+    name: string;
+    keys: string[];
+    rows: { [key: string]: any }
+  }
+};
+
 /* #region  Multiple results. */
 export class ResultListArg {
   id: number;
@@ -111,47 +119,30 @@ export class ResultList {
     return false;
   }
 
-  static merge(...lists: ResultList[]): ResultList {
-    /* #region  Create the result list. */
-    const results = new ResultList({
-      id: -ONE,
-      target: Target.DB,
-      isLong: false,
-      results: [],
-    });
-    if (lists.length > ZERO) {
-      results.id = lists[lists.length - ONE].id;
-      results.target = lists[ZERO].target;
-      results.isLong = lists[ZERO].isLong;
-    }
-    /* #endregion */
-
-    // Create the data structure.
-    const tables: {
-      [key: string]: {
-        name: string;
-        keys: string[];
-        rows: { [key: string]: any }
-      }
-    } = {};
+  static merge(...lists: ResultList[]): [ResultList[], ResultList] {
+    // Create the data structures.
+    const tablesMerge: ResultCache = {};
+    const tablesDiffs: ResultCache[] = [];
 
     /* #region  Parse the result lists. */
     for (const list of lists) {
+      const tablesDiff: ResultCache = {};
+      tablesDiffs.push(tablesDiff);
 
       // Loop through the tables.
       for (const result of list.results) {
 
         // Create the table if it doesn't exist.
-        if (!tables[result.name]) {
+        if (!tablesMerge[result.name]) {
           const table = {
             name: result.name,
             keys: result.keys,
             rows: {},
           };
-          tables[result.name] = table;
+          tablesMerge[result.name] = table;
         }
 
-        const table = tables[result.name];
+        const table = tablesMerge[result.name];
 
         // Loop over the rows.
         for (const row of result.rows) {
@@ -162,18 +153,76 @@ export class ResultList {
 
           // Hash the key and store the row.
           const key = shortHash(JSON.stringify(keyData));
+
+          // Update the diff table if the row doesn't exist.
+          if (!table.rows[key]) {
+            if (!tablesDiff[result.name]) {
+              const table = {
+                name: result.name,
+                keys: result.keys,
+                rows: {},
+              };
+              tablesDiff[result.name] = table;
+            }
+
+            const table = tablesDiff[result.name];
+            table.rows[key] = row;
+          }
+
           table.rows[key] = row;
         }
       }
     }
     /* #endregion */
 
-    /* #region  Write out the tables. */
-    for (const name in tables) {
-      const table = tables[name];
+    const diffResults: ResultList[] = [];
+    const mergeResults = new ResultList({
+      id: -ONE,
+      target: Target.DB,
+      isLong: false,
+      results: [],
+    });
+
+    if (lists.length === ZERO) { return [diffResults, mergeResults]; }
+
+    /* #region  Create the diff result lists. */
+    for (let diffI = 0; diffI < tablesDiffs.length; diffI++) {
+      // There is no diff for the first list.
+      if (diffI === ZERO) { diffResults.push(lists[ZERO]); continue; }
+
+      const tablesDiff = tablesDiffs[diffI];
+
+      const diffResult = new ResultList({
+        id: lists[diffI].id,
+        target: lists[diffI].target,
+        isLong: lists[diffI].isLong,
+        results: []
+      });
+      diffResults.push(diffResult);
+     
+      for (const name in tablesDiff) {
+        const table = tablesDiff[name];
+  
+        // Add each row to the results.
+        diffResult.results.push(new Result({
+          name,
+          keys: table.keys,
+          rows: Object.values(table.rows),
+        }));
+      }
+    }
+    /* #endregion */
+
+    /* #region  Create the merge result list. */
+    mergeResults.id = lists[lists.length - ONE].id;
+    mergeResults.target = lists[ZERO].target;
+    mergeResults.isLong = lists[ZERO].isLong;
+
+    for (const name in tablesMerge) {
+      const table = tablesMerge[name];
 
       // Add each row to the results.
-      results.results.push(new Result({
+      mergeResults.results.push(new Result({
         name,
         keys: table.keys,
         rows: Object.values(table.rows),
@@ -181,7 +230,7 @@ export class ResultList {
     }
     /* #endregion */
 
-    return results
+    return [diffResults, mergeResults];
   }
   /**
    * Creates an instance of the class.

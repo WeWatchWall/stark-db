@@ -64,7 +64,7 @@ export class Worker extends WorkerBase {
     await this.DB.initialize();
   }
 
-  protected runDry(_query: string, _args: any[], _commitListDB: CommitList, _hasUpdate?: boolean): Promise<[ResultList[], ResultList[], boolean]> {
+  protected dryRun(_query: string, _args: any[], _commitListDB: CommitList, _hasUpdate?: boolean): Promise<[ResultList[], ResultList[], boolean]> {
     throw new Error('Method not implemented.');
   }
 }

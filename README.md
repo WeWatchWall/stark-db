@@ -57,6 +57,8 @@ They are distinct in a few ways:
 
 ## Roadmap
 
+- HTTPS & authentication.
 - Sharding - with a single queue.
+- Kubernetes containers.
 - Driver architecture for various DB engines.
 - Scaling tables & relations across nodes.
