@@ -89,7 +89,7 @@ export abstract class PersistentDBBase implements IDB {
     });
 
     const numChangesVar = new Variable({
-      name: VariableType.numChanges,
+      name: VariableType.changeCount,
       value: ZERO
     });
 

@@ -3,5 +3,5 @@ export enum Variable {
   isWAL = 'isWAL',
   isMemory = 'isMemory',
   lastAccess = 'lastAccess',
-  numChanges = 'numChanges',
+  changeCount = 'changeCount',
 }
