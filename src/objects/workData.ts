@@ -1,7 +1,7 @@
 import { ObjectModel } from 'objectmodel';
 import { DataSource } from 'typeorm';
 
-import { ONE, TABLES_TABLE, Target, TRIGGER_PREFIX, VARS_TABLE, ZERO } from '../utils/constants';
+import { ONE, SELECT_RESULT, TABLES_TABLE, Target, TRIGGER_PREFIX, VARS_TABLE, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 import { Variable } from '../utils/variable';
 import { QueryParse } from './queryParse';
@@ -59,6 +59,35 @@ export class WorkCommit {
 
       case false: return await this.loadDiff(commitID, target, isLong);
     }
+  }
+
+  async save(resultList: ResultList): Promise<void> {
+    const queries: string[] = [];
+    const params: any[] = [];
+
+    for (const result of resultList.results) {
+      if (result.name.startsWith(SELECT_RESULT)) {
+        continue;
+      }
+
+      const rawQuery = result.toUpdate();
+      queries.push(rawQuery.query);
+      params.push(...rawQuery.params);
+    }
+
+    const finalQuery = queries.join(` `);
+
+    // Disable the triggers.
+    await this.DB.manager.query(`
+      UPDATE ${TABLES_TABLE} SET ${Variable.isWAL} = ${ZERO};
+    `);
+
+    await this.DB.manager.query(finalQuery, params);
+
+    // Re-enable the triggers.
+    await this.DB.manager.query(`
+      UPDATE ${TABLES_TABLE} SET ${Variable.isWAL} = ${ONE};
+    `);
   }
 
   async loadDiff(

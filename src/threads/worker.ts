@@ -4,7 +4,6 @@ import { Commit } from '../objects/commit';
 
 import { CommitList } from '../objects/commitList';
 import { QueryParse } from '../objects/queryParse';
-import { QueryRaw } from '../objects/queryRaw';
 import { Result } from '../objects/result';
 import { ResultList } from '../objects/resultList';
 import { WaitCommit } from '../objects/waitCommit';
@@ -274,33 +273,21 @@ export abstract class WorkerBase implements IWorker, IEngine {
   ): Promise<[ResultList[], ResultList[], boolean]>
 
   async runQuery(
-    _DB: DataSource,
     statement?: QueryParse,
     isDiff?: boolean,
     resultList?: ResultList
   ): Promise<[ResultList, ResultList]> {
     if (!statement && !resultList) { return [undefined, undefined]; }
 
+    let rawResults: ResultList;
     if (!statement) {
-      const rawQueries: QueryRaw[] = resultList.toUpdate();
-      statement = new QueryParse({
-        query: rawQueries.map(rawQuery => rawQuery.query).join(` `),
-        params: rawQueries.map(rawQuery => rawQuery.params).flat(),
-      });
+      // TODO: this.workData.save(resultList);
+    } else {
+      // TODO: rawResults = this.workData.load(commitID, target, isLong, true, statement, queryName);
     }
-    
-    // TODO: Parse the raw results.
-    // const parserRaw = new ParserRaw({ DB, statement });
-    // await parserRaw.load();
-    // const rawResults = parserRaw.results;
-    const rawResults = new ResultList();
 
     if (isDiff && !resultList) {
-      // TODO: Get the results from the database.
-      // const parserDiff = new ParserDiff({ DB });
-      // await parserDiff.load();
-      // const diffResults = parserDiff.results;
-      // resultList = diffResults;
+      // TODO: resultList = this.workData.load(commitID, target, isLong);
     }
 
     return [rawResults, resultList];

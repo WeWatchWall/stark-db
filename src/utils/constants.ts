@@ -6,7 +6,7 @@ export const PARAMETER_TOKEN = '?';
 export const STATEMENT_DELIMITER = ';';
 export const VALUE_DELIMITER = ',';
 export const STATEMENT_PLACEHOLDER = 'SELECT "PLACEHOLDER";';
-export const SELECT_RESULT = 'RESULT_';
+export const SELECT_RESULT = 'STARK_RESULT_';
 
 export const DB_DRIVER = 'sqlite';
 export const MESSAGE_EVENT = 'message';
