@@ -8,20 +8,20 @@ import { QueryParse } from './queryParse';
 import { ResultList } from './resultList';
 import { Result } from './result';
 
-class WorkCommitArg {
+class WorkDataArg {
   DB: DataSource;
 }
 
-export class WorkCommit {
+export class WorkData {
   DB: DataSource;
 
   private validator: LazyValidator;
 
   /**
    * Creates an instance of the class.
-   * @param [init] @type {WorkCommitArg} The initial value.
+   * @param [init] @type {WorkDataArg} The initial value.
    */
-  constructor(init?: WorkCommitArg) {
+  constructor(init?: WorkDataArg) {
     this.validator = new LazyValidator(
       () => this.validate.apply(this, []),
     );
@@ -34,7 +34,7 @@ export class WorkCommit {
   }
 
   private validate(): void {
-    new WorkCommitInit(this);
+    new WorkDataInit(this);
   }
 
   async load(
@@ -199,6 +199,6 @@ export class WorkCommit {
   }
 }
 
-const WorkCommitInit = new ObjectModel({
+const WorkDataInit = new ObjectModel({
   DB: DataSource,
 });
