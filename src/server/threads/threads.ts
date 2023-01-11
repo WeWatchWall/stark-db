@@ -2,8 +2,13 @@ import sqlite3 from 'sqlite3';
 import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
-import { Commit } from '../../entity/commit';
+import { Commit as CommitE } from '../../entity/commit';
+import { Commit as CommitO } from '../../objects/commit';
+import { CommitList } from '../../objects/commitList';
+import { QueryParse } from '../../objects/queryParse';
+import { Result } from '../../objects/result';
 import { ResultList } from '../../objects/resultList';
+import { WaitCommit } from '../../objects/waitCommit';
 import { WorkData } from '../../objects/workData';
 import { ChanQueueMem } from '../../services/chanQueue';
 import { WorkQueueMem } from '../../services/workQueue';
@@ -14,6 +19,7 @@ import {
   COMMITS_TABLE,
   DB_DRIVER,
   ONE,
+  SELECT_RESULT,
   TABLES_TABLE,
   Target,
   ZERO
@@ -39,7 +45,7 @@ export class Queue extends QueueBase {
     // Skip the rest if the database is in Memory.
     if (this.target !== Target.DB) { return; }
 
-    const commitRepo = this.DB.getRepository(Commit);
+    const commitRepo = this.DB.getRepository(CommitE);
 
     // Get and run all the transactions until they are caught up.
     const commits = await commitRepo
@@ -152,8 +158,18 @@ export class Worker extends WorkerBase {
     );
   }
 
-  async add(_query: string, _args: any[]): Promise<ResultList[]> {
-    throw new Error('Method not implemented.');
+  async add(query: string, args: any[]): Promise<ResultList[]> {
+    // Parse the queries.
+    const commitListDB = new CommitList({
+      script: query,
+      params: args,
+    });
+
+    if (this.isWait || commitListDB.isWait) {
+      return await this.addWait(query, args, commitListDB);
+    }
+
+    return await this.addFull(query, args, commitListDB);
   }
 
   // TODO: Review this.
@@ -170,6 +186,65 @@ export class Worker extends WorkerBase {
     // Call the parent destroy method.
     await super.destroy();
   }
+
+  protected async addFull(
+    _query: string,
+    _args: any[],
+    _commitListDB: CommitList
+  ): Promise<ResultList[]> {
+    throw new Error('Method not implemented.');
+  }
+
+  protected async addWait(
+    query: string,
+    args: any[],
+    commitListDB: CommitList
+  ): Promise<ResultList[]> {
+    await this.taskLock.acquireAsync();
+
+    if (commitListDB.isLongMax) {
+      await this.cancelWait();
+      return WorkerBase.errors.limit;
+    }
+
+    if (!this.isWait) {
+      this.waitCommit = new WaitCommit();
+      this.isWait = true;
+    }
+
+    const commit = new CommitO({
+      script: query,
+      params: args,
+    });
+
+    const results: ResultList[] = [];
+
+    for (let queryI = 0; queryI < commit.statements.length; queryI++) {
+      const result = new Result({
+        name: `${SELECT_RESULT}${queryI}`,
+        keys: [],
+        rows: []
+      });
+
+      const resultList = new ResultList({
+        id: this.commitIDs[ZERO],
+        isLong: true,
+        target: Target.DB,
+        results: [result]
+      });
+      results.push(resultList);
+
+      // TODO: Run the query.
+      // const statement = commit.statements[queryI];
+      // const runQueries: QueryParse[] =
+      //   this.waitCommit.load(statement.query, statement.params);  
+    }
+
+    this.taskLock.release();
+    
+    return results;
+  }
+
 }
 
 function getDBConnection(name: string, target: Target): DataSource {
@@ -181,7 +256,7 @@ function getDBConnection(name: string, target: Target): DataSource {
         cache: true,
         synchronize: true, // TODO: should this be disabled?
         logging: false,
-        entities: [Commit],
+        entities: [CommitE],
         migrations: [],
         subscribers: [],
       });
@@ -197,7 +272,7 @@ function getDBConnection(name: string, target: Target): DataSource {
         cache: true,
         synchronize: true, // TODO: should this be disabled?
         logging: false,
-        entities: [Commit],
+        entities: [CommitE],
         migrations: [],
         subscribers: [],
       });

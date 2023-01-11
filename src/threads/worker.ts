@@ -1,12 +1,21 @@
 import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
 
+import { Result } from '../objects/result';
 import { ResultList } from '../objects/resultList';
+import { WaitCommit } from '../objects/waitCommit';
 import { WorkData } from '../objects/workData';
 import { WorkItem } from '../objects/workItem';
 import { ChanQueue } from '../services/chanQueue';
 import { WorkQueue } from '../services/workQueue';
-import { SAVER_CHANNEL, Target, WORKER_CHANNEL, ZERO } from '../utils/constants';
+import {
+  ERRORS_TABLE,
+  ONE,
+  SAVER_CHANNEL,
+  Target,
+  WORKER_CHANNEL,
+  ZERO
+} from '../utils/constants';
 import { Thread } from '../utils/thread';
 import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
@@ -39,8 +48,28 @@ export abstract class WorkerBase implements IWorker, IEngine {
   protected isWait: boolean;
   protected saveID: number;
   protected taskLock: AwaitLock;
+  protected waitCommit: WaitCommit;
   protected workDataDB: WorkData;
   protected workQueue: WorkQueue;
+
+  protected static errors = {
+    limit: [new ResultList({
+      id: -ONE,
+      isLong: true,
+      target: Target.DB,
+      results: [
+        new Result({
+          name: ERRORS_TABLE,
+          keys: ['id'],
+          rows: [{
+            id: ZERO,
+            name: 'RangeError',
+            message: 'Query is too long.'
+          }]
+        })
+      ]
+    })]
+  };
 
   constructor(name: string, id: number) {
     this.name = name;
@@ -181,5 +210,14 @@ export abstract class WorkerBase implements IWorker, IEngine {
       await this.DB.query(`ROLLBACK TRANSACTION;`);
       this.taskLock.release();
     }
+  }
+
+  protected async cancelWait(): Promise<void> {
+    if (!this.isWait) { return; }
+
+    this.isWait = false;
+
+    await this.cancel(true);
+    return;
   }
 }
