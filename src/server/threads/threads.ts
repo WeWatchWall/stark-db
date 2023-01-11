@@ -3,8 +3,6 @@ import { DataSource } from 'typeorm';
 import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../entity/commit';
-import { CommitList } from '../../objects/commitList';
-// import { Result } from '../../objects/result';
 import { ResultList } from '../../objects/resultList';
 import { ChanQueueMem } from '../../services/chanQueue';
 import { WorkQueueMem } from '../../services/workQueue';
@@ -113,8 +111,6 @@ export class Worker extends WorkerBase {
     super.chanQueue = new ChanQueueMem(this.id);
     super.workQueue = new WorkQueueMem();
 
-    super.isMemory = true;
-
     /* #region  Set up the Broadcast channels. */
     super.in = new BroadcastChannel(this.inName);
     super.out = new BroadcastChannel(this.outName);
@@ -149,23 +145,11 @@ export class Worker extends WorkerBase {
     );
   }
 
-  protected async dryRun(
-    _query: string,
-    _args: any[],
-    _commitListDB: CommitList,
-    _hasUpdate = false
-  ): Promise<[ResultList[], ResultList[], boolean]> {
-
-    // Parse the queries for the memory.
-    // const commitListMem = new CommitListMem({
-    //   script: query,
-    //   params: args,
-    //   tables: this.tablesMem,
-    // });
-
+  async add(_query: string, _args: any[]): Promise<ResultList[]> {
     throw new Error('Method not implemented.');
   }
 
+  // TODO: Review this.
   async destroy(): Promise<void> {
     if (this.DB == undefined) { return; }
 

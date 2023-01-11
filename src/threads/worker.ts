@@ -1,16 +1,11 @@
 import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
-import { Commit } from '../objects/commit';
 
-import { CommitList } from '../objects/commitList';
-import { QueryParse } from '../objects/queryParse';
-import { Result } from '../objects/result';
 import { ResultList } from '../objects/resultList';
-import { WaitCommit } from '../objects/waitCommit';
 import { WorkItem } from '../objects/workItem';
 import { ChanQueue } from '../services/chanQueue';
 import { WorkQueue } from '../services/workQueue';
-import { ERRORS_TABLE, ONE, SAVER_CHANNEL, SELECT_RESULT, Target, WORKER_CHANNEL, ZERO } from '../utils/constants';
+import { SAVER_CHANNEL, Target, WORKER_CHANNEL, ZERO } from '../utils/constants';
 import { Thread } from '../utils/thread';
 import { ThreadCall } from '../utils/threadCall';
 import { IEngine, IWorker } from './IThreads';
@@ -20,9 +15,6 @@ export abstract class WorkerBase implements IWorker, IEngine {
   id: number;
 
   DB: DataSource;
-
-  // Whether this is a memory worker.
-  isMemory: boolean;
 
   /* #region  Declare the Broadcast Channels. */
   in: any;
@@ -41,46 +33,16 @@ export abstract class WorkerBase implements IWorker, IEngine {
   protected saverMemOutName: string;
   /* #endregion */
 
-  protected taskLock: AwaitLock;
-
-  protected getPromiseDB: any;
-  protected getPromiseMem: any;
-
-  protected isRun: boolean;
-
-  protected isWait: boolean;
-  protected waitCommit: WaitCommit;
-
-  protected commitIDs: number[];
-  protected saveID: number;
-
   protected chanQueue: ChanQueue;
+  protected commitIDs: number[];
+  protected isRun: boolean;
+  protected saveID: number;
+  protected taskLock: AwaitLock;
   protected workQueue: WorkQueue;
-
-  static errorResults = [
-    new ResultList({
-      id: -ONE,
-      isLong: true,
-      target: Target.DB,
-      results: [
-        new Result({
-          name: ERRORS_TABLE,
-          keys: ['id'],
-          rows: [{
-            id: ZERO,
-            name: 'RangeError',
-            message: 'Query is too long.'
-          }]
-        })
-      ]
-    })
-  ];
 
   constructor(name: string, id: number) {
     this.name = name;
     this.id = id;
-
-    this.isMemory = false;
 
     /* #region  Declare the Broadcast Channel names. */
     this.inName = `${WORKER_CHANNEL}-${this.id}-${this.name}-in`;
@@ -93,208 +55,34 @@ export abstract class WorkerBase implements IWorker, IEngine {
     this.saverMemOutName = `${SAVER_CHANNEL}-${Target.mem}-${this.name}-out`;
     /* #endregion */
 
-    this.isRun = false;
-    this.isWait = false;
-
     this.saveID = ZERO;
-    this.workQueue = new WorkQueue();
   }
 
+  
   abstract init(): Promise<void>;
 
-  async add(
-    query: string,
-    args: any[]
-  ): Promise<ResultList[]> {
-    // Parse the queries.
-    const commitListDB = new CommitList({
-      script: query,
-      params: args,
-    });
+  abstract add(query: string, args: any[]): Promise<ResultList[]>;
 
-    if (this.isWait || commitListDB.isWait) {
-      return await this.addWait(query, args, commitListDB);
-    }
-
-    return await this.addFull(query, args, commitListDB);
-  }
-
-  protected async addFull(
-    query: string,
-    args: any[],
-    commitListDB: CommitList,
-    isLongInit = false
-  ): Promise<ResultList[]> {
-
-    /* #region  Error checking for query length. */
-    if (commitListDB.isLongMax) {
-      return WorkerBase.errorResults;
-    }
-
-    // Check if the query is long.
-    const isLong = isLongInit ||
-      commitListDB.isLongUser ||
-      commitListDB.isLongData ||
-      commitListDB.isSchema;
-    /* #endregion */
-
-    if (!isLongInit) {
-      await this.taskLock.acquireAsync();
-    }
-
-    // Send the query to the queue.
-    [this.saveID, this.commitIDs] =
-      await this.chanQueue.get(commitListDB, isLong);
-
-    // Get the result sets and check if the query is long.
-    let
-      [resultListDB, resultListMem, isLongLate]:
-        [ResultList[], ResultList[], boolean] =
-        await this.dryRun(query, args, commitListDB);
-
-    if (!isLong && isLongLate) {
-      await this.cancel();
-
-      /* #region  Re-run the query and return the results. */
-      const resultList = await this.addFull(query, args, commitListDB, true);
-      this.taskLock.release();
-
-      return resultList;
-      /* #endregion */
-    }
-
-    // TODO: Wait until the WAL is fully written.
-
-    // TODO: Check if the resultLists intersect with the WAL.
-
-    // TODO: Rerun the query if the resultLists intersect with the WAL.
-
-    await this.chanQueue.add(resultListDB, resultListMem);
-
-    // Allow the next task to run.
-    if (!isLongInit) { this.taskLock.release(); }
-
-    return resultListDB;
-  }
-
-  protected async addWait(
-    query: string,
-    args: any[],
-    commitListDB: CommitList,
-  ): Promise<ResultList[]> {
-    await this.taskLock.acquireAsync();
-
-    if (commitListDB.isLongMax) {
-      await this.cancelWait();
-      return WorkerBase.errorResults;
-    }
-
-    if (!this.isWait) {
-      this.waitCommit = new WaitCommit();
-      this.isWait = true;
-    }
-
-    const commit = new Commit({
-      script: query,
-      params: args,
-    });
-
-    const results: ResultList[] = [];
-
-    for (let queryI = 0; queryI < commit.statements.length; queryI++) {
-      const result = new Result({
-        name: `${SELECT_RESULT}${queryI}`,
-        keys: [],
-        rows: []
-      });
-
-      const resultList = new ResultList({
-        id: this.commitIDs[ZERO],
-        isLong: true,
-        target: Target.DB,
-        results: [result]
-      });
-      results.push(resultList);
-
-      // TODO: Run the query.
-      // const statement = commit.statements[queryI];
-      // const runQueries: QueryParse[] =
-      //   this.waitCommit.load(statement.query, statement.params);  
-    }
-
-    this.taskLock.release();
-    
-    return results;
-  }
-
-  /* #region  Cancellation logic. */
-
-  /**
-   * Cancels a query.
-   * @param [isLocal] Whether to cancel the query in the local worker.
-   * @returns A promise that resolves when the query is cancelled.
-   */
-  async cancel(isLocal = false): Promise<void> {
-    if (!this.isRun) { return; }
-
-    // Cancel the current run.
-    for (const commitID of this.commitIDs) {
-      await this.chanQueue.del(commitID);
-    }
-
-    if (isLocal) {
-      this.commitIDs = undefined;
-      this.isRun = false;
-
-      await this.DB.query(`ROLLBACK TRANSACTION;`);
-      this.taskLock.release();
-    }
-  }
-
-  /**
-   * Cancels the waiting query.
-   * @returns A promise that resolves when the waiting query is cancelled.
-   */
-  async cancelWait(): Promise<void> {
-    if (!this.isWait) { return; }
-
-    this.isWait = false;
-
-    await this.cancel(true);
-    return;
-  }
-  /* #endregion */
-
-  protected abstract dryRun(
-    _query: string,
-    _args: any[],
-    _commitListDB: CommitList,
-    _hasUpdate?: boolean
-  ): Promise<[ResultList[], ResultList[], boolean]>
-
-  async runQuery(
-    statement?: QueryParse,
-    isDiff?: boolean,
-    resultList?: ResultList
-  ): Promise<[ResultList, ResultList]> {
-    if (!statement && !resultList) { return [undefined, undefined]; }
-
-    let rawResults: ResultList;
-    if (!statement) {
-      // TODO: this.workData.save(resultList);
-    } else {
-      // TODO: rawResults = this.workData.load(commitID, target, isLong, true, statement, queryName);
-    }
-
-    if (isDiff && !resultList) {
-      // TODO: resultList = this.workData.load(commitID, target, isLong);
-    }
-
-    return [rawResults, resultList];
-  }
-
-  get(): Promise<void> {
+  async get(): Promise<void> {
     throw new Error('Method not implemented.');
+  }
+
+  async set(target: Target, results: ResultList): Promise<void> {
+    const item: WorkItem = new WorkItem({
+      id: results.id,
+      DB: undefined,
+      isDB: false,
+      isMem: false
+    });
+
+    // Update the queue results.
+    switch (target) {
+      case Target.DB: item.DB = results; break;
+      case Target.mem: item.mem = results; break;
+      default: break;
+    }
+
+    this.workQueue.set(item);
   }
 
   async del(target: Target, commitID: number): Promise<void> {
@@ -320,26 +108,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
     // TODO: Trim the queue if there is no transaction and it gets too long.
   }
 
-  async set(target: Target, results: ResultList): Promise<void> {
-    /* #region  Update the work queue. */
-    const item: WorkItem = new WorkItem({
-      id: results.id,
-      DB: undefined,
-      isDB: false,
-      isMem: false
-    });
-
-    // Update the queue results.
-    switch (target) {
-      case Target.DB: item.DB = results; break;
-      case Target.mem: item.mem = results; break;
-      default: break;
-    }
-
-    this.workQueue.set(item);
-    /* #endregion */
-  }
-
+  // TODO: Review this.
   async destroy(): Promise<void> {
     if (this.DB == undefined) { return; }
 
@@ -354,7 +123,6 @@ export abstract class WorkerBase implements IWorker, IEngine {
     delete this.queueDBOut;
     delete this.saverDBOut;
 
-    // TODO: Free up other properties from memory.
     await this.DB.destroy();
 
     delete this.DB;
@@ -392,6 +160,28 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
       default:
         break;
+    }
+  }
+
+  /**
+   * Cancels a query.
+   * @param [isLocal] Whether to cancel the query in the local worker.
+   * @returns A promise that resolves when the query is cancelled.
+   */
+  protected async cancel(isLocal = false): Promise<void> {
+    if (!this.isRun) { return; }
+
+    // Cancel the current run.
+    for (const commitID of this.commitIDs) {
+      await this.chanQueue.del(commitID);
+    }
+
+    if (isLocal) {
+      this.commitIDs = undefined;
+      this.isRun = false;
+
+      await this.DB.query(`ROLLBACK TRANSACTION;`);
+      this.taskLock.release();
     }
   }
 }
