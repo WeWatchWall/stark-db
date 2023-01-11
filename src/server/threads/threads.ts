@@ -4,6 +4,7 @@ import { BroadcastChannel } from 'worker_threads';
 
 import { Commit } from '../../entity/commit';
 import { ResultList } from '../../objects/resultList';
+import { WorkData } from '../../objects/workData';
 import { ChanQueueMem } from '../../services/chanQueue';
 import { WorkQueueMem } from '../../services/workQueue';
 import { QueueBase } from '../../threads/queue';
@@ -102,10 +103,13 @@ export class Worker extends WorkerBase {
   DBMem: DataSource;
 
   // Broadcast channels for the memory database.
-  queueMemOut: any;
-  saverMemOut: any;
+  protected queueMemOut: any;
+  protected saverMemOut: any;
 
-  tablesMem: string[];
+  // TODO: Get the tables on every long query set invocation.
+  protected tablesMem: string[];
+
+  protected workDataMem: WorkData;
 
   async init(): Promise<void> {
     super.chanQueue = new ChanQueueMem(this.id);
@@ -132,11 +136,14 @@ export class Worker extends WorkerBase {
       this.callMethod(message, Thread.Saver, Target.mem);
     /* #endregion */
 
-    /* #region  Connect to the DataSources. */
+    /* #region  Connect to the DataSources and helpers. */
     super.DB = getDBConnection(this.name, Target.DB);
     this.DBMem = getDBConnection(this.name, Target.mem);
     await this.DB.initialize();
     await this.DBMem.initialize();
+
+    super.workDataDB = new WorkData({ DB: this.DB });
+    this.workDataMem = new WorkData({ DB: this.DB });
     /* #endregion */
 
     // Get the memory tables from the database.

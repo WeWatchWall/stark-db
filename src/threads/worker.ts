@@ -2,6 +2,7 @@ import AwaitLock from 'await-lock';
 import { DataSource } from 'typeorm';
 
 import { ResultList } from '../objects/resultList';
+import { WorkData } from '../objects/workData';
 import { WorkItem } from '../objects/workItem';
 import { ChanQueue } from '../services/chanQueue';
 import { WorkQueue } from '../services/workQueue';
@@ -35,9 +36,10 @@ export abstract class WorkerBase implements IWorker, IEngine {
 
   protected chanQueue: ChanQueue;
   protected commitIDs: number[];
-  protected isRun: boolean;
+  protected isWait: boolean;
   protected saveID: number;
   protected taskLock: AwaitLock;
+  protected workDataDB: WorkData;
   protected workQueue: WorkQueue;
 
   constructor(name: string, id: number) {
@@ -169,17 +171,13 @@ export abstract class WorkerBase implements IWorker, IEngine {
    * @returns A promise that resolves when the query is cancelled.
    */
   protected async cancel(isLocal = false): Promise<void> {
-    if (!this.isRun) { return; }
-
     // Cancel the current run.
     for (const commitID of this.commitIDs) {
       await this.chanQueue.del(commitID);
     }
+    this.commitIDs = undefined;
 
     if (isLocal) {
-      this.commitIDs = undefined;
-      this.isRun = false;
-
       await this.DB.query(`ROLLBACK TRANSACTION;`);
       this.taskLock.release();
     }
