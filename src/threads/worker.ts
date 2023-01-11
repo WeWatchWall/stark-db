@@ -48,7 +48,7 @@ export abstract class WorkerBase implements IWorker, IEngine {
   protected isWait: boolean;
   protected saveID: number;
   protected taskLock: AwaitLock;
-  protected waitCommit: WaitCommit;
+  protected waitCommitDB: WaitCommit;
   protected workDataDB: WorkData;
   protected workQueue: WorkQueue;
 
@@ -192,32 +192,5 @@ export abstract class WorkerBase implements IWorker, IEngine {
       default:
         break;
     }
-  }
-
-  /**
-   * Cancels a query.
-   * @param [isLocal] Whether to cancel the query in the local worker.
-   * @returns A promise that resolves when the query is cancelled.
-   */
-  protected async cancel(isLocal = false): Promise<void> {
-    // Cancel the current run.
-    for (const commitID of this.commitIDs) {
-      await this.chanQueue.del(commitID);
-    }
-    this.commitIDs = undefined;
-
-    if (isLocal) {
-      await this.DB.query(`ROLLBACK TRANSACTION;`);
-      this.taskLock.release();
-    }
-  }
-
-  protected async cancelWait(): Promise<void> {
-    if (!this.isWait) { return; }
-
-    this.isWait = false;
-
-    await this.cancel(true);
-    return;
   }
 }

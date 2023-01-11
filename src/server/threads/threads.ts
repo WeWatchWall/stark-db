@@ -5,8 +5,7 @@ import { BroadcastChannel } from 'worker_threads';
 import { Commit as CommitE } from '../../entity/commit';
 import { Commit as CommitO } from '../../objects/commit';
 import { CommitList } from '../../objects/commitList';
-import { QueryParse } from '../../objects/queryParse';
-import { Result } from '../../objects/result';
+import { ParseType, QueryParse } from '../../objects/queryParse';
 import { ResultList } from '../../objects/resultList';
 import { WaitCommit } from '../../objects/waitCommit';
 import { WorkData } from '../../objects/workData';
@@ -19,7 +18,7 @@ import {
   COMMITS_TABLE,
   DB_DRIVER,
   ONE,
-  SELECT_RESULT,
+  RESULT_PREFIX,
   TABLES_TABLE,
   Target,
   ZERO
@@ -27,6 +26,7 @@ import {
 import { Thread } from '../../utils/thread';
 
 export class Queue extends QueueBase {
+
   async init(): Promise<void> {
     // Set up the broadcast channels.
     super.in = new BroadcastChannel(this.inName);
@@ -113,11 +113,14 @@ export class Worker extends WorkerBase {
   protected saverMemOut: any;
 
   // TODO: Get the tables on every long query set invocation.
-  protected tablesMem: string[];
+  protected tablesMem: Set<string>;
 
+  protected waitCommitMem: WaitCommit;
   protected workDataMem: WorkData;
 
   async init(): Promise<void> {
+    // TODO?: super.add = this.add.bind(this);
+
     super.chanQueue = new ChanQueueMem(this.id);
     super.workQueue = new WorkQueueMem();
 
@@ -137,7 +140,7 @@ export class Worker extends WorkerBase {
     super.saverDBOut = new BroadcastChannel(this.saverDBOutName);
     this.saverMemOut = new BroadcastChannel(this.saverMemOutName);
     this.saverDBOut.onmessage = async (message: any) =>
-        this.callMethod(message, Thread.Saver, Target.DB);
+      this.callMethod(message, Thread.Saver, Target.DB);
     this.saverMemOut.onmessage = async (message: any) =>
       this.callMethod(message, Thread.Saver, Target.mem);
     /* #endregion */
@@ -153,9 +156,10 @@ export class Worker extends WorkerBase {
     /* #endregion */
 
     // Get the memory tables from the database.
-    this.tablesMem = await this.DBMem.query(
+    const tablesMem = await this.DBMem.query(
       `SELECT name FROM ${TABLES_TABLE} WHERE isMemory = 1;`
     );
+    this.tablesMem = new Set(tablesMem);
   }
 
   async add(query: string, args: any[]): Promise<ResultList[]> {
@@ -208,10 +212,16 @@ export class Worker extends WorkerBase {
     }
 
     if (!this.isWait) {
-      this.waitCommit = new WaitCommit();
+      super.waitCommitDB = new WaitCommit({ target: Target.DB });
+      this.waitCommitMem = new WaitCommit({
+        target: Target.mem,
+        tables: Array.from(this.tablesMem)
+      });
+
       this.isWait = true;
     }
 
+    const commitID = this.commitIDs[ZERO];
     const commit = new CommitO({
       script: query,
       params: args,
@@ -220,31 +230,136 @@ export class Worker extends WorkerBase {
     const results: ResultList[] = [];
 
     for (let queryI = 0; queryI < commit.statements.length; queryI++) {
-      const result = new Result({
-        name: `${SELECT_RESULT}${queryI}`,
-        keys: [],
-        rows: []
-      });
+      const statement = commit.statements[queryI];
 
-      const resultList = new ResultList({
-        id: this.commitIDs[ZERO],
-        isLong: true,
-        target: Target.DB,
-        results: [result]
-      });
-      results.push(resultList);
+      /* #region  Runs faster if there is a memory-only select query. */
+      if (
+        statement.type === ParseType.select_data &&
+        statement.tables.every(
+          statementTable => this.tablesMem.has(statementTable)
+        )
+      ) {
+        // Load the query from the memory database.
+        this.waitCommitMem.load(statement.query, statement.params);
 
-      // TODO: Run the query.
-      // const statement = commit.statements[queryI];
-      // const runQueries: QueryParse[] =
-      //   this.waitCommit.load(statement.query, statement.params);  
+        // Get the memory results.
+        const queryResults: ResultList = await this.workDataMem.loadRaw(
+          commitID,
+          Target.mem,
+          true,
+          statement,
+          `${RESULT_PREFIX}${queryI}`
+        );
+
+        // Store the memory results.
+        results.push(queryResults);
+
+        continue;
+      }
+      /* #endregion */
+
+      const runQueriesDB: QueryParse[] =
+        this.waitCommitDB.load(statement.query, statement.params);
+
+      if (runQueriesDB.length === ZERO) { continue; }
+
+      // Run the query. Even if it implies a few queries, there is no result.
+      let queryResults: ResultList;
+      for (const queryDB of runQueriesDB) {
+        queryResults = await this.workDataDB.loadRaw(
+          commitID,
+          Target.DB,
+          true,
+          queryDB,
+          `${RESULT_PREFIX}${queryI}`
+        );
+      }
+      // Store the DB results.
+      results.push(queryResults);
+
+      // Get the memory queries.
+      const runQueriesMem: QueryParse[] =
+        this.waitCommitMem.load(statement.query, statement.params);
+
+      if (runQueriesMem.length === ZERO) { continue; }
+
+      /* #region  Runs only the  memory-pertinent changes. */
+      if (statement.type === ParseType.modify_data) {
+        // Load the query from into memory wait commit.
+        this.waitCommitMem.load(statement.query, statement.params);
+
+        // Read the memory results.
+        const queryResults: ResultList = await this.workDataDB.loadDiff(
+          commitID,
+          Target.mem,
+          true
+        );
+
+        // Filter those results to only those tables in memory.
+        queryResults.results = queryResults.results.filter(
+          result => this.tablesMem.has(result.name)
+        );
+
+        // Store the memory results.
+        await this.workDataMem.save(queryResults);
+
+        continue;
+      }
+      /* #endregion */
+
+      for (const queryMem of runQueriesMem) {
+        await this.workDataDB.loadRaw(
+          commitID,
+          Target.mem,
+          true,
+          queryMem,
+          `${RESULT_PREFIX}${queryI}`
+        );
+      }
+    }
+
+    // Check if the query is commited and finalize the wait.
+    if (this.waitCommitDB.isEnd) {
+      delete super.commitIDs;
+      delete super.waitCommitDB;
+      delete this.waitCommitMem;
+
+      super.isWait = false;
     }
 
     this.taskLock.release();
-    
+
     return results;
   }
 
+  /**
+   * Cancels a query.
+   * @param [isLocal] Whether to cancel the query in the local worker.
+   * @returns A promise that resolves when the query is cancelled.
+   */
+  protected async cancel(isLocal = false): Promise<void> {
+    // Cancel the current run.
+    for (const commitID of this.commitIDs) {
+      await this.chanQueue.del(commitID);
+    }
+    delete super.commitIDs;
+
+    if (isLocal) {
+      await this.DB.query(`ROLLBACK TRANSACTION;`);
+      await this.DBMem.query(`ROLLBACK TRANSACTION;`);
+
+      this.taskLock.release();
+    }
+  }
+
+  protected async cancelWait(): Promise<void> {
+    if (!this.isWait) { return; }
+
+    this.isWait = false;
+
+    await this.cancel(true);
+    return;
+  }
 }
 
 function getDBConnection(name: string, target: Target): DataSource {
