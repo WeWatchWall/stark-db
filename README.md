@@ -27,7 +27,7 @@ TODO
 
 ### /{DB}/login
 
-#### /{DB}/login POST
+#### POST /{DB}/login
 
 ##### Summary: DB Login
 
