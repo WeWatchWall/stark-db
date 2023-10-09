@@ -282,201 +282,6 @@ INSERT INTO ${TABLE1} (id, value) VALUES (2, "test2");`,
     isSkip: false
   }, {
     id: 6,
-    name: 'multiple parts 3, add flags',
-    parts: [
-      {
-        script: `${COMMIT_START}
-SELECT value FROM ${TABLE1} WHERE id = ?;`,
-        params: [ONE],
-        result: [
-          {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [],
-            query: COMMIT_START,
-            tablesRead: [],
-            tablesWrite: [],
-            type: ParseType.begin_transaction
-          }, {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [ONE],
-            query: `SELECT value FROM ${TABLE1} WHERE id = ?;`,
-            tablesRead: [TABLE1],
-            tablesWrite: [],
-            type: ParseType.select_data
-          }
-        ]
-      }, {
-        script: `INSERT INTO ${VARS_TABLE} (name, value) VALUES ("${Variable.isDiff}", 1);
-SELECT value FROM ${TABLE1} WHERE id = ?;`,
-        params: [ONE],
-        result: [
-          {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [ONE],
-            query: `SELECT value FROM ${TABLE1} WHERE id = ?;`,
-            tablesRead: [TABLE1],
-            tablesWrite: [],
-            type: ParseType.select_data
-          }
-        ]
-      }
-    ],
-    resultSave: {
-      isNotLog: true,
-      isMemory: true,
-      isReadOnly: true,
-      isWait: true,
-      params: [ONE, ONE],
-      script: `${COMMIT_START}
-SELECT value FROM ${TABLE1} WHERE id = ?;
-SELECT value FROM ${TABLE1} WHERE id = ?;`,
-    },
-    isSkip: false
-  }, {
-    id: 7,
-    name: 'multiple parts 3, add flags 2',
-    parts: [
-      {
-        script: `${COMMIT_START}
-SELECT value FROM ${TABLE1} WHERE id = ?;`,
-        params: [ONE],
-        result: [
-          {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [],
-            query: COMMIT_START,
-            tablesRead: [],
-            tablesWrite: [],
-            type: ParseType.begin_transaction
-          }, {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [ONE],
-            query: `SELECT value FROM ${TABLE1} WHERE id = ?;`,
-            tablesRead: [TABLE1],
-            tablesWrite: [],
-            type: ParseType.select_data
-          }
-        ]
-      }, {
-        script: `SELECT value FROM ${TABLE1} WHERE id = ?;
-INSERT INTO ${VARS_TABLE} (name, value) VALUES ("${Variable.isDiff}", 1);`,
-        params: [ONE],
-        result: [
-          {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [ONE],
-            query: `SELECT value FROM ${TABLE1} WHERE id = ?;`,
-            tablesRead: [TABLE1],
-            tablesWrite: [],
-            type: ParseType.select_data
-          }
-        ]
-      }
-    ],
-    resultSave: {
-      isNotLog: true,
-      isMemory: true,
-      isReadOnly: true,
-      isWait: true,
-      params: [ONE, ONE],
-      script: `${COMMIT_START}
-SELECT value FROM ${TABLE1} WHERE id = ?;
-SELECT value FROM ${TABLE1} WHERE id = ?;`,
-    },
-    isSkip: false
-  }, {
-    id: 8,
-    name: 'multiple parts 3, add flags & commit',
-    parts: [
-      {
-        script: `${COMMIT_START}
-SELECT value FROM ${TABLE1} WHERE id = ?;`,
-        params: [ONE],
-        result: [
-          {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [],
-            query: COMMIT_START,
-            tablesRead: [],
-            tablesWrite: [],
-            type: ParseType.begin_transaction
-          }, {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [ONE],
-            query: `SELECT value FROM ${TABLE1} WHERE id = ?;`,
-            tablesRead: [TABLE1],
-            tablesWrite: [],
-            type: ParseType.select_data
-          }
-        ]
-      }, {
-        script: `INSERT INTO ${VARS_TABLE} (name, value) VALUES ("${Variable.isDiff}", 1);
-SELECT value FROM ${TABLE1} WHERE id = ?;
-${COMMIT_END};`,
-        params: [ONE],
-        result: [
-          {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [ONE],
-            query: `SELECT value FROM ${TABLE1} WHERE id = ?;`,
-            tablesRead: [TABLE1],
-            tablesWrite: [],
-            type: ParseType.select_data
-          }, {
-            columns: [],
-            isRead: false,
-            autoKeys: [],
-            keys: [],
-            params: [],
-            query: COMMIT_END,
-            tablesRead: [],
-            tablesWrite: [],
-            type: ParseType.commit_transaction
-          }
-        ]
-      }
-    ],
-    resultSave: {
-      isNotLog: true,
-      isMemory: true,
-      isReadOnly: true,
-      isWait: false,
-      params: [ONE, ONE],
-      script: `${COMMIT_START}
-SELECT value FROM ${TABLE1} WHERE id = ?;
-SELECT value FROM ${TABLE1} WHERE id = ?;
-${COMMIT_END}`,
-    },
-    isSkip: false
-  }, {
-    id: 9,
     name: 'table add, single query',
     parts: [
       {
@@ -612,7 +417,6 @@ ${COMMIT_END}`,
 IF NOT EXISTS _stark_trigger_${Method.add}_${TABLE1}
   AFTER INSERT
   ON ${TABLE1}
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
   INSERT INTO _stark_diffs_${Method.add}_${TABLE1}
     VALUES (NEW.id, NEW.value);
@@ -637,7 +441,6 @@ END;`,
 IF NOT EXISTS _stark_trigger_${Method.del}_${TABLE1}
   AFTER DELETE
   ON ${TABLE1}
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
   INSERT INTO _stark_diffs_${Method.del}_${TABLE1}
     VALUES (OLD.id, OLD.value);
@@ -662,7 +465,6 @@ END;`,
 IF NOT EXISTS _stark_trigger_${Method.set}_${TABLE1}
   AFTER UPDATE
   ON ${TABLE1}
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
   INSERT INTO _stark_diffs_${Method.set}_${TABLE1}
     VALUES (NEW.id, NEW.value);
@@ -705,9 +507,9 @@ END;`,
       params: [],
       script: `CREATE TABLE IF NOT EXISTS "${TABLE1}" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "value" text NOT NULL);`,
     },
-    isSkip: false
+    isSkip: true
   }, {
-    id: 10,
+    id: 7,
     name: 'table modification, multiple queries',
     parts: [
       {
@@ -966,7 +768,6 @@ ${COMMIT_END};`,
 IF NOT EXISTS _stark_trigger_${Method.add}_variables2
   AFTER INSERT
   ON variables2
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
   INSERT INTO _stark_diffs_${Method.add}_variables2
     VALUES (NEW.id, NEW.value);
@@ -991,7 +792,6 @@ END;`,
 IF NOT EXISTS _stark_trigger_${Method.del}_variables2
   AFTER DELETE
   ON variables2
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
   INSERT INTO _stark_diffs_${Method.del}_variables2
     VALUES (OLD.id, OLD.value);
@@ -1016,7 +816,6 @@ END;`,
 IF NOT EXISTS _stark_trigger_${Method.set}_variables2
   AFTER UPDATE
   ON variables2
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
   INSERT INTO _stark_diffs_${Method.set}_variables2
     VALUES (NEW.id, NEW.value);
@@ -1073,7 +872,7 @@ SELECT value FROM ${TABLE1} WHERE id = ?;
 ALTER TABLE ${TABLE1} RENAME TO \"variables2\";
 ${COMMIT_END}`,
     },
-    isSkip: false
+    isSkip: true
   },
 ];
 

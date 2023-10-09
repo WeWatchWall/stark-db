@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import { ParseType, QueryParse } from '../parser/queryParse';
 import {
   ONE,
-  STATEMENT_DELIMITER,
   TABLES_TABLE,
   VALUE_DELIMITER,
   VARS_TABLE,
@@ -16,26 +15,10 @@ export const COMMIT_START: string = `BEGIN IMMEDIATE TRANSACTION;`;
 export const COMMIT_CANCEL: string = `ROLLBACK TRANSACTION;`;
 export const COMMIT_END: string = `COMMIT TRANSACTION;`;
 
-export const SET_FLAGS_TRUE: QueryParse = new QueryParse({
-  query:
-    `UPDATE ${VARS_TABLE} SET value = ? WHERE name IN ("${Variable.isDiff}", "${Variable.isMemory}");`,
-  params: [ONE],
-});
-
-const AS_SELECT_REGEX = /AS[\s]+SELECT[\s\S]*/gi;
-
 export class QueryUtils {
-  static getSetFlag(variableID: Variable, value: boolean): QueryParse {
-    return new QueryParse({
-      query: `UPDATE ${VARS_TABLE} SET value = ? WHERE name = ?;`,
-      params: [value ? ONE : ZERO, variableID]
-    });
-  }
-
   static async getTableModify(
     DB: DataSource,
-    statement: QueryParse,
-    isMemory: boolean = false
+    statement: QueryParse
   ): Promise<QueryParse[]> {
     const results: QueryParse[] = [];
 
@@ -43,81 +26,63 @@ export class QueryUtils {
     let newTableName: string;
 
     let triggerAddName: string;
-    let triggerDelName: string;
     let triggerSetName: string;
+    let triggerDelName: string;
 
-    let diffTableAdd: string;
-    let diffTableDel: string;
-    let diffTableSet: string;
+    let delTable: string;
 
     switch (statement.type) {
       case ParseType.create_table:
         newTableName = statement.tablesWrite[ZERO];
 
-        /* #region  Create the diffs table. */
-        // Delete the diffs tables if they exist.
-        diffTableAdd = Names.getDiffTable(newTableName, Method.add);
-        diffTableDel = Names.getDiffTable(newTableName, Method.del);
-        diffTableSet = Names.getDiffTable(newTableName, Method.set);
-        results.push(this.tableDel(diffTableAdd));
-        results.push(this.tableDel(diffTableDel));
-        results.push(this.tableDel(diffTableSet));
+        /* #region  Create the diffs column and del table. */
+        if (!statement.columns.includes(Names.VERSION_COLUMN)) {
+          results.push(new QueryParse({
+            query: `ALTER TABLE ${newTableName} ADD COLUMN ${Names.VERSION_COLUMN} INTEGER NOT NULL DEFAULT 0;`,
+            params: []
+          }));
+        }
 
-        // Create the diffs tables.
-        results.push(
-          this.diffTableAdd(statement.query, newTableName, diffTableAdd)
-        );
-        results.push(
-          this.diffTableAdd(statement.query, newTableName, diffTableDel)
-        );
-        results.push(
-          this.diffTableAdd(statement.query, newTableName, diffTableSet)
-        );
+        // Delete the del table if it exists.
+        delTable = Names.getDelTable(newTableName);
+        results.push(this.tableDel(delTable));
+
+        // Create the del table.
+        results.push(this.delTableAdd(delTable));
         /* #endregion */
 
         /* #region  Create the triggers. */
         // Remove the triggers if they exist.
         triggerAddName = Names.getTrigger(newTableName, Method.add);
-        triggerDelName = Names.getTrigger(newTableName, Method.del);
         triggerSetName = Names.getTrigger(newTableName, Method.set);
+        triggerDelName = Names.getTrigger(newTableName, Method.del);
         results.push(this.triggerDel(triggerAddName));
-        results.push(this.triggerDel(triggerDelName));
         results.push(this.triggerDel(triggerSetName));
+        results.push(this.triggerDel(triggerDelName));
 
         const triggerAddQuery = this.triggerAdd(
           Method.add,
           triggerAddName,
           newTableName,
-          diffTableAdd,
           statement.columns
-        );
-        const triggerDelQuery: QueryParse = this.triggerAdd(
-          Method.del,
-          triggerDelName,
-          newTableName,
-          diffTableDel,
-          statement.columns,
-          `OLD`
         );
         const triggerSetQuery: QueryParse = this.triggerAdd(
           Method.set,
           triggerSetName,
           newTableName,
-          diffTableSet,
           statement.columns
+        );
+        const triggerDelQuery: QueryParse = this.triggerAddDel(
+          Method.del,
+          triggerDelName,
+          newTableName,
+          delTable
         );
 
         // Add the triggers.
         results.push(triggerAddQuery);
         results.push(triggerDelQuery);
         results.push(triggerSetQuery);
-
-        results.push(this.tableRowAdd(
-          newTableName,
-          statement.autoKeys,
-          statement.keys,
-          isMemory
-        ));
         /* #endregion */
         break;
 
@@ -133,18 +98,13 @@ export class QueryUtils {
         results.push(QueryUtils.triggerDel(triggerDelName));
         results.push(QueryUtils.triggerDel(triggerSetName));
 
-        // Delete the diff tables
-        diffTableAdd = Names.getDiffTable(oldTableName, Method.add);
-        diffTableDel = Names.getDiffTable(oldTableName, Method.del);
-        diffTableSet = Names.getDiffTable(oldTableName, Method.set);
-        results.push(this.tableDel(diffTableAdd));
-        results.push(this.tableDel(diffTableDel));
-        results.push(this.tableDel(diffTableSet));
+        // Delete the del tables
+        delTable = Names.getDelTable(oldTableName);
+        results.push(this.tableDel(delTable));
 
         // Update the table name if it is renamed.
         if (statement.type === ParseType.rename_table) {
           newTableName = statement.tablesWrite[ONE];
-          results.push(QueryUtils.tableRowSet(oldTableName, newTableName));
         } else {
           newTableName = oldTableName;
         }
@@ -153,7 +113,7 @@ export class QueryUtils {
         const tableCreateStatement =
           await QueryUtils.tableAdd(DB, oldTableName, newTableName);
         const newTableQueries =
-          await QueryUtils.getTableModify(DB, tableCreateStatement, isMemory);
+          await QueryUtils.getTableModify(DB, tableCreateStatement);
         results.push(...newTableQueries);
         /* #endregion */
         break;
@@ -163,15 +123,8 @@ export class QueryUtils {
 
         // Triggers are automatically deleted when the table is deleted.
         // Delete the diff tables.
-        diffTableAdd = Names.getDiffTable(oldTableName, Method.add);
-        diffTableDel = Names.getDiffTable(oldTableName, Method.del);
-        diffTableSet = Names.getDiffTable(oldTableName, Method.set);
-        results.push(this.tableDel(diffTableAdd));
-        results.push(this.tableDel(diffTableDel));
-        results.push(this.tableDel(diffTableSet));
-
-        // Delete the table row.
-        results.push(QueryUtils.tableRowDel(oldTableName));
+        delTable = Names.getDelTable(newTableName);
+        results.push(this.tableDel(delTable));
         break;
 
       default:
@@ -181,15 +134,14 @@ export class QueryUtils {
     return results;
   }
 
-  /* #region Diff tables. */
-  private static diffTableAdd(
-    createTable: string,
-    tableName: string,
-    diffTableName: string,
+  /* #region Del tables. */
+  private static delTableAdd(
+    delTableName: string,
   ): QueryParse {
-    const query = createTable
-      .replace(AS_SELECT_REGEX, STATEMENT_DELIMITER)
-      .replace(tableName, diffTableName);
+    const query = `CREATE TABLE IF NOT EXISTS ${delTableName} (
+      id INTEGER PRIMARY KEY,
+      ${Names.VERSION_COLUMN} INTEGER NOT NULL
+    );`;
 
     return new QueryParse({
       query,
@@ -234,49 +186,15 @@ export class QueryUtils {
   }
   /* #endregion */
 
-  /* #region Table rows. */
-  private static tableRowAdd(
-    name: string,
-    autoKeys: string[],
-    keys: string[],
-    isMemory: boolean
-  ): QueryParse {
-    return new QueryParse({
-      query: `REPLACE INTO ${TABLES_TABLE} VALUES (?, ?, ?, ?, ?);`,
-      params: [
-        name,
-        JSON.stringify(autoKeys),
-        JSON.stringify(keys),
-        isMemory ? ONE : ZERO,
-        ZERO
-      ]
-    });
-  }
-
-  private static tableRowDel(name: string): QueryParse {
-    return new QueryParse({
-      query: `DELETE FROM ${TABLES_TABLE} WHERE name = ?;`,
-      params: [name]
-    });
-  }
-
-  private static tableRowSet(oldName: string, newName: string): QueryParse {
-    return new QueryParse({
-      query: `UPDATE ${TABLES_TABLE} SET name = ? WHERE name = ?;`,
-      params: [newName, oldName]
-    });
-  }
-  /* #endregion */
-
   /* #region Triggers. */
   private static triggerAdd(
     method: Method,
     name: string,
     table: string,
-    diffName: string,
     columns: string[],
-    entity: "NEW" | "OLD" = "NEW"
   ): QueryParse {
+    const entity = "NEW";
+
     const columnsQuery = columns
     .map(column => `${entity}.${column}`)
       .join(`${VALUE_DELIMITER} `);
@@ -285,6 +203,33 @@ export class QueryUtils {
     switch (method) {
       case Method.add: op = `INSERT`; break;
       case Method.set: op = `UPDATE`; break;
+      default: break;
+    }
+
+    const query = `CREATE TRIGGER
+IF NOT EXISTS ${name}
+  AFTER ${op}
+  ON ${table}
+BEGIN
+  UPDATE user SET ${Names.VERSION_COLUMN} = (SELECT value FROM variables WHERE id = ${Variable.version}) WHERE ROWID = NEW.ROWID;
+END;`;
+    
+    return new QueryParse({
+      query,
+      params: []
+    });
+  }
+
+  private static triggerAddDel(
+    method: Method,
+    name: string,
+    table: string,
+    delName: string,
+  ): QueryParse {
+    const entity = "OLD";
+
+    let op: string;
+    switch (method) {
       case Method.del: op = `DELETE`; break;
       default: break;
     }
@@ -293,16 +238,9 @@ export class QueryUtils {
 IF NOT EXISTS ${name}
   AFTER ${op}
   ON ${table}
-  WHEN (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.isDiff}") IN (1)
 BEGIN
-  INSERT INTO ${diffName}
-    VALUES (${columnsQuery});
-  UPDATE ${VARS_TABLE}
-    SET value = value + ${ONE}
-    WHERE name = '${Variable.changeCount}';
-  UPDATE ${TABLES_TABLE}
-    SET changeCount = changeCount + ${ONE}
-    WHERE name = '${table}';
+  INSERT OR REPLACE INTO ${delName}
+  VALUES (OLD.ROWID, (SELECT value FROM variables where id = ${Variable.version}));
 END;`;
     
     return new QueryParse({

@@ -1,17 +1,13 @@
-import sqliteParser from '@appland/sql-parser';
 import { ObjectModel, SetModel } from 'objectmodel';
-import RecursiveIterator from 'recursive-iterator';
 import { DataSource } from 'typeorm';
 
 import { Commit, CommitArg } from './commit';
 import { ParseType, QueryParse, READ_ONLY_Qs, TABLE_MODIFY_Qs } from './queryParse';
-import { ONE, Target, VARS_TABLE, ZERO } from '../utils/constants';
+import { ONE, Target, ZERO } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 import { QueryUtils } from '../utils/queries';
-import { Variable } from '../utils/variable';
 
 export const COMMIT_ANALYZERS: string[] = [
-  'delFlags',
   'delMemData',
   'delMemTables',
   'getReadOnly',
@@ -194,8 +190,7 @@ export class CommitPart {
     /* #region Get the table queries. */
     const tableQueries = await QueryUtils.getTableModify(
       this.DB,
-      statement,
-      !this.isFileOnly(statement)
+      statement
     );
 
     results.push(...tableQueries);
@@ -203,80 +198,6 @@ export class CommitPart {
 
     // Manages the memory tables.
     this.setTables(statement);
-
-    return results;
-  }
-
-  protected delFlags(statements: QueryParse[]): QueryParse[] {
-    let results: QueryParse[] = statements;
-
-    // Remove the statements that update the isDiff flag.
-    const indexes = new Set<number>();
-
-    for (let sIndex = ZERO; sIndex < statements.length; sIndex++) {
-      const statement: QueryParse = statements[sIndex];
-
-      // Skip all statements that are not update variable statements.
-      if (
-        statement.type !== ParseType.modify_data ||
-        !statement.tablesWrite.includes(VARS_TABLE)
-      ) { continue; }
-
-      // Check the parameters for the variables.
-      if (statement.params.includes(Variable.isDiff)) {
-        this.isNotLog = true;
-        indexes.add(sIndex);
-      }
-      if (statement.params.includes(Variable.isMemory)) {
-        this.isMemory = false;
-        indexes.add(sIndex);
-      }
-
-      const statementMeta = sqliteParser(statement.query);
-
-      /* #region  Search for the isDiff variable. */
-      let isFound = false;
-      let iterator = new RecursiveIterator(
-        statementMeta,
-        ONE, // Breath-first.
-      );
-      for (let { node } of iterator) {
-        if (node?.name !== Variable.isDiff) { continue; }
-
-        isFound = true;
-        break;
-      }
-
-      if (isFound) {
-        indexes.add(sIndex);
-        this.isNotLog = true;
-      }
-      /* #endregion */
-
-      /* #region  Search for the isMemory variable. */
-      isFound = false;
-      iterator = new RecursiveIterator(
-        statementMeta,
-        ONE, // Breath-first.
-      );
-      for (let { node } of iterator) {
-        if (node?.name !== Variable.isMemory) { continue; }
-
-        isFound = true;
-        break;
-      }
-
-      if (isFound) {
-        indexes.add(sIndex);
-        this.isMemory = false;
-      }
-      /* #endregion */
-    }
-
-    // Remove the flag statements & update the commit list.
-    if (indexes.size > ZERO) {
-      results = statements.filter((_, index) => !indexes.has(index));
-    }
 
     return results;
   }

@@ -70,13 +70,7 @@ export class DB implements AsyncDisposable {
 
     // Save the auxiliary variables.
     const isDiff = new Variable({ DB: localDBFile.DB });
-    await isDiff.save({ name: VariableType.isDiff, value: true });
-    const isMemory = new Variable({ DB: localDBFile.DB });
-    await isMemory.save({ name: VariableType.isMemory, value: true });
-    const isChanged = new Variable({ DB: localDBFile.DB });
-    await isChanged.save({ name: VariableType.isChanged, value: false });
-    const changeCount = new Variable({ DB: localDBFile.DB });
-    await changeCount.save({ name: VariableType.changeCount, value: ZERO });
+    await isDiff.save({ name: VariableType.version, value: ZERO });
 
     // Set the initialized flag.
     await localDBFile.setInit();
