@@ -6,7 +6,7 @@ const TRIGGER_PREFIX = '_stark_trigger';
 const WORKER_CHANNEL = 'stark-worker';
 
 export class Names {
-  static VERSION_COLUMN = '_stark_version';
+  static VERSION_COLUMN = 'stark_version';
 
   /* #region Channels. */
   static getWorkerMemTablesReset(name: string): string {

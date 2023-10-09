@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import { ParseType, QueryParse } from '../parser/queryParse';
 import {
   ONE,
-  TABLES_TABLE,
   VALUE_DELIMITER,
   VARS_TABLE,
   ZERO,
@@ -38,7 +37,7 @@ export class QueryUtils {
         /* #region  Create the diffs column and del table. */
         if (!statement.columns.includes(Names.VERSION_COLUMN)) {
           results.push(new QueryParse({
-            query: `ALTER TABLE ${newTableName} ADD COLUMN ${Names.VERSION_COLUMN} INTEGER NOT NULL DEFAULT 0;`,
+            query: `ALTER TABLE ${newTableName} ADD COLUMN ${Names.VERSION_COLUMN} INTEGER;`,
             params: []
           }));
         }
@@ -123,7 +122,7 @@ export class QueryUtils {
 
         // Triggers are automatically deleted when the table is deleted.
         // Delete the diff tables.
-        delTable = Names.getDelTable(newTableName);
+        delTable = Names.getDelTable(oldTableName);
         results.push(this.tableDel(delTable));
         break;
 
@@ -193,12 +192,6 @@ export class QueryUtils {
     table: string,
     columns: string[],
   ): QueryParse {
-    const entity = "NEW";
-
-    const columnsQuery = columns
-    .map(column => `${entity}.${column}`)
-      .join(`${VALUE_DELIMITER} `);
-
     let op: string;
     switch (method) {
       case Method.add: op = `INSERT`; break;
@@ -211,7 +204,7 @@ IF NOT EXISTS ${name}
   AFTER ${op}
   ON ${table}
 BEGIN
-  UPDATE user SET ${Names.VERSION_COLUMN} = (SELECT value FROM variables WHERE id = ${Variable.version}) WHERE ROWID = NEW.ROWID;
+  UPDATE user SET ${Names.VERSION_COLUMN} = (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.version}") WHERE ROWID = NEW.ROWID;
 END;`;
     
     return new QueryParse({
@@ -240,7 +233,7 @@ IF NOT EXISTS ${name}
   ON ${table}
 BEGIN
   INSERT OR REPLACE INTO ${delName}
-  VALUES (OLD.ROWID, (SELECT value FROM variables where id = ${Variable.version}));
+  VALUES (OLD.ROWID, (SELECT value FROM ${VARS_TABLE} where name = "${Variable.version}"));
 END;`;
     
     return new QueryParse({

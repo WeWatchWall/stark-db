@@ -1,6 +1,11 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { Services } from './services';
+import { DataSource } from 'typeorm';
+import { QueryParse, READ_ONLY_Qs, TABLE_MODIFY_Qs } from '../parser/queryParse';
+import { QueryUtils } from '../utils/queries';
+import { VARS_TABLE } from '../utils/constants';
+import { Variable } from '../utils/variable';
 
 const router = express.Router({ mergeParams: true });
 
@@ -24,18 +29,57 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
   }
 
   if (!req.body.query) {
-    res.sendStatus(500);
+    res.sendStatus(400);
     return;
   }
 
   /* #endregion */
   try {
-    const result = await connection.query(req.body.query, req.body.params);
+    const result = await SingleQuery.run(
+      connection,
+      req.body.query,
+      req.body.params
+    );
     res.status(200).send({ result });
-  } catch (error) {
-    res.sendStatus(500);
+  } catch (error: any) {
+    res.status(500).send({
+      error: error,
+      stack: error.stack,
+    });
   }
   
 }));
+
+class SingleQuery {
+  static async run(
+    DB: DataSource,
+    query: string,
+    params: any[] = []
+  ): Promise<any> {
+    const parsedQuery = new QueryParse({ query, params });
+    parsedQuery.validator.ready();
+
+    // Increment the DB version for every write query.
+    if (!READ_ONLY_Qs.has(parsedQuery.type)) {
+      await DB.query(`UPDATE ${VARS_TABLE} SET value = (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.version}") + 1 WHERE name="${Variable.version}";`,[]);
+    }
+    
+    if (!TABLE_MODIFY_Qs.has(parsedQuery.type)) {
+      const result = await DB.query(query, params);
+      return result;
+    }
+
+    const tableQueries: QueryParse[] = await QueryUtils.getTableModify(
+      DB,
+      parsedQuery
+    );
+
+    await DB.query(query, params);
+    for (const tableQuery of tableQueries) {
+      await DB.query(tableQuery.query, tableQuery.params);
+    }
+    return [];
+  }
+}
 
 export default router;
