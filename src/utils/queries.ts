@@ -81,8 +81,8 @@ export class QueryUtils {
 
         // Add the triggers.
         results.push(triggerAddQuery);
-        results.push(triggerDelQuery);
         results.push(triggerSetQuery);
+        results.push(triggerDelQuery);
         /* #endregion */
         break;
 
@@ -92,11 +92,11 @@ export class QueryUtils {
 
         // Delete the triggers.
         triggerAddName = Names.getTrigger(oldTableName, Method.add);
-        triggerDelName = Names.getTrigger(oldTableName, Method.del);
         triggerSetName = Names.getTrigger(oldTableName, Method.set);
+        triggerDelName = Names.getTrigger(oldTableName, Method.del);
         results.push(QueryUtils.triggerDel(triggerAddName));
-        results.push(QueryUtils.triggerDel(triggerDelName));
         results.push(QueryUtils.triggerDel(triggerSetName));
+        results.push(QueryUtils.triggerDel(triggerDelName));
 
         // Delete the del tables
         delTable = Names.getDelTable(oldTableName);
