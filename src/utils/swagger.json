@@ -941,19 +941,19 @@
                     "examples": {
                         "create table": {
                             "value": {
-                                "query": "CREATE TABLE IF NOT EXISTS \"variables\" (\"id\" VARCHAR PRIMARY KEY NOT NULL, \"value\" text NOT NULL);",
+                                "query": "CREATE TABLE IF NOT EXISTS \"user\" (\"id\" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \"firstName\" VARCHAR NOT NULL, \"lastName\" VARCHAR NOT NULL, \"age\" INTEGER NOT NULL);",
                                 "params": []
                             }
                         },
                         "insert data": {
                             "value": {
-                              "query": "INSERT OR REPLACE INTO variables VALUES (?, ?);",
-                              "params": ["version", 1]
+                              "query": "INSERT OR REPLACE INTO user VALUES (?, ?, ?, ?);",
+                              "params": [null, "Timber", "Saw", 25]
                             }
                         },
                         "select data": {
                             "value": {
-                                "query": "SELECT * FROM variables;",
+                                "query": "SELECT * FROM user;",
                                 "params": []
                             }
                         }
