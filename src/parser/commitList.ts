@@ -19,8 +19,6 @@ export class CommitListArg {
 
   commitParts?: CommitPartArg[] | CommitPart[];
 
-  isMemory?: boolean;
-  isNotLog?: boolean;
   isReadOnly?: any;
   isPart?: boolean;
   isWait?: boolean;
@@ -41,8 +39,6 @@ export class CommitList {
 
   commitParts: CommitPart[];
 
-  isMemory: boolean;
-  isNotLog: boolean;
   isReadOnly: any;
   isPart: boolean;
   isWait: boolean;
@@ -97,8 +93,6 @@ export class CommitList {
 
   protected loadReady(): void {
     // Set the flags.
-    this.isMemory = true;
-    this.isNotLog = false;
     this.isReadOnly = true;
     this.isPart = this.isPart || false;
     this.isWait = false;
@@ -231,9 +225,7 @@ export class CommitList {
         .commitParts
         .map((commitPart) => commitPart.commit.toObject()),
 
-      isNotLog: this.isNotLog,
       isReadOnly: this.isReadOnly,
-      isMemory: this.isMemory,
       isWait: this.isWait,
     };
   }
@@ -244,20 +236,6 @@ export class CommitList {
    */
   toString(): string {
     return this.script;
-  }
-
-  /* #region The analysis functions. */
-  /**
-   * Check if any of the @type {CommitPart} instances are long or memory flags.
-   */
-  protected delFlags(): void {
-    // Check if any of the @type {CommitPart} instances are long.
-    this.isNotLog = this.commitParts.length > ZERO &&
-      this.commitParts.some((commit) => commit.isNotLog);
-
-    // Check if any of the @type {CommitPart} instances are memory.
-    this.isMemory = this.commitParts.length === ZERO ||
-      this.commitParts.some((commit) => commit.isMemory);
   }
 
   /**
@@ -304,7 +282,7 @@ const CommitListLoad = new ObjectModel({
   script: String,
   params: ArrayModel(Any),
   tables: ArrayModel(String),
-  target: [Target.DB, Target.mem],
+  target: Target.DB,
 
   commitParts: undefined,
 });
@@ -314,7 +292,7 @@ const CommitListSave = new ObjectModel({
   script: [String],
   params: [ArrayModel(Any)],
   tables: [ArrayModel(String)],
-  target: [Target.DB, Target.mem, undefined],
+  target: [Target.DB, undefined],
 
   commitParts: ArrayModel(CommitPart),
 });

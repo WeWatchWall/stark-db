@@ -8,8 +8,6 @@ import { LazyValidator } from '../utils/lazyValidator';
 import { QueryUtils } from '../utils/queries';
 
 export const COMMIT_ANALYZERS: string[] = [
-  'delMemData',
-  'delMemTables',
   'getReadOnly',
   'getTables',
 ];
@@ -23,9 +21,7 @@ export class CommitPartArg {
   script?: string;
   params?: any[];
 
-  isNotLog?: boolean;
   isReadOnly?: any;
-  isMemory?: boolean;
   isWait?: boolean;
 
   tablesRead?: string[];
@@ -44,9 +40,7 @@ export class CommitPart {
   script: string;
   params: any[];
 
-  isNotLog?: boolean;
   isReadOnly?: any;
-  isMemory?: boolean;
   isWait?: boolean;
 
   tablesRead?: string[];
@@ -80,9 +74,7 @@ export class CommitPart {
     this.params = this.commit.params;
 
     // Set the flags.
-    this.isNotLog = false;
     this.isReadOnly = true;
-    this.isMemory = true;
     this.isWait = true;
 
     this.tablesRead = [];
@@ -128,9 +120,7 @@ export class CommitPart {
       script: this.script,
       params: this.params,
 
-      isNotLog: this.isNotLog,
       isReadOnly: this.isReadOnly,
-      isMemory: this.isMemory,
       isWait: this.isWait,
     };
   }
@@ -175,17 +165,6 @@ export class CommitPart {
 
     // Only run this for table modify statements on the DB.
     if (!TABLE_MODIFY_Qs.has(statement.type)) { return results; }
-    else if (this.target === Target.mem) {
-      // Manages the memory tables.
-      this.setTables(statement);
-
-      return results;
-    }
-
-    // Conditions:
-    // TABLE_MODIFY_Qs.has(statement.type) &&
-    //   this.target !== Target.mem &&
-    //   this.target === Target.DB (Implied by the above)
 
     /* #region Get the table queries. */
     const tableQueries = await QueryUtils.getTableModify(
@@ -198,63 +177,6 @@ export class CommitPart {
 
     // Manages the memory tables.
     this.setTables(statement);
-
-    return results;
-  }
-
-  protected delMemTables(statements: QueryParse[]): QueryParse[] {
-    if (this.target !== Target.mem) { return statements; }
-    let results = statements;
-    const indexes = new Set<number>();
-
-    // Remove other statements if the memory flag is set to false.
-    for (let sIndex = ZERO; sIndex < statements.length; sIndex++) {
-      const statement = statements[sIndex];
-
-      if (this.isFileOnly(statement)) { indexes.add(sIndex); }
-    }
-
-    // Remove the flag statements & update the commit list.
-    if (indexes.size > ZERO) {
-      results = results.filter((_, index) => !indexes.has(index));
-    }
-
-    return results;
-  }
-
-  protected delMemData(statements: QueryParse[]): QueryParse[] {
-    if (this.target !== Target.mem) { return statements; }
-    let results = statements;
-    const indexes = new Set<number>();
-
-    for (let sIndex = ZERO; sIndex < statements.length; sIndex++) {
-      const statement = statements[sIndex];
-
-      // Remove select statements that include non-memory tables. Those run
-      //   only on the DB.
-      if (statement.type === ParseType.select_data) {
-        const isMem = statement.tablesRead
-          .every((table) => this.tables.has(table));
-
-        if (!isMem) {
-          indexes.add(sIndex);
-        }
-      }
-
-      // Remove modification statements that don't include any memory tables.
-      //   Those run only on the DB.
-      else if (statement.type === ParseType.modify_data) {
-        const isMem = statement.tablesWrite
-          .some((table) => this.tables.has(table));
-
-        if (!isMem) { indexes.add(sIndex); }
-      }
-    }
-
-    // Remove the flag statements & update the commit list.
-    if (indexes.size > ZERO) {
-      results = results.filter((_, index) => !indexes.has(index));
-    }
 
     return results;
   }
@@ -283,34 +205,11 @@ export class CommitPart {
     return statements;
   }
 
-  private isFileOnly(statement: QueryParse): boolean {
-    return (
-      !this.isMemory &&
-      (
-        statement.type === ParseType.create_table ||
-        statement.type === ParseType.other
-      )
-    ) ||
-
-      (
-        statement.type === ParseType.rename_table &&
-        !this.tables.has(statement.tablesWrite[ZERO])
-      ) ||
-
-      (
-        (
-          statement.type === ParseType.modify_table_columns ||
-          statement.type === ParseType.drop_table
-        ) &&
-        !this.tables.has(statement.tablesWrite[ZERO])
-      );
-  }
-
   private setTables(statement: QueryParse): void {
     const tablesSet: Set<string> = this.tables;
 
     // Add or remove tables from the list of memory tables.
-    if (this.isMemory && statement.type === ParseType.create_table) {
+    if (statement.type === ParseType.create_table) {
       tablesSet.add(statement.tablesWrite[ZERO]);
     } else if (statement.type === ParseType.drop_table) {
       tablesSet.delete(statement.tablesWrite[ZERO]);
@@ -327,5 +226,5 @@ export class CommitPart {
 const CommitPartInit = new ObjectModel({
   DB: DataSource,
   tables: SetModel(String),
-  target: [Target.DB, Target.mem],
+  target: Target.DB,
 });

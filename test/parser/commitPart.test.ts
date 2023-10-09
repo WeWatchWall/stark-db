@@ -23,8 +23,6 @@ const tests = [
     name: 'init',
     parts: [],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: true,
       isWait: true,
       params: [],
@@ -54,8 +52,6 @@ const tests = [
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: true,
       isWait: true,
       params: [],
@@ -85,8 +81,6 @@ const tests = [
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: true,
       isWait: true,
       params: [ONE],
@@ -127,8 +121,6 @@ SELECT value FROM ${TABLE1} WHERE id = ?;`,
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: true,
       isWait: true,
       params: [ONE],
@@ -197,8 +189,6 @@ SELECT value FROM ${TABLE1} WHERE id = ?;`,
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: false,
       isWait: true,
       params: [ONE, ONE],
@@ -269,8 +259,6 @@ INSERT INTO ${TABLE1} (id, value) VALUES (2, "test2");`,
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: false,
       isWait: true,
       params: [ONE, ONE],
@@ -500,8 +488,6 @@ END;`,
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: false,
       isWait: true,
       params: [],
@@ -862,8 +848,6 @@ END;`,
       }
     ],
     resultSave: {
-      isNotLog: false,
-      isMemory: true,
       isReadOnly: false,
       isWait: false,
       params: [ONE],

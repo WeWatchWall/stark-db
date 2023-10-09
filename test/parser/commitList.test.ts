@@ -53,9 +53,7 @@ const tests = [
       script: '',
       params: [],
       commitParts: [],
-      isNotLog: false,
       isReadOnly: true,
-      isMemory: true,
       isWait: false
     },
     isSkip: false
@@ -112,9 +110,7 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isNotLog: false,
       isReadOnly: true,
-      isMemory: true,
       isWait: false
     },
     isSkip: false
@@ -172,9 +168,7 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isNotLog: false,
       isReadOnly: true,
-      isMemory: true,
       isWait: false
     },
     isSkip: false
@@ -220,9 +214,7 @@ SELECT * FROM user;`,
           ]
         }
       ],
-      isNotLog: false,
       isReadOnly: true,
-      isMemory: true,
       isWait: true
     },
     isSkip: false
@@ -326,9 +318,7 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isNotLog: false,
       isReadOnly: true,
-      isMemory: true,
       isWait: false
     },
     isSkip: false
@@ -430,9 +420,7 @@ COMMIT TRANSACTION;`,
           ]
         }
       ],
-      isNotLog: false,
       isReadOnly: true,
-      isMemory: true,
       isWait: false
     },
     isSkip: false
@@ -487,9 +475,7 @@ COMMIT TRANSACTION;`,
           keys: []
         }]
       }],
-      isNotLog: false,
       isReadOnly: false,
-      isMemory: true,
       isWait: false
     },
     isSkip: false
