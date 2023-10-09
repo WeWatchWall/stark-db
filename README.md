@@ -27,14 +27,11 @@ TODO
 
 ### /{DB}/login
 
-#### POST
-##### Summary:
+#### /{DB}/login POST
 
-DB Login
+##### Summary: DB Login
 
-##### Description:
-
-Logs into a database.
+##### Description: Logs into a database.
 
 ##### Parameters
 
@@ -53,10 +50,9 @@ Logs into a database.
 
 ### /logout
 
-#### POST
-##### Summary:
+#### POST /logout
 
-User logout
+##### Summary: User logout
 
 ##### Description:
 
@@ -76,10 +72,9 @@ Logs out of a user.
 
 ### /users
 
-#### GET
-##### Summary:
+#### GET /users
 
-Get users
+##### Summary: Get users
 
 ##### Description:
 
@@ -101,10 +96,9 @@ Get the users in the system. Regular users can only get their own user. Admins c
 | 401 | The user is not logged in. |
 | 403 | The logged in user either doesn't have permission to view the user or the user wasn't found. |
 
-#### POST
-##### Summary:
+#### POST /users
 
-Add user
+##### Summary: Add user
 
 ##### Description:
 
@@ -124,7 +118,8 @@ Add a user. Only Admins can do this.
 | 401 | The user is not logged in. |
 | 403 | The logged in user doesn't have permission to add the user or the user entity had an error. |
 
-#### PUT
+#### PUT /users
+
 ##### Summary:
 
 Set user
@@ -147,10 +142,9 @@ Set a user. Regular users can only set their own user. Admins can set any user.
 | 401 | The user is not logged in. |
 | 403 | The logged in user either doesn't have permission to set the user or the user entity was not found. |
 
-#### DELETE
-##### Summary:
+#### DELETE /users
 
-Delete user
+##### Summary: Delete user
 
 ##### Description:
 
@@ -174,10 +168,9 @@ Delete a user. Regular users can only delete their own user. Admins can delete a
 
 ### /DBs
 
-#### GET
-##### Summary:
+#### GET /DBs
 
-Get DBs
+##### Summary: Get DBs
 
 ##### Description:
 
@@ -199,10 +192,9 @@ Get the DBs in the system. Regular users can only get their own DBs. Admins can 
 | 401 | The user is not logged in. |
 | 403 | The logged in user either doesn't have permission to get the DB or the DB wasn't found. |
 
-#### POST
-##### Summary:
+#### POST /DBs
 
-Add DB
+##### Summary: Add DB
 
 ##### Description:
 
@@ -220,10 +212,9 @@ Add a DB. Only Admins can do this.
 | ---- | ----------- |
 | 200 | The DB was added. |
 
-#### PUT
-##### Summary:
+#### PUT /DBs
 
-Set DB
+##### Summary: Set DB
 
 ##### Description:
 
@@ -241,10 +232,9 @@ Set a DB. DB Admins can update their own DBs while Admins can update all DBs.
 | ---- | ----------- |
 | 200 | The DB was set. |
 
-#### DELETE
-##### Summary:
+#### DELETE /DBs
 
-Delete DB
+##### Summary: Delete DB
 
 ##### Description:
 
@@ -266,10 +256,9 @@ Delete a DB. DB Admins can delete their own DBs while Admins can delete any DB.
 
 ### /{DB}/query
 
-#### POST
-##### Summary:
+#### POST /{DB}/query
 
-DB Query
+##### Summary: DB Query
 
 ##### Description:
 
