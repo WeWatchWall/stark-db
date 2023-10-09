@@ -22,6 +22,12 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
     res.sendStatus(403);
     return;
   }
+
+  if (!req.body.query) {
+    res.sendStatus(500);
+    return;
+  }
+
   /* #endregion */
   try {
     const result = await connection.query(req.body.query, req.body.params);

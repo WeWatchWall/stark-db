@@ -619,6 +619,9 @@
                   },
                   "403": {
                       "description": "The login failed for the DB."
+                  },
+                  "500": {
+                      "description": "The server was not able to respond to the query."
                   }
               },
               "tags": [
