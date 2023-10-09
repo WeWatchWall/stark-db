@@ -37,18 +37,18 @@ router.post('/:DB/login', asyncHandler(async (req: any, res: any) => {
   if (!DB) { return; }
   /* #endregion */
 
-  // TODO: Call the DBFile Service to load the DBFile(connection, memory, & file).
+  // Call the DBFile Service to load the DBFile connection.
+  await Services.DBFile.add(req.sessionID, DB.name);
 
   /* #region User is logged in and DB is found. */
   req.session.user = user.toObject();
 
   const DBSet = new Set(req.session.DBs);
-  if (DB.ID !== ONE) { DBSet.add(DB.ID); } // Don't query the adminDB.
+  if (DB.ID !== ONE) { DBSet.add(DB.name); } // Don't query the adminDB.
   req.session.DBs = Array.from(DBSet);
 
   res.sendStatus(200);
   /* #endregion */
-
 }));
 
 router.post('/logout', asyncHandler(async (req: any, res: any) => {

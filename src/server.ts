@@ -12,6 +12,7 @@ import path from 'node:path';
 import DBController from './controllers/DBs';
 import authController from './controllers/auth';
 import userController from './controllers/users';
+import queryController from './controllers/query';
 import {
   CERT_DIR,
   HTTPS_PORT,
@@ -24,6 +25,7 @@ import {
 import { Services } from './controllers/services';
 import { DB } from './services/DB';
 import { User } from './services/user';
+import { DBFile } from './services/DBFile';
 
 export class Server {
   public static async start() {
@@ -57,12 +59,15 @@ export class Server {
     await Services.DB.init();
 
     Services.User = new User(Services.DB.adminDB);
+
+    Services.DBFile = new DBFile();
     /* #endregion */
 
     /* #region Setup the routes. */
     app.use('', DBController);
     app.use('', userController);
     app.use('', authController);
+    app.use('', queryController);
     /* #endregion */
 
     const server = http.createServer(app);

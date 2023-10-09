@@ -34,5 +34,7 @@ export const HTTP_LISTEN_ADDRESS =
 
 // prune expired sessions every 24h
 export const SESSION_EXPIRY =
-  process.env.STARK_DB_SESSION_EXPIRY || 1e3 * 60 * 60 * 24;
+  parseInt(process.env.STARK_DB_SESSION_EXPIRY) || 1e3 * 60 * 60 * 24;
+export const CONNECTION_EXPIRY = 
+  parseInt(process.env.STARK_DB_CONNECTION_EXPIRY) || 1e3 * 60 * 60;
 /* #endregion */

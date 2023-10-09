@@ -83,10 +83,10 @@
                       "description": "The login was sucessful."
                   },
                   "401": {
-                    "description": "The login failed for the credentials."
+                      "description": "The login failed for the credentials."
                   },
                   "403": {
-                    "description": "The login failed for the DB."
+                      "description": "The login failed for the DB."
                   }
               },
               "tags": [
@@ -195,10 +195,10 @@
                       "description": "The requested user(s)."
                   },
                   "401": {
-                    "description": "The user is not logged in."
+                      "description": "The user is not logged in."
                   },
                   "403": {
-                    "description": "The logged in user either doesn't have permission to view the user or the user wasn't found."
+                      "description": "The logged in user either doesn't have permission to view the user or the user wasn't found."
                   }
               },
               "tags": [
@@ -238,10 +238,10 @@
                       "description": "The user was added."
                   },
                   "401": {
-                    "description": "The user is not logged in."
+                      "description": "The user is not logged in."
                   },
                   "403": {
-                    "description": "The logged in user doesn't have permission to add the user or the user entity had an error."
+                      "description": "The logged in user doesn't have permission to add the user or the user entity had an error."
                   }
               },
               "tags": [
@@ -280,10 +280,10 @@
                       "description": "The user was set."
                   },
                   "401": {
-                    "description": "The user is not logged in."
+                      "description": "The user is not logged in."
                   },
                   "403": {
-                    "description": "The logged in user either doesn't have permission to set the user or the user entity was not found."
+                      "description": "The logged in user either doesn't have permission to set the user or the user entity was not found."
                   }
               },
               "tags": [
@@ -348,10 +348,10 @@
                       "description": "The user was deleted"
                   },
                   "401": {
-                    "description": "The user is not logged in."
+                      "description": "The user is not logged in."
                   },
                   "403": {
-                    "description": "The logged in user either doesn't have permission to delete the user or the user wasn't found."
+                      "description": "The logged in user either doesn't have permission to delete the user or the user wasn't found."
                   }
               },
               "tags": [
@@ -421,10 +421,10 @@
                       "description": "The requested DB(s)."
                   },
                   "401": {
-                    "description": "The user is not logged in."
+                      "description": "The user is not logged in."
                   },
                   "403": {
-                    "description": "The logged in user either doesn't have permission to get the DB or the DB wasn't found."
+                      "description": "The logged in user either doesn't have permission to get the DB or the DB wasn't found."
                   }
               },
               "tags": [
@@ -566,6 +566,67 @@
                   "Admin",
                   "DB Admin"
               ]
+          }
+      },
+      "/{DB}/query": {
+          "summary": "Database login",
+          "description": "Login to the given database.",
+          "post": {
+              "summary": "DB Query",
+              "description": "Queries a database.",
+              "parameters": [
+                  {
+                      "name": "DB",
+                      "in": "path",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "default": "admin",
+                          "enum": [
+                              "admin",
+                              "database1",
+                              "database2"
+                          ]
+                      },
+                      "description": "The database."
+                  },
+                  {
+                      "name": "pid",
+                      "in": "query",
+                      "required": true,
+                      "schema": {
+                          "type": "string",
+                          "default": "111",
+                          "enum": [
+                              "111",
+                              "222",
+                              "333",
+                              "aaa",
+                              "bbb",
+                              "ccc"
+                          ]
+                      },
+                      "description": "The process ID. This is generated by the client."
+                  }
+              ],
+              "operationId": "Query",
+              "responses": {
+                  "200": {
+                      "description": "The successful query results."
+                  },
+                  "401": {
+                      "description": "The login failed for the credentials."
+                  },
+                  "403": {
+                      "description": "The login failed for the DB."
+                  }
+              },
+              "tags": [
+                  "User"
+              ],
+              "requestBody": {
+                  "$ref": "#/components/requestBodies/QueryBody"
+              }
           }
       }
   },
@@ -717,114 +778,180 @@
               }
           },
           "AddDBBody": {
-            "description": "Add a DB.",
+              "description": "Add a DB.",
+              "required": true,
+              "content": {
+                  "application/json": {
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "name": {
+                                  "type": "string",
+                                  "description": "The username."
+                              },
+                              "admins": {
+                                  "type": "array",
+                                  "description": "The admins.",
+                                  "items": {
+                                      "type": "integer"
+                                  }
+                              },
+                              "users": {
+                                  "type": "array",
+                                  "description": "The users.",
+                                  "items": {
+                                      "type": "integer"
+                                  }
+                              }
+                          }
+                      },
+                      "examples": {
+                          "admin": {
+                              "value": {
+                                  "name": "admin",
+                                  "admins": [
+                                      1
+                                  ],
+                                  "users": []
+                              }
+                          },
+                          "database1": {
+                              "value": {
+                                  "name": "database1",
+                                  "admins": [
+                                      1,
+                                      2
+                                  ],
+                                  "users": []
+                              }
+                          },
+                          "database2": {
+                              "value": {
+                                  "name": "database2",
+                                  "admins": [
+                                      1,
+                                      2
+                                  ],
+                                  "users": [
+                                      3
+                                  ]
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "SetDBBody": {
+              "description": "Set a DB.",
+              "required": true,
+              "content": {
+                  "application/json": {
+                      "schema": {
+                          "type": "object",
+                          "properties": {
+                              "ID": {
+                                  "type": "integer",
+                                  "description": "The DB ID."
+                              },
+                              "name": {
+                                  "type": "string",
+                                  "description": "The DB name."
+                              },
+                              "admins": {
+                                  "type": "array",
+                                  "description": "The admins.",
+                                  "items": {
+                                      "type": "integer"
+                                  }
+                              },
+                              "users": {
+                                  "type": "array",
+                                  "description": "The users.",
+                                  "items": {
+                                      "type": "integer"
+                                  }
+                              }
+                          }
+                      },
+                      "examples": {
+                          "admin": {
+                              "value": {
+                                  "ID": 1,
+                                  "name": "admin",
+                                  "admins": [
+                                      1
+                                  ],
+                                  "users": []
+                              }
+                          },
+                          "database1": {
+                              "value": {
+                                  "ID": 2,
+                                  "name": "database1",
+                                  "admins": [
+                                      1,
+                                      3
+                                  ],
+                                  "users": [
+                                      2
+                                  ]
+                              }
+                          },
+                          "database2": {
+                              "value": {
+                                  "ID": 3,
+                                  "name": "database2",
+                                  "admins": [
+                                      1
+                                  ],
+                                  "users": [
+                                      2,
+                                      3
+                                  ]
+                              }
+                          }
+                      }
+                  }
+              }
+          },
+          "QueryBody": {
+            "description": "Query",
             "required": true,
             "content": {
                 "application/json": {
                     "schema": {
                         "type": "object",
                         "properties": {
-                            "name": {
+                            "query": {
                                 "type": "string",
-                                "description": "The username."
+                                "description": "The query."
                             },
-                            "admins": {
+                            "params": {
                                 "type": "array",
-                                "description": "The admins.",
-                                "items": {
-                                  "type": "integer"
-                                }
-                            },
-                            "users": {
-                                "type": "array",
-                                "description": "The users.",
-                                "items": {
-                                  "type": "integer"
-                                }
+                                "description": "The query parameters.",
+                                "items":{
+                                    "type": "object"
+                                } 
                             }
                         }
                     },
                     "examples": {
-                        "admin": {
+                        "create table": {
                             "value": {
-                                "name": "admin",
-                                "admins": [1],
-                                "users": []
+                                "query": "CREATE TABLE IF NOT EXISTS \"variables\" (\"id\" VARCHAR PRIMARY KEY NOT NULL, \"value\" text NOT NULL);",
+                                "params": []
                             }
                         },
-                        "database1": {
+                        "insert data": {
                             "value": {
-                                "name": "database1",
-                                "admins": [1, 2],
-                                "users": []
+                              "query": "INSERT OR REPLACE INTO variables VALUES (?, ?);",
+                              "params": ["version", 1]
                             }
                         },
-                        "database2": {
+                        "select data": {
                             "value": {
-                                "name": "database2",
-                                "admins": [1, 2],
-                                "users": [3]
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "SetDBBody": {
-            "description": "Set a DB.",
-            "required": true,
-            "content": {
-                "application/json": {
-                    "schema": {
-                        "type": "object",
-                        "properties": {
-                            "ID": {
-                                "type": "integer",
-                                "description": "The DB ID."
-                            },
-                            "name": {
-                                "type": "string",
-                                "description": "The DB name."
-                            },
-                            "admins": {
-                                "type": "array",
-                                "description": "The admins.",
-                                "items": {
-                                  "type": "integer"
-                                }
-                            },
-                            "users": {
-                                "type": "array",
-                                "description": "The users.",
-                                "items": {
-                                  "type": "integer"
-                                }
-                            }
-                        }
-                    },
-                    "examples": {
-                        "admin": {
-                            "value": {
-                                "ID": 1,
-                                "name": "admin",
-                                "admins": [1],
-                                "users": []
-                            }
-                        },
-                        "database1": {
-                            "value": {
-                                "ID": 2,
-                                "name": "database1",
-                                "admins": [1, 3],
-                                "users": [2]
-                            }
-                        },
-                        "database2": {
-                            "value": {
-                                "ID": 3,
-                                "name": "database2",
-                                "admins": [1],
-                                "users": [2, 3]
+                                "query": "SELECT * FROM variables;",
+                                "params": []
                             }
                         }
                     }
