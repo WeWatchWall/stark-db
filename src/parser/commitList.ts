@@ -239,16 +239,6 @@ export class CommitList {
   }
 
   /**
-   * NOOP.
-   */
-  protected delMemTables(): void { }
-
-  /**
-   * NOOP.
-   */
-  protected delMemData(): void { }
-
-  /**
    * Check if any of the @type {CommitPart} instances have write queries.
    */
   protected getReadOnly(): void {

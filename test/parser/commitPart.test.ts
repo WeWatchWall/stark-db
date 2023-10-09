@@ -910,8 +910,6 @@ describe('CommitPart: DB - Load & Save.', function () {
     it(`${test.id}: ${test.name}`, async () => {
       const commitPart = new CommitPart({
         DB: memDB,
-        target: Target.DB,
-        tables: new Set([TABLE1])
       });
 
       for (const part of test.parts) {

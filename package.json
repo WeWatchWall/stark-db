@@ -1,6 +1,6 @@
 {
   "name": "stark-db",
-  "version": "0.16.1",
+  "version": "0.16.2",
   "description": "Database engine based on SQLite.",
   "main": "dist/src/index.js",
   "scripts": {

@@ -175,9 +175,6 @@ export class CommitPart {
     results.push(...tableQueries);
     /* #endregion */
 
-    // Manages the memory tables.
-    this.setTables(statement);
-
     return results;
   }
 
@@ -204,27 +201,8 @@ export class CommitPart {
 
     return statements;
   }
-
-  private setTables(statement: QueryParse): void {
-    const tablesSet: Set<string> = this.tables;
-
-    // Add or remove tables from the list of memory tables.
-    if (statement.type === ParseType.create_table) {
-      tablesSet.add(statement.tablesWrite[ZERO]);
-    } else if (statement.type === ParseType.drop_table) {
-      tablesSet.delete(statement.tablesWrite[ZERO]);
-    } else if (
-      this.tables.has(statement.tablesWrite[ZERO]) &&
-      statement.type === ParseType.rename_table
-    ) {
-      tablesSet.delete(statement.tablesWrite[ZERO]);
-      tablesSet.add(statement.tablesWrite[ONE]);
-    }
-  }
 }
 
 const CommitPartInit = new ObjectModel({
   DB: DataSource,
-  tables: SetModel(String),
-  target: Target.DB,
 });
