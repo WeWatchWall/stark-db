@@ -2,7 +2,6 @@ import { DataSource } from 'typeorm';
 import { ParseType, QueryParse } from '../parser/queryParse';
 import {
   ONE,
-  VALUE_DELIMITER,
   VARS_TABLE,
   ZERO,
 } from './constants';

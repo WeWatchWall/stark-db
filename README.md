@@ -2,7 +2,7 @@
 
 SQLite-backed database available over HTTP.
 This database tracks changes to all entities in the auto-created column(on all
-tables) `stark-version`.
+tables) `stark_version`.
 
 There is also an extra table generated with any
 user-created table called `_stark_del_${name}`. Deletions are tracked
