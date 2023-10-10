@@ -30,8 +30,9 @@ TODO
   -p, --port <port>        HTTP port to listen on (default: "5983")
   -s, --ssl <port>         HTTPS port to listen on (default: "5984")
   -c, --cookie             Secure cookie, served over valid HTTPS only (default: false)
-  -d, --data-dir <path>    Path to the data directory (default: "./data")
-  -c, --certs-dir <path>   Path to the certs directory (default: "./certs")
+  -d, --data <path>        Path to the data directory (default: "./data")
+  -k, --certs <path>       Path to the certs directory (default: "./certs")
+  -f, --simple             Do not run change-tracking queries (default: false)
   -h, --help               display help for command
 ```
 

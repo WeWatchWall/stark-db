@@ -4,7 +4,7 @@ import { Services } from './services';
 import { DataSource } from 'typeorm';
 import { QueryParse, READ_ONLY_Qs, TABLE_MODIFY_Qs } from '../parser/queryParse';
 import { QueryUtils } from '../utils/queries';
-import { VARS_TABLE } from '../utils/constants';
+import { SIMPLE, VARS_TABLE } from '../utils/constants';
 import { Variable } from '../utils/variable';
 
 const router = express.Router({ mergeParams: true });
@@ -60,11 +60,11 @@ class SingleQuery {
     parsedQuery.validator.ready();
 
     // Increment the DB version for every write query.
-    if (!READ_ONLY_Qs.has(parsedQuery.type)) {
+    if (!SIMPLE && !READ_ONLY_Qs.has(parsedQuery.type)) {
       await DB.query(`UPDATE ${VARS_TABLE} SET value = (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.version}") + 1 WHERE name="${Variable.version}";`,[]);
     }
     
-    if (!TABLE_MODIFY_Qs.has(parsedQuery.type)) {
+    if (SIMPLE || !TABLE_MODIFY_Qs.has(parsedQuery.type)) {
       const result = await DB.query(query, params);
       return result;
     }

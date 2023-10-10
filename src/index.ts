@@ -32,16 +32,21 @@ program
   )
   .option('-c, --cookie',
     'Secure cookie, served over valid HTTPS only',
-    process.env.STARK_DB_COOKIE === "true" || false)
+    process.env.STARK_DB_COOKIE === "true" || false
+  )
   .option(
-    '-d, --data-dir <path>',
+    '-d, --data <path>',
     'Path to the data directory',
     process.env.STARK_DB_DATA_DIR || './data'
   )
   .option(
-    '-c, --certs-dir <path>',
+    '-k, --certs <path>',
     'Path to the certs directory',
     process.env.STARK_DB_CERTS_DIR || './certs'
+  )
+  .option('-f, --simple',
+    'Do not run change-tracking queries',
+    process.env.STARK_DB_SIMPLE === "true" || false
   );
 
 program.parse(process.argv);
@@ -59,6 +64,7 @@ process.env.STARK_DB_HTTPS_PORT = options.ssl;
 process.env.STARK_DB_COOKIE = options.cookie;
 process.env.STARK_DB_DATA_DIR = options.dataDir;
 process.env.STARK_DB_CERTS_DIR = options.certsDir;
+process.env.STARK_DB_SIMPLE = options.simple;
 
 import { Server } from './server';
 Server.start(); // eslint-disable-line

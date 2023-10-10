@@ -34,10 +34,12 @@ export const HTTP_LISTEN_ADDRESS =
   process.env.STARK_DB_HTTP_LISTEN_ADDRESS || "127.0.0.1";
 export const DOCUMENTATION_ADDRESS =
   process.env.STARK_DB_DOCUMENTATION_ADDRESS || "https://127.0.0.1";
+export const SIMPLE = process.env.STARK_DB_SIMPLE === "true";
+/* #endregion */
 
 // prune expired sessions every 24h
 export const SESSION_EXPIRY =
   parseInt(process.env.STARK_DB_SESSION_EXPIRY) || 1e3 * 60 * 60 * 24;
 export const CONNECTION_EXPIRY = 
   parseInt(process.env.STARK_DB_CONNECTION_EXPIRY) || 1e3 * 60 * 60;
-/* #endregion */
+
