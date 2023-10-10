@@ -1,12 +1,10 @@
 import { Command } from 'commander';
-import version from 'project-version';
 
 const program = new Command();
 
 program
   .name('stark-db')
-  .description('Stark DB CLI')
-  .version(version);
+  .description('Stark DB CLI');
 
 program
   .description('Run the Stark DB server')
