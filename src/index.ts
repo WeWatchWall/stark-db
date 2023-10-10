@@ -60,8 +60,8 @@ process.env.STARK_DB_DOCUMENTATION_ADDRESS = options.doc;
 process.env.STARK_DB_HTTP_PORT = options.port;
 process.env.STARK_DB_HTTPS_PORT = options.ssl;
 process.env.STARK_DB_COOKIE = options.cookie;
-process.env.STARK_DB_DATA_DIR = options.dataDir;
-process.env.STARK_DB_CERTS_DIR = options.certsDir;
+process.env.STARK_DB_DATA_DIR = options.data;
+process.env.STARK_DB_CERTS_DIR = options.certs;
 process.env.STARK_DB_SIMPLE = options.simple;
 
 import { Server } from './server';
