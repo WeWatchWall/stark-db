@@ -1,17 +1,25 @@
 {
   "name": "stark-db",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "Database engine based on SQLite.",
   "main": "dist/src/index.js",
   "bin": {
     "stark-db": "./dist/src/index.js"
   },
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "build-clean": "npm run clean && tsc",
     "clean": "node clean.js dist build package",
     "lint": "eslint . --ext .ts",
     "test": "node --env-file=./test/utils/.test.env --test ./dist/test/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WeWatchWall/stark-db"
+  },
+  "bugs": {
+    "url": "https://github.com/WeWatchWall/stark-db/issues"
   },
   "keywords": [
     "SQL",
