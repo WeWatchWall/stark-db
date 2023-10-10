@@ -35,7 +35,6 @@ TODO
   -h, --help               display help for command
 ```
 
-
 ## HTTP API
 
 ### /{DB}/login

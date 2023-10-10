@@ -224,7 +224,7 @@ IF NOT EXISTS ${name}
   ON ${table}
 BEGIN
   INSERT OR REPLACE INTO ${delName}
-  VALUES (OLD.ROWID, (SELECT value FROM ${VARS_TABLE} where name = "${Variable.version}"));
+  VALUES (OLD.id, (SELECT value FROM ${VARS_TABLE} where name = "${Variable.version}"));
 END;`;
     
     return new QueryParse({
