@@ -35,8 +35,10 @@ export class Server {
     app.set('trust proxy', ONE) // trust first proxy
 
     /* #region Setup Swagger. */
+    const JSONPath =
+      path.join(__dirname, '..', '..', 'src', 'utils', 'swagger.json');
     const swaggerDocument =
-      JSON.parse(fs.readFileSync('./src/utils/swagger.json').toString());
+      JSON.parse(fs.readFileSync(JSONPath).toString());
     swaggerDocument.servers[ZERO].url = `${DOCUMENTATION_ADDRESS}:${HTTPS_PORT}`;
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     /* #endregion */
