@@ -3,7 +3,7 @@
   "servers": [
       {
           "url": "https://127.0.0.1:5984",
-          "description": "Local Dev HTTPS"
+          "description": "Local documentation"
       }
   ],
   "info": {

@@ -29,8 +29,11 @@ export const CERT_DIR = process.env.STARK_DB_CERTS_DIR || "./certs";
 
 export const HTTP_PORT = process.env.STARK_DB_HTTP_PORT || 5983;
 export const HTTPS_PORT = process.env.STARK_DB_HTTPS_PORT || 5984;
+export const SECURE_COOKIE = process.env.STARK_DB_COOKIE === "true";
 export const HTTP_LISTEN_ADDRESS =
   process.env.STARK_DB_HTTP_LISTEN_ADDRESS || "127.0.0.1";
+export const DOCUMENTATION_ADDRESS =
+  process.env.STARK_DB_DOCUMENTATION_ADDRESS || "https://127.0.0.1";
 
 // prune expired sessions every 24h
 export const SESSION_EXPIRY =

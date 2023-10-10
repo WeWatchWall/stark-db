@@ -21,7 +21,15 @@ TODO
 
 ## CLI
 
-TODO
+  -V, --version            output the version number
+  -a, --address <address>  HTTP address to listen on (default: "127.0.0.1")
+  -i, --doc <address>      Address to query by the documentation (default: "https://127.0.0.1")
+  -p, --port <port>        HTTP port to listen on (default: "5983")
+  -s, --ssl <port>         HTTPS port to listen on (default: "5984")
+  -c, --cookie             Secure cookie, served over valid HTTPS only (default: false)
+  -d, --data-dir <path>    Path to the data directory (default: "./data")
+  -c, --certs-dir <path>   Path to the certs directory (default: "./certs")
+  -h, --help               display help for command
 
 ## HTTP API
 

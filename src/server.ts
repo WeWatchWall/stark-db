@@ -15,10 +15,12 @@ import userController from './controllers/users';
 import queryController from './controllers/query';
 import {
   CERT_DIR,
+  DOCUMENTATION_ADDRESS,
   HTTPS_PORT,
   HTTP_LISTEN_ADDRESS,
   HTTP_PORT,
   ONE,
+  SECURE_COOKIE,
   SESSION_EXPIRY,
   ZERO
 } from './utils/constants';
@@ -35,7 +37,7 @@ export class Server {
     /* #region Setup Swagger. */
     const swaggerDocument =
       JSON.parse(fs.readFileSync('./src/utils/swagger.json').toString());
-    swaggerDocument.servers[ZERO].url = `https://127.0.0.1:${HTTPS_PORT}`;
+    swaggerDocument.servers[ZERO].url = `${DOCUMENTATION_ADDRESS}:${HTTPS_PORT}`;
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     /* #endregion */
 
@@ -45,7 +47,7 @@ export class Server {
       secret: randomBytes(16).toString('hex'),
       resave: true,
       saveUninitialized: true,
-      // cookie: { secure: true }, // TODO: Enable when HTTPS is enabled.
+      cookie: { secure: SECURE_COOKIE }, // TODO: Enable when HTTPS is enabled.
       store: new MemoryStore({
         checkPeriod: SESSION_EXPIRY
       }),
