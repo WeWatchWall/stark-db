@@ -36,7 +36,7 @@ export class QueryUtils {
         /* #region  Create the diffs column and del table. */
         if (!statement.columns.includes(Names.VERSION_COLUMN)) {
           results.push(new QueryParse({
-            query: `ALTER TABLE ${newTableName} ADD COLUMN ${Names.VERSION_COLUMN} INTEGER;`,
+            query: `ALTER TABLE ${newTableName} ADD COLUMN ${Names.VERSION_COLUMN} INTEGER NOT NULL DEFAULT 0;`,
             params: []
           }));
         }
@@ -62,13 +62,11 @@ export class QueryUtils {
           Method.add,
           triggerAddName,
           newTableName,
-          statement.columns
         );
         const triggerSetQuery: QueryParse = this.triggerAdd(
           Method.set,
           triggerSetName,
           newTableName,
-          statement.columns
         );
         const triggerDelQuery: QueryParse = this.triggerAddDel(
           Method.del,
@@ -85,7 +83,6 @@ export class QueryUtils {
         break;
 
       case ParseType.rename_table:
-      case ParseType.modify_table_columns:
         oldTableName = statement.tablesWrite[ZERO];
 
         // Delete the triggers.
@@ -100,12 +97,8 @@ export class QueryUtils {
         delTable = Names.getDelTable(oldTableName);
         results.push(this.tableDel(delTable));
 
-        // Update the table name if it is renamed.
-        if (statement.type === ParseType.rename_table) {
-          newTableName = statement.tablesWrite[ONE];
-        } else {
-          newTableName = oldTableName;
-        }
+        // Update the table name.
+        newTableName = statement.tablesWrite[ONE];
 
         /* #region Re-create the table triggers. */
         const tableCreateStatement =
@@ -188,8 +181,7 @@ export class QueryUtils {
   private static triggerAdd(
     method: Method,
     name: string,
-    table: string,
-    columns: string[],
+    table: string
   ): QueryParse {
     let op: string;
     switch (method) {
@@ -203,7 +195,7 @@ IF NOT EXISTS ${name}
   AFTER ${op}
   ON ${table}
 BEGIN
-  UPDATE user SET ${Names.VERSION_COLUMN} = (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.version}") WHERE ROWID = NEW.ROWID;
+  UPDATE ${table} SET ${Names.VERSION_COLUMN} = (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.version}") WHERE ROWID = NEW.ROWID;
 END;`;
     
     return new QueryParse({
