@@ -46,6 +46,7 @@ one query at a time. Otherwise, only the results of the first query are shown.
 Also, the change tracking API -- i.e. when creating or modifying tables -- 
 expects one query at a time. Breaking down scripts into queries is not a simple
 parsing job as parsing cannot rely on delimiters such as `;`.
+
 Interactive queries are supported due to the stateful nature of the API.
 A DB connection is marked inactive and is refreshed after 1 hour. A session
 cookie to the server is marked inactive after 1 day.
