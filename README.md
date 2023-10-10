@@ -1,5 +1,8 @@
 # stark-db
 
+[![Build and test status](https://github.com/WeWatchWall/stark-db/workflows/Lint%20and%20test/badge.svg)](https://github.com/WeWatchWall/stark-db/actions?query=workflow%3A%22Lint+and+test%22)
+[![NPM version](https://img.shields.io/npm/v/stark-db.svg)](https://www.npmjs.com/package/stark-db)
+
 SQLite-backed, change-tracking database available over HTTP.
 
 
