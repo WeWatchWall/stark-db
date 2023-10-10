@@ -44,7 +44,6 @@ Also, the `-f` flag prevents all modifications related to change tracking.
 ## CLI
 
 ```bash
-  -V, --version            output the version number
   -a, --address <address>  HTTP address to listen on (default: "127.0.0.1")
   -i, --doc <address>      Address to query by the documentation (default: "https://127.0.0.1")
   -p, --port <port>        HTTP port to listen on (default: "5983")
