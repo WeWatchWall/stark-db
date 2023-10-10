@@ -23,18 +23,20 @@ the user must supply their own. Then, the user needs to set the `-c` flag
 in order to enable the cookie security. Only then is this system ready for
 use in production.
 
-There is a Swagger endpoint `/api-docs` where the user can try out the routes available.
+There is a Swagger endpoint `https://127.0.0.1:5984/api-docs` where the user can
+try out the routes available.
 
 This database tracks changes to all entities in the auto-created column(on all
 tables) `stark_version`. There is also an extra table generated with any
 user-created table called `_stark_del_${name}`. Deletions are tracked
 in this auxiliary set of tables. With the help of this change tracking,
 synchronization mechanisms can be built later. The user has the option
-of using soft deletion -- marking data as deleted -- or relying on an 
+of using soft deletion -- marking data as deleted -- or relying on an
 `id` column to track such deletions. ROWID would not work in a synchronization
-scenario. Any unwanted modifications made by stark-db to the sqlite database
-can be seen by running `select * from sqlite_master;` and editing the triggers/
-tables. Also, the `-f` flag prevents all modifications related to change tracking.
+scenario. Any modifications made by stark-db to the sqlite database
+can be seen by running `select * from sqlite_master;` and the user can edit the
+triggers/tables.
+Also, the `-f` flag prevents all modifications related to change tracking.
 
 ## CLI
 
