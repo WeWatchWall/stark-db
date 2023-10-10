@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import sticky from 'sticky-session-custom';
 import swaggerUi from 'swagger-ui-express';
 import path from 'node:path';
+import cors from 'cors';
 
 import DBController from './controllers/DBs';
 import authController from './controllers/auth';
@@ -32,6 +33,7 @@ import { DBFile } from './services/DBFile';
 export class Server {
   public static async start() {
     const app = express();
+    app.use(cors());
     app.set('trust proxy', ONE) // trust first proxy
 
     /* #region Setup Swagger. */
