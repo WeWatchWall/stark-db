@@ -1,13 +1,13 @@
 {
   "name": "stark-db",
-  "version": "1.1.9",
+  "version": "1.1.11",
   "description": "Database engine based on SQLite.",
   "bin": {
     "stark-db": "./dist/src/index.js"
   },
   "scripts": {
-    "build": "tsc",
-    "build-clean": "npm run clean && tsc",
+    "build": "tsc && node shebang.js",
+    "build-clean": "npm run clean && tsc && node shebang.js",
     "clean": "node clean.js dist build package",
     "lint": "eslint . --ext .ts",
     "test": "node --env-file=./test/utils/.test.env --test ./dist/test/"
