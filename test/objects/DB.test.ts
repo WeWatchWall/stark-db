@@ -1,69 +1,126 @@
-// import { rmSync } from 'fs';
-// import assert from 'node:assert';
-// import { before, describe, it } from 'node:test';
+import { existsSync, rmSync } from 'fs';
+import assert from 'node:assert';
+import { before, describe, it } from 'node:test';
+import { ADMIN_NAME, DATA_DIR } from '../../src/utils/constants';
+import { AdminDBFile, DBFile } from '../../src/objects/DBFile';
+import path from 'node:path';
 
-// import { DB as DBEntity } from '../../src/entities/DB';
-// import { User as UserEntity } from '../../src/entities/user';
-// import { AdminDB, DB } from '../../src/objects/DB';
-// import {
-//   ADMIN_DB_NAME,
-//   DB_IDENTIFIER,
-//   DB_IDENTIFIER_ADMIN,
-//   ONE
-// } from '../../src/utils/constants';
-// import { Variable } from '../../src/entities/variable';
+const USER_DB_NAME = 'userDB';
+const USER_DB_NAME_2 = 'userDB2';
 
-// const USER_DB_NAME = 'userDB';
+const ADMIN_DB_NAME_2 = 'adminDB2';
 
-// describe('DB Objects', () => {
-//   before(() => {
-//     rmSync(DATA_DIR, { force: true, recursive: true });
-//   });
+describe('DBFile Objects', () => {
+  before(() => {
+    rmSync(DATA_DIR, { force: true, recursive: true });
+  });
 
-//   it('should create an Admin DB', async () => {
-//     await using adminDB = new AdminDB({
-//       name: ADMIN_DB_NAME,
-//       types: [DBEntity, UserEntity]
-//     });
-//     await adminDB.init();
+  it('should create an Admin file', async () => {
+    await using file = new AdminDBFile({ name: ADMIN_NAME, types: [] });
+    await file.load();
 
-//     const result = await adminDB.conn.query(`PRAGMA user_version;`);
-//     assert.strictEqual(result[0].user_version, DB_IDENTIFIER_ADMIN);
-//   });
-  
-//   it('should find an Admin DB', async () => {
-//     await using adminDB = new AdminDB({
-//       name: ADMIN_DB_NAME,
-//       types: [DBEntity, UserEntity]
-//     });
-//     await adminDB.init();
+    const filePath = path.resolve(DATA_DIR, `${ADMIN_NAME}.db`);
+    assert.ok(existsSync(filePath));
+    assert.ok(!await file.isInit());
+  });
 
-//     assert.ok(adminDB.entity);
-//     assert.strictEqual(ONE, adminDB.entity.id);
-//   });
+  it('should create a file', async () => {
+    await using file = new DBFile({ name: USER_DB_NAME, types: [] });
+    await file.load();
 
-//   it('should create a DB', async () => {
-//     await using db = new DB({
-//       name: USER_DB_NAME,
-//       entity: new DBEntity({ name: USER_DB_NAME, admins: [ONE], users: []}),
-//       types: [Variable]
-//     });
-//     await db.init();
+    const filePath = path.resolve(DATA_DIR, `${USER_DB_NAME}.db`);
+    assert.ok(existsSync(filePath));
+    assert.ok(!await file.isInit());
+  });
 
-//     const result = await db.conn.query(`PRAGMA user_version;`);
-//     assert.strictEqual(result[0].user_version, DB_IDENTIFIER);
-//   });
+  it('should fail to rename an admin file', async () => {
+    await using file = new AdminDBFile({ name: ADMIN_NAME, types: [] });
+    await file.load();
 
-//   it('should find a DB', async () => {
-//     await using db = new DB({
-//       name: USER_DB_NAME,
-//       entity: new DBEntity({ name: USER_DB_NAME, admins: [ONE], users: []}),
-//       types: [Variable]
-//     });
-//     await db.init();
+    let error;
+    try {
+      await file.save({ name: ADMIN_DB_NAME_2, types: [] });
+    } catch (err) {
+      error = err;
+    }
+    assert.ok(error);
+  });
 
-//     assert.ok(db.conn);
-//     assert.ok(db.conn.isInitialized);
-//     assert.ok(db.entity);
-//   });
-// });
+  it('should fail to rename an unitialized file', async () => {
+    await using file = new DBFile({ name: USER_DB_NAME, types: [] });
+    await file.load();
+
+    let error;
+    try {
+      await file.save({ name: USER_DB_NAME_2, types: [] });
+    } catch (err) {
+      error = err;
+    }
+    assert.ok(error);
+  });
+
+  it('should initialize an admin file', async () => {
+    await using file = new AdminDBFile({ name: ADMIN_NAME, types: [] });
+    await file.load();
+
+    await file.setInit();
+    assert.ok(await file.isInit());
+  });
+
+  it('should initialize a file', async () => {
+    await using file = new DBFile({ name: USER_DB_NAME, types: [] });
+    await file.load();
+
+    await file.setInit();
+    assert.ok(await file.isInit());
+  });
+
+  it('should rename an initialized file', async () => {
+    await using file = new DBFile({ name: USER_DB_NAME, types: [] });
+    await file.load();
+
+    await file.save({ name: USER_DB_NAME_2, types: [] });
+
+    const filePath = path.resolve(DATA_DIR, `${USER_DB_NAME_2}.db`);
+    assert.ok(existsSync(filePath));
+    assert.ok(await file.isInit());
+  });
+
+  it('should fail to delete an admin file', async () => {
+    await using file = new AdminDBFile({ name: ADMIN_NAME, types: [] });
+    await file.load();
+
+    let error;
+    try {
+      await file.delete();
+    } catch (err) {
+      error = err;
+    }
+    assert.ok(error);
+  });
+
+  it('should fail to delete an unitialized file', async () => {
+    await using file = new DBFile({ name: USER_DB_NAME, types: [] });
+
+    let error;
+    try {
+      await file.delete();
+    } catch (err) {
+      error = err;
+    }
+    assert.ok(error);
+  });
+
+  it('should delete an initialized file', async () => {
+    await using file = new DBFile({ name: USER_DB_NAME, types: [] });
+    await file.load();
+
+    await file.setInit();
+    assert.ok(await file.isInit());
+
+    await file.delete();
+
+    const filePath = path.resolve(DATA_DIR, `${USER_DB_NAME}.db`);
+    assert.ok(!existsSync(filePath));
+  });
+});
