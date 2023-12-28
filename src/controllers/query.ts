@@ -1,11 +1,12 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { Services } from './services';
 import { DataSource } from 'typeorm';
+
 import { QueryParse, READ_ONLY_Qs, TABLE_MODIFY_Qs } from '../parser/queryParse';
-import { QueryUtils } from '../utils/queries';
 import { SIMPLE, VARS_TABLE } from '../utils/constants';
+import { QueryUtils } from '../utils/queries';
 import { Variable } from '../utils/variable';
+import { Services } from './services';
 
 const router = express.Router({ mergeParams: true });
 
