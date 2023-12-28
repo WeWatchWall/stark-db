@@ -118,12 +118,14 @@ export class QueryParse {
     // Copy the properties.
     if (init != undefined) {
       Object.assign(this, init);
-      this.query = this.query?.trim();
       this.validator.ready();
     }
   }
 
   private validate(): void {
+    this.query = this.query?.trim() || '';
+    this.params = this.params || [];
+
     new QueryParseInitArg(this);
 
     const parseResult = sqliteParser(this.query);
