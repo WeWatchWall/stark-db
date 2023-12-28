@@ -202,7 +202,6 @@
                   }
               },
               "tags": [
-                  "Admin",
                   "User"
               ]
           },
@@ -287,7 +286,6 @@
                   }
               },
               "tags": [
-                  "Admin",
                   "User"
               ]
           },
@@ -355,7 +353,6 @@
                   }
               },
               "tags": [
-                  "Admin",
                   "User"
               ]
           }
@@ -428,7 +425,6 @@
                   }
               },
               "tags": [
-                  "Admin",
                   "User"
               ]
           },
@@ -501,7 +497,6 @@
                   }
               },
               "tags": [
-                  "Admin",
                   "DB Admin"
               ]
           },
@@ -563,7 +558,6 @@
                   }
               },
               "tags": [
-                  "Admin",
                   "DB Admin"
               ]
           }
