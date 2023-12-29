@@ -1,6 +1,6 @@
 {
   "name": "stark-db",
-  "version": "1.1.26",
+  "version": "1.1.27",
   "description": "Database engine based on SQLite.",
   "bin": {
     "stark-db": "./dist/src/index.js"
@@ -50,7 +50,6 @@
     "flat-promise": "^1.0.3",
     "http-proxy": "^1.18.1",
     "javascript-state-machine": "^3.1.0",
-    "js-sdsl": "^4.4.2",
     "memorystore": "^1.6.7",
     "objectmodel": "^4.4.5",
     "recursive-iterator": "^3.3.0",
