@@ -20,13 +20,13 @@ const tests: any[] = [
     id: 2,
     name: 'Single statement, trigger',
     script: `
-    CREATE TRIGGER
-    IF NOT EXISTS test
-      AFTER INSERT
-      ON test
-    BEGIN
-      UPDATE test SET version = (SELECT value FROM test WHERE name = "1") WHERE ROWID = NEW.ROWID;
-    END;
+      CREATE TRIGGER
+      IF NOT EXISTS test
+        AFTER INSERT
+        ON test
+      BEGIN
+        UPDATE test SET version = (SELECT value FROM test WHERE name = "1") WHERE ROWID = NEW.ROWID;
+      END;
     `,
     result: undefined,
   },
@@ -43,12 +43,12 @@ const tests: any[] = [
     id: 4,
     name: 'Error, single statement, trigger',
     script: `
-    CREATE TRIGGER
-    IF NOT EXISTS test
-      AFTER INSERT
-      ON test
-    BEGIN
-      UPDATE test SET version = (SELECT value FROM test WHERE name = "1") WHERE ROWID = NEW.ROWID;
+      CREATE TRIGGER
+      IF NOT EXISTS test
+        AFTER INSERT
+        ON test
+      BEGIN
+        UPDATE test SET version = (SELECT value FROM test WHERE name = "1") WHERE ROWID = NEW.ROWID;
     `,
     result: 'Syntax error found near Identifier (WITH Clause)',
   },
@@ -56,13 +56,13 @@ const tests: any[] = [
     id: 5,
     name: 'Error, multiple statements, trigger',
     script: `
-    BEGIN TRANSACTION;
-    CREATE TRIGGER
-    IF NOT EXISTS test
-      AFTER INSERT
-      ON test
-    BEGIN
-      UPDATE test SET version = (SELECT value FROM test WHERE name = "1") WHERE ROWID = NEW.ROWID;
+      BEGIN TRANSACTION;
+      CREATE TRIGGER
+      IF NOT EXISTS test
+        AFTER INSERT
+        ON test
+      BEGIN
+        UPDATE test SET version = (SELECT value FROM test WHERE name = "1") WHERE ROWID = NEW.ROWID;
     `,
     result: 'Syntax error found near Identifier (WITH Clause)',
   },
@@ -73,16 +73,16 @@ function parseScript(script: string) {
 }
 
 describe('rawParse', () => {
-  for (const t of tests) {
-    it(`${t.id}: ${t.name}`, () => {
+  for (const test of tests) {
+    it(`${test.id}: ${test.name}`, () => {
       let error;
       try {
-        parseScript(t.script);
+        parseScript(test.script);
       } catch (e: any) {
         error = e;
       }
 
-      assert.deepStrictEqual(t.result, error?.message);
+      assert.deepStrictEqual(test.result, error?.message);
     });
   }
 });

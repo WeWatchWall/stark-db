@@ -47,8 +47,10 @@ export class ScriptParse {
     // Parse the whole script to validate it.
     sqliteParser(this.script);
     
-    // Initialize the queries array.
+    // Initialize the state.
     this.queries = [];
+    this.isReadOnly = true;
+
     // Check if the script is empty.
     if (!this.script) { return; }
 
@@ -56,6 +58,9 @@ export class ScriptParse {
     // This might be a bit tricky because of the semicolon in trigger
     //   definitions.
     const candidateLines = this.script.split(STATEMENT_DELIMITER);
+
+    // Reverse the params array so we can pop them off the end.
+    const reverseParams = this.params.reverse();
 
     // Iterate over the lines.
     let query = [];
@@ -69,10 +74,16 @@ export class ScriptParse {
         // Try to parse the query.
         sqliteParser(queryStr);
 
+        // Count the number of parameters in the query.
+        const paramCount = (queryStr.match(/\?/g) || []).length;
+
+        // Pop the parameters off the end of the array.
+        const params = reverseParams.splice(-paramCount, paramCount).reverse();
+
         // If the line is parsable, add it to the queries array.
         const queryParse = new QueryParse({
-          query: queryStr,
-          params: this.params,
+          query: `${queryStr}${STATEMENT_DELIMITER}`,
+          params: params,
         });
         this.queries.push(queryParse);
 
@@ -86,6 +97,17 @@ export class ScriptParse {
 
     // Check if all the queries are read-only.
     this.isReadOnly = this.queries.every(q => READ_ONLY_Qs.has(q.type));
+  }
+
+  /**
+   * Returns the object representation of the class.
+   * @returns {Object} The object representation of the class.
+   */
+  toObject(): any {
+    return {
+      isReadOnly: this.isReadOnly,
+      queries: this.queries.map(q => q.toObject()),
+    };
   }
 }
 
