@@ -42,7 +42,9 @@ export class Query {
       const resultRows: any[] = await resultPromise.promise;
 
       // Add the result to the array.
-      result.push(...resultRows);
+      if (!resultRows.length) { continue; }
+
+      result.push(resultRows);
     }
 
     return result;
