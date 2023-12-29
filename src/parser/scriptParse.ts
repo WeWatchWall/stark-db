@@ -1,9 +1,9 @@
 import sqliteParser from '@appland/sql-parser';
 import { Any, ArrayModel, ObjectModel } from 'objectmodel';
 
+import { NEWLINE, STATEMENT_DELIMITER } from '../utils/constants';
 import { LazyValidator } from '../utils/lazyValidator';
 import { QueryParse, READ_ONLY_Qs } from './queryParse';
-import { STATEMENT_DELIMITER } from '../utils/constants';
 
 class ScriptParseArg {
   script: string;
@@ -107,6 +107,17 @@ export class ScriptParse {
     return {
       isReadOnly: this.isReadOnly,
       queries: this.queries.map(q => q.toObject()),
+    };
+  }
+
+  /**
+   * Returns the script representation of the class.
+   * @returns {Object} The script representation of the class.
+   */
+  toScript(): any {
+    return {
+      script: this.queries.map(q => q.query).join(NEWLINE),
+      params: this.queries.flatMap(q => q.params),
     };
   }
 }

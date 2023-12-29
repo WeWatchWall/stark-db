@@ -2,11 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { DataSource } from 'typeorm';
 
-import { QueryParse, READ_ONLY_Qs, TABLE_MODIFY_Qs } from '../parser/queryParse';
-import { SIMPLE, VARS_TABLE } from '../utils/constants';
-import { QueryUtils } from '../utils/queries';
-import { Variable } from '../utils/variable';
+import { Query } from '../services/query';
 import { Services } from './services';
+import { ScriptParse } from '../parser/scriptParse';
 
 const router = express.Router({ mergeParams: true });
 
@@ -23,23 +21,26 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
     res.sendStatus(403);
     return;
   }
-  const connection = Services.DBFile.get(req.sessionID, req.params.DB);
+  const connection: DataSource =
+    Services.DBFile.get(req.sessionID, req.params.DB);
+
   if (!connection) {
     res.sendStatus(403);
     return;
   }
-
-  if (!req.body.query) {
-    res.sendStatus(400);
-    return;
-  }
-
   /* #endregion */
+
+  // Parse the script.
+  const scriptParse = new ScriptParse({
+    script: req.body.query,
+    params: req.body.params
+  });
+
+  // Execute the script.
   try {
-    const result = await SingleQuery.run(
+    const result = await Query.add(
       connection,
-      req.body.query,
-      req.body.params
+      scriptParse
     );
     res.status(200).send({ result });
   } catch (error: any) {
@@ -50,37 +51,5 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
   }
   
 }));
-
-class SingleQuery {
-  static async run(
-    DB: DataSource,
-    query: string,
-    params: any[] = []
-  ): Promise<any> {
-    const parsedQuery = new QueryParse({ query, params });
-    parsedQuery.validator.ready();
-
-    // Increment the DB version for every write query.
-    if (!SIMPLE && !READ_ONLY_Qs.has(parsedQuery.type)) {
-      await DB.query(`UPDATE ${VARS_TABLE} SET value = (SELECT value FROM ${VARS_TABLE} WHERE name = "${Variable.version}") + 1 WHERE name="${Variable.version}";`,[]);
-    }
-    
-    if (SIMPLE || !TABLE_MODIFY_Qs.has(parsedQuery.type)) {
-      const result = await DB.query(query, params);
-      return result;
-    }
-
-    const tableQueries: QueryParse[] = await QueryUtils.getTableModify(
-      DB,
-      parsedQuery
-    );
-
-    await DB.query(query, params);
-    for (const tableQuery of tableQueries) {
-      await DB.query(tableQuery.query, tableQuery.params);
-    }
-    return [];
-  }
-}
 
 export default router;
