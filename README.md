@@ -29,6 +29,9 @@ use in production.
 There is a Swagger endpoint `https://127.0.0.1:5984/api-docs` where the user can
 try out the routes available.
 
+You may want to use `BEGIN IMMEDIATE TRANSACTION;` if you write to the database
+concurrently as SQLite will throw busy errors otherwise.
+
 This database tracks changes to all entities in the auto-created column(on all
 tables) `stark_version`. There is also an extra table generated with any
 user-created table called `_stark_del_${name}`. Deletions are tracked
