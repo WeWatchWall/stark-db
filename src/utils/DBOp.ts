@@ -1,4 +1,5 @@
 export enum DBOp {
   Admin = 'admin',
-  Use = 'use',
+  Read = 'read',
+  Write = 'write',
 }

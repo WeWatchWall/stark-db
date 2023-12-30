@@ -6,7 +6,8 @@ export class DBArg implements IEntityArg {
   ID?: number;
   name: string;
   admins: number[];
-  users: number[];
+  readers: number[];
+  writers: number[];
 }
 
 @Entity()
@@ -26,7 +27,10 @@ export class DB implements IEntity {
   admins: number[];
 
   @Column("simple-json")
-  users: number[];
+  readers: number[];
+
+  @Column("simple-json")
+  writers: number[];
 
 }
 

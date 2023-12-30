@@ -33,7 +33,8 @@ describe('DBEntity Objects', () => {
       ID: ONE,
       name: ADMIN_NAME,
       admins: [],
-      users: [],
+      readers: [],
+      writers: []
     });
 
     const entity = await adminFile.DB.manager.findOneByOrFail(DBEntity, {
@@ -49,7 +50,8 @@ describe('DBEntity Objects', () => {
     await DBTest.save({
       name: USER_DB_NAME,
       admins: [],
-      users: [],
+      readers: [],
+      writers: []
     });
 
     const entity = await adminFile.DB.manager.findOneByOrFail(DBEntity, {
@@ -70,7 +72,8 @@ describe('DBEntity Objects', () => {
     assert.strictEqual(adminDBTest.ID, ONE);
     assert.strictEqual(adminDBTest.name, ADMIN_NAME);
     assert.deepStrictEqual(adminDBTest.admins, []);
-    assert.deepStrictEqual(adminDBTest.users, []);
+    assert.deepStrictEqual(adminDBTest.readers, []);
+    assert.deepStrictEqual(adminDBTest.writers, []);
   });
 
   it('should load a DB entity', async () => {
@@ -83,7 +86,8 @@ describe('DBEntity Objects', () => {
     assert.strictEqual(DBTest.ID, 2);
     assert.strictEqual(DBTest.name, USER_DB_NAME);
     assert.deepStrictEqual(DBTest.admins, []);
-    assert.deepStrictEqual(DBTest.users, []);
+    assert.deepStrictEqual(DBTest.readers, []);
+    assert.deepStrictEqual(DBTest.writers, []);
   });
 
   it('should fail to load an incorrect AdminDB entity', async () => {
@@ -129,12 +133,14 @@ describe('DBEntity Objects', () => {
       ID: ONE,
       name: ADMIN_NAME,
       admins: [ONE],
-      users: [],
+      readers: [],
+      writers: []
     });
     assert.strictEqual(adminDBTest.ID, ONE);
     assert.strictEqual(adminDBTest.name, ADMIN_NAME);
     assert.deepStrictEqual(adminDBTest.admins, [ONE]);
-    assert.deepStrictEqual(adminDBTest.users, []);
+    assert.deepStrictEqual(adminDBTest.readers, []);
+    assert.deepStrictEqual(adminDBTest.writers, []);
 
     const entity = await adminFile.DB.manager.findOneByOrFail(DBEntity, {
       ID: ONE,
@@ -143,7 +149,8 @@ describe('DBEntity Objects', () => {
     assert.strictEqual(entity.ID, ONE);
     assert.strictEqual(entity.name, ADMIN_NAME);
     assert.deepStrictEqual(entity.admins, [ONE]);
-    assert.deepStrictEqual(entity.users, []);
+    assert.deepStrictEqual(entity.readers, []);
+    assert.deepStrictEqual(entity.writers, []);
   });
 
   it('should update a DB entity', async () => {
@@ -157,12 +164,14 @@ describe('DBEntity Objects', () => {
       ID: 2,
       name: USER_DB_NAME_2,
       admins: [ONE],
-      users: [],
+      readers: [],
+      writers: []
     });
     assert.strictEqual(DBTest.ID, 2);
     assert.strictEqual(DBTest.name, USER_DB_NAME_2);
     assert.deepStrictEqual(DBTest.admins, [ONE]);
-    assert.deepStrictEqual(DBTest.users, []);
+    assert.deepStrictEqual(DBTest.readers, []);
+    assert.deepStrictEqual(DBTest.writers, []);
 
     const entity = await adminFile.DB.manager.findOneByOrFail(DBEntity, {
       ID: 2,
@@ -171,7 +180,8 @@ describe('DBEntity Objects', () => {
     assert.strictEqual(entity.ID, 2);
     assert.strictEqual(entity.name, USER_DB_NAME_2);
     assert.deepStrictEqual(entity.admins, [ONE]);
-    assert.deepStrictEqual(entity.users, []);
+    assert.deepStrictEqual(entity.readers, []);
+    assert.deepStrictEqual(entity.writers, []);
   });
 
   it('should fail to update an incorrect AdminDB entity', async () => {
@@ -185,7 +195,8 @@ describe('DBEntity Objects', () => {
         ID: ONE,
         name: ADMIN_DB_NAME_2,
         admins: [ONE],
-        users: [],
+        readers: [],
+        writers: []
       });
     } catch (err) {
       error = err;
@@ -204,7 +215,8 @@ describe('DBEntity Objects', () => {
         ID: ONE,
         name: ADMIN_NAME,
         admins: [ONE],
-        users: [],
+        readers: [],
+        writers: []
       });
     } catch (err) {
       error = err;

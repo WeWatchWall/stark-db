@@ -2,9 +2,9 @@ import express from 'express';
 import asyncHandler from 'express-async-handler';
 import { DataSource } from 'typeorm';
 
+import { User } from '../objects/user';
 import { Query } from '../services/query';
 import { Services } from './services';
-import { ScriptParse } from '../parser/scriptParse';
 
 const router = express.Router({ mergeParams: true });
 
@@ -21,7 +21,7 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
     res.sendStatus(403);
     return;
   }
-  const connection: DataSource =
+  const { DB, connection } =
     Services.DBFile.get(req.sessionID, req.params.DB);
 
   if (!connection) {
@@ -30,17 +30,14 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
   }
   /* #endregion */
 
-  // Parse the script.
-  const scriptParse = new ScriptParse({
-    script: req.body.query,
-    params: req.body.params
-  });
-
   // Execute the script.
   try {
     const result = await Query.add(
+      req.session.user,
+      DB,
       connection,
-      scriptParse
+      req.body.query,
+      req.body.params
     );
     res.status(200).send({ result });
   } catch (error: any) {

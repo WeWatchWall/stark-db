@@ -39,7 +39,8 @@ export class DB implements AsyncDisposable {
       ID: ONE,
       name: ADMIN_NAME,
       admins: [ONE],
-      users: [],
+      readers: [],
+      writers: []
     });
     assert.strictEqual(this.adminDB.ID, ONE);
 
@@ -82,7 +83,8 @@ export class DB implements AsyncDisposable {
     await localDBObject.save({
       name: arg.DB.name,
       admins: arg.DB.admins.concat(arg.user.ID, this.adminDB.admins),
-      users: arg.DB.users,
+      readers: arg.DB.readers,
+      writers: arg.DB.writers
     });
 
     return localDBObject;
@@ -105,7 +107,7 @@ export class DB implements AsyncDisposable {
 
     ForbiddenError
       .from(defineAbilityForDB(arg.user))
-      .throwUnlessCan(DBOp.Use, localDB);
+      .throwUnlessCan(DBOp.Read, localDB);
 
     return localDB;
   }

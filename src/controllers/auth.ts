@@ -38,7 +38,7 @@ router.post('/:DB/login', asyncHandler(async (req: any, res: any) => {
   /* #endregion */
 
   // Call the DBFile Service to load the DBFile connection.
-  await Services.DBFile.add(req.sessionID, DB.name);
+  await Services.DBFile.add(req.sessionID, DB.toObject());
 
   /* #region User is logged in and DB is found. */
   req.session.user = user.toObject();
@@ -52,6 +52,12 @@ router.post('/:DB/login', asyncHandler(async (req: any, res: any) => {
 }));
 
 router.post('/logout', asyncHandler(async (req: any, res: any) => {
+  // Call the DBFile Service to close the DBFile connection.
+  for (const DB of req.session.DBs) {
+    await Services.DBFile.delete(req.sessionID, DB);
+  }
+
+  // Delete the session user and DBs.
   delete req.session.user;
   delete req.session.DBs;
 

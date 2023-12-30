@@ -11,7 +11,8 @@ export class DBArg {
   ID?: number;
   name?: string;
   admins?: number[];
-  users?: number[];
+  readers?: number[];
+  writers?: number[];
 }
 
 export abstract class DBBase {
@@ -22,7 +23,8 @@ export abstract class DBBase {
   ID: number;
   name: string;
   admins: number[];
-  users: number[];
+  readers: number[];
+  writers: number[];
 
   constructor(init: DBArg) {
     this.validator = new LazyValidator(
@@ -65,10 +67,13 @@ export abstract class DBBase {
   }
   protected abstract validateSave(arg: DBArg): void;
   protected async readySave(arg: DBArg): Promise<void> {
+    // Make each array property unique.
     const adminsSet = new Set(arg.admins);
-    const usersSet = new Set(arg.users);
+    const readersSet = new Set(arg.readers);
+    const writersSet = new Set(arg.writers);
     arg.admins = Array.from(adminsSet);
-    arg.users = Array.from(usersSet);
+    arg.readers = Array.from(readersSet);
+    arg.writers = Array.from(writersSet);
 
     const entity = await this.DB.manager.save(DBEntity, arg);
     
@@ -78,8 +83,8 @@ export abstract class DBBase {
   abstract delete(): Promise<void>;
 
   toObject(): DBArg {
-    const { ID, name, admins, users } = this;
-    return { ID, name, admins, users };
+    const { ID, name, admins, readers, writers } = this;
+    return { ID, name, admins, readers, writers };
   }
 }
 
@@ -132,7 +137,8 @@ const DBSave = new ObjectModel({
   ID: [Number],
   name: String,
   admins: ArrayModel(Number),
-  users: ArrayModel(Number),
+  readers: ArrayModel(Number),
+  writers: ArrayModel(Number),
 });
 
 export class AdminDB extends DBBase {
@@ -158,5 +164,6 @@ const AdminDBSave = new ObjectModel({
   ID: ONE,
   name: ADMIN_NAME,
   admins: ArrayModel(Number),
-  users: ArrayModel(Number),
+  readers: ArrayModel(Number),
+  writers: ArrayModel(Number),
 });

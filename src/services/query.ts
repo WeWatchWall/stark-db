@@ -1,6 +1,7 @@
 import FlatPromise from 'flat-promise';
 import { DataSource } from "typeorm";
 
+import { UserArg } from '../objects/user';
 import {
   QueryParse,
   READ_ONLY_Qs,
@@ -10,15 +11,43 @@ import { ScriptParse } from "../parser/scriptParse";
 import { SIMPLE, VARS_TABLE } from "../utils/constants";
 import { QueryUtils } from "../utils/queries";
 import { Variable } from "../utils/variable";
+import { DBArg } from '../objects/DB';
+import { ForbiddenError } from '@casl/ability';
+import defineAbilityForDB from '../valid/DB';
+import { DBOp } from '../utils/DBOp';
 
 export class Query {
-  static async add(DB: DataSource, script: ScriptParse): Promise<any[]> {
+  static async add(
+    user: UserArg,
+    DB: DBArg,
+    connection: DataSource,
+    query: string,
+    params: any[]
+  ): Promise<any[]> {
+    // Throw an error right away if the user doesn't have the read persmission.
+    ForbiddenError
+      .from(defineAbilityForDB(user))
+      .throwUnlessCan(DBOp.Read, DB);
+    
+    // Parse the script.
+    const script = new ScriptParse({
+      script: query,
+      params: params
+    });
+
+    // Throw an error if the user is writing and doesn't have write persmission.
+    if (!script.isReadOnly) {
+      ForbiddenError
+        .from(defineAbilityForDB(user))
+        .throwUnlessCan(DBOp.Write, DB);
+    }
+
     // Get the raw connection.
-    const queryRunner = DB.createQueryRunner();
-    const connection = await queryRunner.connect();
+    const queryRunner = connection.createQueryRunner();
+    const connectionRaw = await queryRunner.connect();
 
     // Add the extra queries.
-    await Query.addExtraQueries(DB, script);
+    await Query.addExtraQueries(connection, script);
 
     const result: any[] = [];
 
@@ -26,7 +55,7 @@ export class Query {
     for (const query of script.queries) {
       // Execute the queries.
       const resultPromise = new FlatPromise();
-      await connection
+      await connectionRaw
         .all(
           query.query,
           query.params,
