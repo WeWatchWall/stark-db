@@ -38,7 +38,7 @@ router.post('/:DB/login', asyncHandler(async (req: any, res: any) => {
   /* #endregion */
 
   // Call the DBFile Service to load the DBFile connection.
-  await Services.DBFile.add(req.sessionID, DB.toObject());
+  await Services.DBFile.add(req.sessionID, DB);
 
   /* #region User is logged in and DB is found. */
   req.session.user = user.toObject();

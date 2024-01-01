@@ -1,13 +1,13 @@
 import { DataSource } from "typeorm";
 
-import { DBArg } from "../objects/DB";
+import { DBBase } from "../objects/DB";
 import { DBFile as DBFileObject } from "../objects/DBFile";
 import { CONNECTION_EXPIRY } from "../utils/constants";
 
 class DBFileEntry {
   lastQuery: number;
   DBFile: DBFileObject;
-  DB: DBArg;
+  DB: DBBase;
 }
 
 export class DBFile implements Disposable {
@@ -28,7 +28,7 @@ export class DBFile implements Disposable {
     }, CONNECTION_EXPIRY);
   }
 
-  async add(sessionID: string, DB: DBArg): Promise<DataSource> {
+  async add(sessionID: string, DB: DBBase): Promise<DataSource> {
     const key = JSON.stringify({ sessionID, name: DB.name });
     const entry = this.store.get(key);
     if (entry) {
@@ -53,7 +53,7 @@ export class DBFile implements Disposable {
   }
 
   get(sessionID: string, name: string): {
-    DB: DBArg;
+    DB: DBBase;
     connection: DataSource;
   } {
     const key = JSON.stringify({ sessionID, name });

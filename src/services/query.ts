@@ -11,7 +11,7 @@ import { ScriptParse } from "../parser/scriptParse";
 import { SIMPLE, VARS_TABLE } from "../utils/constants";
 import { QueryUtils } from "../utils/queries";
 import { Variable } from "../utils/variable";
-import { DBArg } from '../objects/DB';
+import { DBBase } from '../objects/DB';
 import { ForbiddenError } from '@casl/ability';
 import defineAbilityForDB from '../valid/DB';
 import { DBOp } from '../utils/DBOp';
@@ -19,7 +19,7 @@ import { DBOp } from '../utils/DBOp';
 export class Query {
   static async add(
     user: UserArg,
-    DB: DBArg,
+    DB: DBBase,
     connection: DataSource,
     query: string,
     params: any[]

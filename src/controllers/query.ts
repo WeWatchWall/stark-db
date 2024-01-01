@@ -1,8 +1,7 @@
 import express from 'express';
 import asyncHandler from 'express-async-handler';
-import { DataSource } from 'typeorm';
+import { inspect } from 'util'
 
-import { User } from '../objects/user';
 import { Query } from '../services/query';
 import { Services } from './services';
 
@@ -42,7 +41,7 @@ router.post('/:DB/query', asyncHandler(async (req: any, res: any) => {
     res.status(200).send({ result });
   } catch (error: any) {
     res.status(500).send({
-      error: error,
+      error: `${error.name}: ${error.message}`,
       stack: error.stack,
     });
   }
