@@ -44,15 +44,11 @@ can be seen by running `select * from sqlite_master;` and the user can edit the
 triggers/tables.
 Also, the `-f` flag prevents all modifications related to change tracking.
 
-If the user wants to see query results for every query, they need to run
-one query at a time. Otherwise, only the results of the first query are shown.
-Also, the change tracking API -- i.e. when creating or modifying tables -- 
-expects one query at a time. Breaking down scripts into queries is not a simple
-parsing job as parsing cannot rely on delimiters such as `;`.
-
-Interactive queries are supported due to the stateful nature of the API.
-A DB connection is marked inactive and is refreshed after 1 hour. A session
-cookie to the server is marked inactive after 1 day.
+It is recommended to invoke the API one query at a time although it is possible
+to execute multiple statements in a single invocation. Interactive queries are
+supported due to the stateful nature of the API. A DB connection is marked
+inactive and is refreshed after 1 hour. A session cookie to the server is marked
+inactive after 1 day.
 
 ## CLI
 
