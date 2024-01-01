@@ -290,7 +290,8 @@ Add a DB. Only Admins can do this.
     1,
     2
   ],
-  "users": []
+  "readers": [],
+  "writers": []
 }
 ```
 
@@ -318,7 +319,8 @@ Set a DB. DB Admins can update their own DBs while Admins can update all DBs.
     1,
     2
   ],
-  "users": []
+  "readers": [],
+  "writers": []
 }
 ```
 
