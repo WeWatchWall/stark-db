@@ -84,7 +84,8 @@ router.put('/DBs', asyncHandler(async (req: any, res: any) => {
         ID: parseInt(req.body.ID),
         name: req.body.name,
         admins: req.body.admins,
-        readers: req.body.users,
+        readers: req.body.readers,
+        writers: req.body.writers,
       }
     });
     res.status(200).send(DB.toObject());

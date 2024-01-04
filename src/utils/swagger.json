@@ -392,7 +392,8 @@
                           "enum": [
                               "1",
                               "2",
-                              "3"
+                              "3",
+                              "4"
                           ]
                       },
                       "description": "The DB ID.",
@@ -533,7 +534,8 @@
                           "enum": [
                               "1",
                               "2",
-                              "3"
+                              "3",
+                              "4"
                           ]
                       },
                       "description": "The DB ID"
