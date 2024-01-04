@@ -1,5 +1,6 @@
 import { ForbiddenError } from "@casl/ability";
 import assert from "node:assert";
+import retry from 'async-retry';
 
 import { DB as DBEntity } from "../entities/DB";
 import { User as UserEntity } from "../entities/user";
@@ -9,7 +10,7 @@ import { AdminDBFile, DBFile } from "../objects/DBFile";
 import { User } from "../objects/user";
 import { Variable } from "../objects/variable";
 import { DBOp } from "../utils/DBOp";
-import { ADMIN_NAME, ONE, ZERO } from "../utils/constants";
+import { ADMIN_NAME, DB_EXISTS_CHECK, ONE, ZERO } from "../utils/constants";
 import { Variable as VariableType } from '../utils/variable';
 import defineAbilityForDB from "../valid/DB";
 
@@ -157,13 +158,25 @@ export class DB implements AsyncDisposable {
       .from(defineAbilityForDB(arg.user))
       .throwUnlessCan(DBOp.Admin, localDB);
 
+    // Delete the DB entry.
+    await localDB.delete();
+
+    // Initialize the DB file object.
     const localDBFile = new DBFile({
       name: localDB.name,
       types: []
     });
-    await localDBFile.delete();
 
-    await localDB.delete();
+    // Retry deleting the file until it succeeds.
+    await retry(
+      async (_bail) => {
+        await localDBFile.delete();
+      },
+      {
+        retries: 3,
+        minTimeout: DB_EXISTS_CHECK
+      }
+    );
   }
 
   [Symbol.asyncDispose](): Promise<void> {

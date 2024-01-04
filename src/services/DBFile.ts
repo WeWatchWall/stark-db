@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
 
-import { DBBase } from "../objects/DB";
+import { AdminDB, DBBase } from "../objects/DB";
 import { DBFile as DBFileObject } from "../objects/DBFile";
-import { CONNECTION_EXPIRY } from "../utils/constants";
+import { CONNECTION_EXPIRY, DB_EXISTS_CHECK } from "../utils/constants";
 
 class DBFileEntry {
   lastQuery: number;
@@ -12,11 +12,19 @@ class DBFileEntry {
 
 export class DBFile implements Disposable {
   store: Map<string, DBFileEntry>;
-  interval: NodeJS.Timeout;
 
-  constructor() {
+  private adminDB: AdminDB;
+  
+  private logoutInterval: NodeJS.Timeout;
+  private deleteInterval: NodeJS.Timeout;
+
+  private DBs: Set<string>;
+
+  constructor(adminDB: AdminDB) {
+    this.adminDB = adminDB;
+
     this.store = new Map();
-    this.interval = setInterval(async () => {
+    this.logoutInterval = setInterval(async () => {
       for (const key of this.store.keys()) {
         const entry = this.store.get(key);
 
@@ -26,6 +34,29 @@ export class DBFile implements Disposable {
         await this.delete(sessionID, name);
       }
     }, CONNECTION_EXPIRY);
+
+    this.DBs = new Set();
+    this.deleteInterval = setInterval(async () => {
+      const queriedDBs = (await this
+          .adminDB
+          .DB
+          .query(`SELECT name FROM DB;`)
+        ).map((queriedDB: { name: string }) => queriedDB.name);
+
+      // Add unkown DBs to the known set.
+      for (const DBName of queriedDBs) {
+        this.DBs.add(DBName);
+      }
+
+      // Delete known DBs from the known store.
+      const queriedDBsSet = new Set(queriedDBs);
+      for (const key of this.store.keys()) {
+        const { sessionID, name } = JSON.parse(key);
+        if (queriedDBsSet.has(name)) { continue; }
+
+        await this.delete(sessionID, name);        
+      }
+    }, DB_EXISTS_CHECK);
   }
 
   async add(sessionID: string, DB: DBBase): Promise<DataSource> {
@@ -58,7 +89,7 @@ export class DBFile implements Disposable {
   } {
     const key = JSON.stringify({ sessionID, name });
     const entry = this.store.get(key);
-    if (!entry) { return; }
+    if (!entry) { return { DB: undefined,  connection: undefined }; }
 
     entry.lastQuery = Date.now();
     return {
@@ -77,6 +108,7 @@ export class DBFile implements Disposable {
   }
 
   [Symbol.dispose](): void {
-    clearInterval(this.interval);
+    clearInterval(this.logoutInterval);
+    clearInterval(this.deleteInterval);
   }
 }

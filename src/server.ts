@@ -66,7 +66,7 @@ export class Server {
 
     Services.User = new User(Services.DB.adminDB);
 
-    Services.DBFile = new DBFile();
+    Services.DBFile = new DBFile(Services.DB.adminDB);
     /* #endregion */
 
     /* #region Setup the routes. */
