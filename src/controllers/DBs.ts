@@ -81,7 +81,7 @@ router.put('/DBs', asyncHandler(async (req: any, res: any) => {
     const DB = await Services.DB.set({
       user: sessionUser,
       DB: {
-        ID: parseInt(req.body.ID),
+        ID: req.body.ID,
         name: req.body.name,
         admins: req.body.admins,
         readers: req.body.readers,
