@@ -133,19 +133,36 @@ export class DB implements AsyncDisposable {
   }
 
   async set(arg: { user: User, DB: DBArg }): Promise<DBBase> {
-    const localDB = await this.get(arg);
+    const localDB = await this.get({
+      user: arg.user,
+      DB: { ID: arg.DB.ID }
+    });
 
     ForbiddenError
       .from(defineAbilityForDB(arg.user))
       .throwUnlessCan(DBOp.Admin, localDB);
 
+    const previousName = localDB.name;
+
+    // Update the DB entry.
+    await localDB.save(arg.DB);
+
+    // Initialize the DB file object.
     const localDBFile = new DBFile({
-      name: localDB.name,
+      name: previousName,
       types: []
     });
-    await localDBFile.save({ name: arg.DB.name, types: [] });
 
-    await localDB.save(arg.DB);
+    // Retry updating the file until it succeeds.
+    await retry(
+      async (_bail) => {
+        await localDBFile.save({ name: arg.DB.name, types: [] });
+      },
+      {
+        retries: 3,
+        minTimeout: DB_EXISTS_CHECK
+      }
+    );
 
     return localDB;
   }
