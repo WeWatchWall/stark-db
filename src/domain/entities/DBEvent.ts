@@ -1,10 +1,11 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 import { IEntity, IEntityArg } from './IEntity';
-import { DBArg } from './DB';
+import { EventType } from './eventType';
 
 export class DBEventArg implements IEntityArg {
   EID?: number;
+  type: EventType;
 
   ID: number;
   name?: string;
@@ -23,6 +24,9 @@ export class DBEvent implements IEntity {
   @PrimaryGeneratedColumn()
   EID: number;
     
+  @Column("enum", { enum: EventType })
+  type: EventType;
+
   @Column("integer")
   ID: number;
 
