@@ -1,3 +1,10 @@
+// Numbers
+export const ZERO = 0;
+export const ONE = 1;
+
+// Databases
+export const ADMIN_NAME = 'admin';
+
 // Tables
 const TABLE_PREFIX = 'stark_';
 
