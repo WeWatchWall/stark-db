@@ -8,6 +8,8 @@ export class DBArg implements IEntityArg {
   admins: number[];
   readers: number[];
   writers: number[];
+
+  version: number;
 }
 
 @Entity()
@@ -31,6 +33,9 @@ export class DB implements IEntity {
 
   @Column("simple-json")
   writers: number[];
+
+  @Column("integer")
+  version: number;
 
 }
 

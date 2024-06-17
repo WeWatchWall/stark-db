@@ -7,6 +7,8 @@ export class UserArg implements IEntityArg {
   name: string;
   password: string;
   salt: string;
+
+  version: number;
 }
 
 @Entity()
@@ -28,4 +30,6 @@ export class User implements IEntity {
   @Column()
   salt: string;
 
+  @Column("integer")
+  version: number;
 }

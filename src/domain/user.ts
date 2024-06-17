@@ -14,6 +14,8 @@ export class UserArg {
   salt?: string;
 
   isLoggedIn?: boolean;
+
+  version?: number;
 }
 
 export class User {
@@ -27,6 +29,8 @@ export class User {
   salt: string;
 
   isLoggedIn = false;
+
+  version: number;
 
   constructor(init: UserArg) {
     this.validator = new LazyValidator(
@@ -108,4 +112,6 @@ const UserSave = new ObjectModel({
   name: String,
   password: String,
   salt: String,
+
+  version: Number
 });

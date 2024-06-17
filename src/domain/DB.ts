@@ -13,6 +13,8 @@ export class DBArg {
   admins?: number[];
   readers?: number[];
   writers?: number[];
+
+  version?: number;
 }
 
 /* #region DBBase */
@@ -26,6 +28,8 @@ export abstract class DBBase {
   admins: number[];
   readers: number[];
   writers: number[];
+
+  version: number;
 
   constructor(init: DBArg) {
     this.validator = new LazyValidator(
@@ -114,6 +118,8 @@ const DBSave = new ObjectModel({
   admins: ArrayModel(Number),
   readers: ArrayModel(Number),
   writers: ArrayModel(Number),
+
+  version: Number,
 });
 /* #endregion */
 
@@ -139,5 +145,7 @@ const AdminDBSave = new ObjectModel({
   admins: ArrayModel(Number),
   readers: ArrayModel(Number),
   writers: ArrayModel(Number),
+
+  version: Number,
 });
 /* #endregion */

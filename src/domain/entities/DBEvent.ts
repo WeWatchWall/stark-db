@@ -4,7 +4,7 @@ import { IEntity, IEntityArg } from './IEntity';
 import { EventType } from './eventType';
 
 export class DBEventArg implements IEntityArg {
-  EID?: number;
+  version?: number;
   type: EventType;
 
   ID: number;
@@ -22,7 +22,7 @@ export class DBEvent implements IEntity {
   }
 
   @PrimaryGeneratedColumn()
-  EID: number;
+  version: number;
     
   @Column("enum", { enum: EventType })
   type: EventType;
