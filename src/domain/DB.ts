@@ -1,9 +1,11 @@
 import { ArrayModel, ObjectModel } from "objectmodel";
-import { DataSource } from "typeorm";
+import { DataSource, MoreThan } from "typeorm";
 
 import { ADMIN_NAME, ONE } from "../utils/constants";
 import { LazyValidator } from "../utils/lazyValidator";
 import { DB as DBEntity } from "./entities/DB";
+import { DBEvent } from "./entities/DBEvent";
+import { EventType } from "./entities/eventType";
 
 export class DBArg {
   DB?: DataSource;
@@ -60,7 +62,32 @@ export abstract class DBBase {
       name: this.name,
     });
     Object.assign(this, entity);
+    
+    const events = await this.DB.manager.find(DBEvent, {
+      where: {
+        ID: this.ID,
+        version: MoreThan(this.version),
+      },
+      order: { version: "ASC" },
+    });
+
+    for (const event of events) {
+      this.applyEvent(event);
+    }
   };
+
+  private applyEvent(event: DBEvent): void {
+    if (event.type === EventType.add || event.type === EventType.del) {
+      return;
+    }
+
+    for (const [key, value] of Object.entries(event)) {
+      if (key === "type") { continue; }
+      if (value === undefined || value === null) { continue; }
+      
+      (this as any)[key] = value;
+    }
+  }
 
   async save(): Promise<void> {
     this.validator = new LazyValidator(

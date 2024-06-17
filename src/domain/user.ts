@@ -1,9 +1,11 @@
 import { ObjectModel } from "objectmodel";
-import { DataSource } from "typeorm";
+import { DataSource, MoreThan } from "typeorm";
 
 import { User as UserEntity } from "./entities/user";
 import { LazyValidator } from "../utils/lazyValidator";
 import { Password } from "../utils/password";
+import { UserEvent } from "./entities/userEvent";
+import { EventType } from "./entities/eventType";
 
 export class UserArg {
   DB?: DataSource;
@@ -72,9 +74,34 @@ export class User {
       name: this.name,
     });
     Object.assign(this, entity);
+
+    const events = await this.DB.manager.find(UserEvent, {
+      where: {
+        ID: this.ID,
+        version: MoreThan(this.version),
+      },
+      order: { version: "ASC" },
+    });
+
+    for (const event of events) {
+      this.applyEvent(event);
+    }
   }
 
-  async save(arg: UserArg): Promise<void> {
+  private applyEvent(event: UserEvent): void {
+    if (event.type === EventType.add || event.type === EventType.del) {
+      return;
+    }
+
+    for (const [key, value] of Object.entries(event)) {
+      if (key === "type") { continue; }
+      if (value === undefined || value === null) { continue; }
+      
+      (this as any)[key] = value;
+    }
+  }
+
+  async save(): Promise<void> {
     this.validator = new LazyValidator(
       () => this.validateSave.apply(this, []),
       () => this.readySave.apply(this, [])
