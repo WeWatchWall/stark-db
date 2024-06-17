@@ -76,24 +76,21 @@ export class User {
 
   async save(arg: UserArg): Promise<void> {
     this.validator = new LazyValidator(
-      () => this.validateSave.apply(this, [arg]),
-      () => this.readySave.apply(this, [arg])
+      () => this.validateSave.apply(this, []),
+      () => this.readySave.apply(this, [])
     );
 
     await this.validator.readyAsync();
   }
-  validateSave(arg: UserArg): void { new UserSave(arg); }
-  async readySave(arg: UserArg): Promise<void> {
-    arg.salt = Password.getSalt();
-    arg.password = Password.hash(arg.password, arg.salt);
-
-    const entity = await this.DB.manager.save(UserEntity, arg);
+  validateSave(): void { new UserSave(this); }
+  async readySave(): Promise<void> {
+    const entity = await this.DB.manager.save(UserEntity, this.toObject());
     Object.assign(this, entity);
   }
 
   toObject(): UserArg {
-    const { ID, name, password, salt, isLoggedIn } = this;
-    return { ID, name, password, salt, isLoggedIn };
+    const { ID, name, password, salt, isLoggedIn, version } = this;
+    return { ID, name, password, salt, isLoggedIn, version };
   }
 }
 

@@ -62,29 +62,23 @@ export abstract class DBBase {
     Object.assign(this, entity);
   };
 
-  async save(arg: DBArg): Promise<void> {
+  async save(): Promise<void> {
     this.validator = new LazyValidator(
-      () => this.validateSave.apply(this, [arg]),
-      () => this.readySave.apply(this, [arg])
+      () => this.validateSave.apply(this, []),
+      () => this.readySave.apply(this, [])
     );
 
     await this.validator.readyAsync();
   }
-  protected abstract validateSave(arg: DBArg): void;
-  protected async readySave(arg: DBArg): Promise<void> {
-    // Make each array property unique.
-    arg.admins = Array.from(new Set(arg.admins));
-    arg.readers = Array.from(new Set(arg.readers));
-    arg.writers = Array.from(new Set(arg.writers));
-
-    const entity = await this.DB.manager.save(DBEntity, arg);
-
+  protected abstract validateSave(): void;
+  protected async readySave(): Promise<void> {
+    const entity = await this.DB.manager.save(DBEntity, this.toObject());
     Object.assign(this, entity);
   };
 
   toObject(): DBArg {
-    const { ID, name, admins, readers, writers } = this;
-    return { ID, name, admins, readers, writers };
+    const { ID, name, admins, readers, writers, version } = this;
+    return { ID, name, admins, readers, writers, version };
   }
 }
 
@@ -99,8 +93,8 @@ export class DB extends DBBase {
     new DBLoad(this);
   }
 
-  protected validateSave(arg: DBArg): void {
-    new DBSave(arg);
+  protected validateSave(): void {
+    new DBSave(this);
   }
 }
 
@@ -129,8 +123,8 @@ export class AdminDB extends DBBase {
     new AdminDBLoad(this);
   }
 
-  protected validateSave(arg: DBArg): void {
-    new AdminDBSave(arg);
+  protected validateSave(): void {
+    new AdminDBSave(this);
   }
 }
 
