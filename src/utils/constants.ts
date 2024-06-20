@@ -13,3 +13,10 @@ export const VARS_TABLE = `${TABLE_PREFIX}variables`;
 // Drivers
 export const SQLITE_DRIVER = 'sqlite';
 export const POSTGRES_DRIVER = 'postgres';
+
+// DB Identifiers
+export const DB_IDENTIFIER = 1663328354;
+export const DB_IDENTIFIER_ADMIN = 1663328355;
+
+// Variables
+export const VAR_DB_TYPE = 'db_type';

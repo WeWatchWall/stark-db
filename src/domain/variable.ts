@@ -5,7 +5,7 @@ import { Variable as VariableEntity } from "./entities/variable";
 import { LazyValidator } from "../utils/lazyValidator";
 
 export class VariableArg {
-  DB: DataSource;
+  DB?: DataSource;
 
   name?: string;
   value?: boolean | number | string;
