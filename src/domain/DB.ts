@@ -278,7 +278,7 @@ export class AdminDB extends DBBase {
     new AdminDBChangeSet(arg);
   }
   protected validateChangeDel(arg: DBEventArg): void {
-    new AdminDBChangeDelete(arg);
+    throw new Error("Security error: cannot delete the admin database.");
   }
 }
 
