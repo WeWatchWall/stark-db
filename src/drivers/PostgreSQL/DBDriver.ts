@@ -2,7 +2,7 @@ import { DataSource } from "typeorm";
 import { POSTGRES_DRIVER } from "../../utils/constants";
 import { IDBDriver } from "../IDBDriver";
 
-export class DDriver implements IDBDriver {
+export class DBDriver implements IDBDriver {
   async connect(
     URL: string,
     entities: Function[] = [],
