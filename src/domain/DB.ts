@@ -1,10 +1,10 @@
 import { ArrayModel, ObjectModel } from "objectmodel";
 import { DataSource, MoreThan } from "typeorm";
 
-import { ADMIN_NAME, ONE } from "../utils/constants";
+import { ADMIN_NAME, ONE, ZERO } from "../utils/constants";
 import { LazyValidator } from "../utils/lazyValidator";
 import { DB as DBEntity } from "./entities/DB";
-import { DBEvent } from "./entities/DBEvent";
+import { DBEvent, DBEventArg } from "./entities/DBEvent";
 import { EventType } from "./entities/eventType";
 
 export class DBArg {
@@ -74,10 +74,10 @@ export abstract class DBBase {
     for (const event of events) {
       this.applyEvent(event);
     }
-  };
+  }
 
   private applyEvent(event: DBEvent): void {
-    if (event.type === EventType.add || event.type === EventType.del) {
+    if (event.type === EventType.del) {
       return;
     }
 
@@ -87,6 +87,86 @@ export abstract class DBBase {
       
       (this as any)[key] = value;
     }
+  }
+
+  async change(arg: DBEventArg): Promise<void> {
+    switch (arg.type) {
+      case "add":
+        this.validator = new LazyValidator(
+          () => this.validateChangeAdd.apply(this, [arg]),
+          () => this.readyChangeAdd.apply(this, [arg])
+        );
+        break;
+      case "set":
+        this.validator = new LazyValidator(
+          () => this.validateChangeSet.apply(this, [arg]),
+          () => this.readyChangeSet.apply(this, [arg])
+        );
+        break;
+      case "del":
+        this.validator = new LazyValidator(
+          () => this.validateChangeDel.apply(this, [arg]),
+          () => this.readyChangeDel.apply(this, [arg])
+        );
+          break;
+      default:
+        break;
+    }
+
+    await this.validator.readyAsync();
+  }
+
+  protected abstract validateChangeAdd(arg: DBEventArg): void;
+  protected async readyChangeAdd(arg: DBEventArg): Promise<void> {
+    // Make each array property unique.
+    arg.admins = Array.from(new Set(arg.admins));
+    arg.readers = Array.from(new Set(arg.readers));
+    arg.writers = Array.from(new Set(arg.writers));
+
+    this.version = ZERO;
+    const event = new DBEvent(arg);
+    this.applyEvent(event);
+    
+    await this.save();
+
+    event.ID = this.ID;
+    await this.DB.manager.save(event);
+
+    this.applyEvent(event);
+  }
+
+  protected abstract validateChangeSet(arg: DBEventArg): void;
+  protected async readyChangeSet(arg: DBEventArg): Promise<void> {
+    // Make each array property unique.
+    arg.admins = Array.from(new Set(arg.admins));
+    arg.readers = Array.from(new Set(arg.readers));
+    arg.writers = Array.from(new Set(arg.writers));
+
+    const event = new DBEvent(arg);
+    await this.DB.manager.save(event);
+
+    this.applyEvent(event);
+  }
+
+  protected abstract validateChangeDel(arg: DBEventArg): void;
+  protected async readyChangeDel(arg: DBEventArg): Promise<void> {
+    // Get the DBEntity to delete.
+    const entity = await this.DB.manager.findOneOrFail(DBEntity, {
+      where: {
+        ID: arg.ID,
+        name: arg.name,
+      },
+    });
+    
+    // Delete the DBEntity.
+    await this.DB.manager.delete(DBEntity, {
+      ID: entity.ID,
+    });
+
+    // Delete the related DBEvents.
+    await this.DB.manager.delete(DBEvent, {
+      ID: entity.ID,
+    });
   }
 
   async save(): Promise<void> {
@@ -123,6 +203,16 @@ export class DB extends DBBase {
   protected validateSave(): void {
     new DBSave(this);
   }
+
+  protected validateChangeAdd(arg: DBEventArg): void {
+    new DBChangeAdd(arg);
+  }
+  protected validateChangeSet(arg: DBEventArg): void {
+    new DBChangeSet(arg);
+  }
+  protected validateChangeDel(arg: DBEventArg): void {
+    new DBChangeDelete(arg);
+  }
 }
 
 // TODO: Check if either ID or name is defined.
@@ -142,6 +232,33 @@ const DBSave = new ObjectModel({
 
   version: Number,
 });
+
+const DBChangeAdd = new ObjectModel({
+  ID: undefined,
+  name: String,
+  admins: ArrayModel(Number),
+  readers: ArrayModel(Number),
+  writers: ArrayModel(Number),
+
+  version: undefined,
+});
+
+const DBChangeSet = new ObjectModel({
+  ID: Number,
+  name: [String],
+  admins: [ArrayModel(Number)],
+  readers: [ArrayModel(Number)],
+  writers: [ArrayModel(Number)],
+
+  version: undefined,
+});
+
+const DBChangeDelete = new ObjectModel({
+  ID: [Number],
+  name: [String],
+
+  version: undefined,
+});
 /* #endregion */
 
 /* #region AdminDB */
@@ -152,6 +269,16 @@ export class AdminDB extends DBBase {
 
   protected validateSave(): void {
     new AdminDBSave(this);
+  }
+
+  protected validateChangeAdd(arg: DBEventArg): void {
+    new AdminDBChangeAdd(arg);
+  }
+  protected validateChangeSet(arg: DBEventArg): void {
+    new AdminDBChangeSet(arg);
+  }
+  protected validateChangeDel(arg: DBEventArg): void {
+    new AdminDBChangeDelete(arg);
   }
 }
 
@@ -168,5 +295,32 @@ const AdminDBSave = new ObjectModel({
   writers: ArrayModel(Number),
 
   version: Number,
+});
+
+const AdminDBChangeAdd = new ObjectModel({
+  ID: ONE,
+  name: ADMIN_NAME,
+  admins: ArrayModel(Number),
+  readers: ArrayModel(Number),
+  writers: ArrayModel(Number),
+
+  version: undefined,
+});
+
+const AdminDBChangeSet = new ObjectModel({
+  ID: ONE,
+  name: ADMIN_NAME,
+  admins: [ArrayModel(Number)],
+  readers: [ArrayModel(Number)],
+  writers: [ArrayModel(Number)],
+
+  version: undefined,
+});
+
+const AdminDBChangeDelete = new ObjectModel({
+  ID: ONE,
+  name: ADMIN_NAME,
+
+  version: undefined,
 });
 /* #endregion */
