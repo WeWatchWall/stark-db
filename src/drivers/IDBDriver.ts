@@ -1,6 +1,6 @@
 import { DataSource } from "typeorm";
 
-export interface IDBConnection {
+export interface IDBDriver {
   connect(
     URL: string,
     entities: Function[],

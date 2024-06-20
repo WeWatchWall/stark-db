@@ -1,8 +1,8 @@
 import { DataSource } from "typeorm";
 import { SQLITE_DRIVER } from "../../utils/constants";
-import { IDBConnection } from "../IDBConnection";
+import { IDBDriver } from "../IDBDriver";
 
-export class DBConnection implements IDBConnection {
+export class DBDriver implements IDBDriver {
   async connect(
     URL: string,
     entities: Function[] = [],
