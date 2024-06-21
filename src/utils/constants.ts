@@ -18,5 +18,9 @@ export const POSTGRES_DRIVER = 'postgres';
 export const DB_IDENTIFIER = 1663328354;
 export const DB_IDENTIFIER_ADMIN = 1663328355;
 
-// Variables
-export const VAR_DB_TYPE = 'db_type';
+// Timeouts
+export const SESSION_EXPIRY =
+  parseInt(process.env.STARK_DB_SESSION_EXPIRY) || 1e3 * 60 * 60 * 24;
+export const CONNECTION_EXPIRY = 
+  parseInt(process.env.STARK_DB_CONNECTION_EXPIRY) || 1e3 * 60 * 60;
+export const DB_EXISTS_CHECK = 5e3;

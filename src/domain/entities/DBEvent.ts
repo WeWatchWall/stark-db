@@ -7,7 +7,7 @@ export class DBEventArg implements IEntityArg {
   version?: number;
   type: EventType;
 
-  ID: number;
+  ID?: number;
   name?: string;
   admins?: number[];
   readers?: number[];

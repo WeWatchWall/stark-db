@@ -5,13 +5,11 @@ import {
   ADMIN_NAME,
   DB_IDENTIFIER,
   DB_IDENTIFIER_ADMIN,
-  VAR_DB_TYPE,
 } from "../utils/constants";
 import { LazyValidator } from "../utils/lazyValidator";
 import { DBDriverSwitch } from '../drivers/DBDriverSwitch';
 import { Variable } from './variable';
-
-const PRAGMA_VER = 'user_version';
+import { Variable as VariableName } from "../utils/variable";
 
 export class DBFileArg {
   name: string;
@@ -54,7 +52,7 @@ export abstract class DBFileBase {
   abstract setInit(): Promise<void>;
 
   protected async isType(version: number): Promise<boolean> {
-    const type = new Variable({ DB: this.DB, name: VAR_DB_TYPE });
+    const type = new Variable({ DB: this.DB, name: VariableName.type });
     await type.load();
 
     return type.value === version;
@@ -62,8 +60,8 @@ export abstract class DBFileBase {
 
   protected async setType(version: number): Promise<void> {
     await DBDriverSwitch.provision(this.DB);
-    const type = new Variable({ DB: this.DB, name: VAR_DB_TYPE });
-    await type.save({ name: VAR_DB_TYPE, value: version });
+    const type = new Variable({ DB: this.DB, name: VariableName.type });
+    await type.save({ name: VariableName.type, value: version });
   }
 
   [Symbol.asyncDispose](): Promise<void> {

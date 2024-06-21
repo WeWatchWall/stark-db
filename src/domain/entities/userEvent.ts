@@ -7,7 +7,7 @@ export class UserEventArg implements IEntityArg {
   version?: number;
   type: EventType;
 
-  ID: number;
+  ID?: number;
   name?: string;
   password?: string;
   salt?: string;
