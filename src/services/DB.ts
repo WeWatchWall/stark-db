@@ -4,12 +4,12 @@ import assert from "node:assert";
 
 import { AdminDB, DBArg, DBBase, DB as DBObject } from "../domain/DB";
 import { AdminDBFile, DBFile } from "../domain/DBFile";
-import { DB as DBEntity } from "../domain/entities/DB";
-import { DBEvent as DBEventEntity } from "../domain/entities/DBEvent";
-import { EventType } from "../domain/entities/eventType";
-import { User as UserEntity } from "../domain/entities/user";
-import { UserEvent as UserEventEntity } from "../domain/entities/userEvent";
-import { Variable as VariableEntity } from "../domain/entities/variable";
+import { DB as DBEntity } from "../entities/DB";
+import { DBEvent as DBEventEntity } from "../entities/DBEvent";
+import { EventType } from "../entities/eventType";
+import { User as UserEntity } from "../entities/user";
+import { UserEvent as UserEventEntity } from "../entities/userEvent";
+import { Variable as VariableEntity } from "../entities/variable";
 import { User } from "../domain/user";
 import { Variable } from "../domain/variable";
 import { DBOp } from "../utils/DBOp";

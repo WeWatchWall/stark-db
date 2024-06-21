@@ -1,7 +1,7 @@
 import { ObjectModel } from "objectmodel";
 import { DataSource } from "typeorm";
 
-import { Variable as VariableEntity } from "./entities/variable";
+import { Variable as VariableEntity } from "../entities/variable";
 import { LazyValidator } from "../utils/lazyValidator";
 
 export class VariableArg {

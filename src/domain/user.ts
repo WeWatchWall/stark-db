@@ -1,11 +1,11 @@
 import { ObjectModel } from "objectmodel";
 import { DataSource, MoreThan } from "typeorm";
 
-import { User as UserEntity } from "./entities/user";
+import { User as UserEntity } from "../entities/user";
 import { LazyValidator } from "../utils/lazyValidator";
 import { Password } from "../utils/password";
-import { UserEvent, UserEventArg } from "./entities/userEvent";
-import { EventType } from "./entities/eventType";
+import { UserEvent, UserEventArg } from "../entities/userEvent";
+import { EventType } from "../entities/eventType";
 import { ZERO } from "../utils/constants";
 
 export class UserArg {

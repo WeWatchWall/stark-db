@@ -1,6 +1,6 @@
 import { ForbiddenError } from "@casl/ability";
 
-import { User as UserEntity } from "../domain/entities/user";
+import { User as UserEntity } from "../entities/user";
 import { AdminDB } from "../domain/DB";
 import { UserArg, User as UserObject } from "../domain/user";
 import { CRUD } from "../utils/CRUD";
@@ -9,7 +9,7 @@ import defineAbilityForDB from "../valid/DB";
 import defineAbilityForUser from "../valid/user";
 import assert from "assert";
 import { ADMIN_NAME, ONE } from "../utils/constants";
-import { EventType } from "../domain/entities/eventType";
+import { EventType } from "../entities/eventType";
 
 export class User {
   adminDB: AdminDB;

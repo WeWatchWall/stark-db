@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-import { VARS_TABLE } from '../../utils/constants';
+import { VARS_TABLE } from '../utils/constants';
 import { IEntity, IEntityArg } from './IEntity';
 
 class VariableArg implements IEntityArg {
