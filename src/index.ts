@@ -59,7 +59,7 @@ program
   )
     
   .option(
-    '-h, --host <path>',
+    '-g, --host <path>',
     'Address of the engine host. Env var: STARK_DB_ENGINE_HOST',
     args.host
   )

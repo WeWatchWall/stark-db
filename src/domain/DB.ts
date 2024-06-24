@@ -277,7 +277,7 @@ export class AdminDB extends DBBase {
   protected validateChangeSet(arg: DBEventArg): void {
     new AdminDBChangeSet(arg);
   }
-  protected validateChangeDel(arg: DBEventArg): void {
+  protected validateChangeDel(_arg: DBEventArg): void {
     throw new Error("Security error: cannot delete the admin database.");
   }
 }
@@ -313,13 +313,6 @@ const AdminDBChangeSet = new ObjectModel({
   admins: [ArrayModel(Number)],
   readers: [ArrayModel(Number)],
   writers: [ArrayModel(Number)],
-
-  version: undefined,
-});
-
-const AdminDBChangeDelete = new ObjectModel({
-  ID: ONE,
-  name: ADMIN_NAME,
 
   version: undefined,
 });

@@ -53,15 +53,20 @@ inactive after 1 day.
 ## CLI
 
 ```bash
-  -a, --address <address>  HTTP address to listen on (default: "127.0.0.1")
-  -i, --doc <address>      Address to query by the documentation (default: "https://127.0.0.1")
-  -p, --port <port>        HTTP port to listen on (default: "5983")
-  -s, --ssl <port>         HTTPS port to listen on (default: "5984")
-  -c, --cookie             Secure cookie, served over valid HTTPS only (default: false)
-  -d, --data <path>        Path to the data directory (default: "./data")
-  -k, --certs <path>       Path to the certs directory (default: "./certs")
-  -f, --simple             Do not run change-tracking queries (default: false)
-  -h, --help               display help for command
+  -a, --address <address>    HTTP address to listen on. Env var: STARK_DB_HTTP_LISTEN_ADDRESS (default: "127.0.0.1")
+  -i, --doc <address>        Address to query by the documentation. Env var: STARK_DB_DOC_ADDRESS (default: "https://127.0.0.1")
+  -p, --port <port>          HTTP port to listen on. Env var: STARK_DB_HTTP_PORT (default: "5983")
+  -s, --ssl <port>           HTTPS port to listen on. Env var: STARK_DB_HTTPS_PORT (default: "5984")
+  -c, --cookie               Secure cookie, served over valid HTTPS only. Env var: STARK_DB_COOKIE (default: false)
+  -k, --certs <path>         Path to the certs directory. Env var: STARK_DB_CERTS_DIR (default: "./certs")
+  -f, --simple               Do not run change-tracking queries. Env var: STARK_DB_SIMPLE (default: true)
+  -e, --engine <engine>      The DB engine running underneath, i.e. sqlite or postgres. Env var: STARK_DB_ENGINE (default: "sqlite")
+  -d, --data <path>          Path to the data directory. Env var: STARK_DB_DATA_DIR (default: "./data")
+  -g, --host <path>          Address of the engine host. Env var: STARK_DB_ENGINE_HOST (default: "localhost")
+  -r, --hostPort <port>      Port of the engine host. Env var: STARK_DB_ENGINE_PORT (default: "5432")
+  -u, --username <username>  Username for the engine host. Env var: STARK_DB_ENGINE_USERNAME (default: "postgres")
+  -q, --password <password>  Password for the engine host. Env var: STARK_DB_ENGINE_PASSWORD (default: "postgres")
+  -h, --help                 display help for command
 ```
 ## Wiki
 See the Wiki for [HTTP API Documentation](https://github.com/WeWatchWall/stark-db/wiki/HTTP-API-Documentation).
