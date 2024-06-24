@@ -9,6 +9,7 @@ export class DBDriver implements IDBDriver {
     schemaSync: boolean = false,
 
     host: string = "localhost",
+    port: number = 5432,
     username: string = "postgres",
     password: string = "postgres"
   ): Promise<DataSource> {
@@ -17,6 +18,7 @@ export class DBDriver implements IDBDriver {
       
       database,
       host,
+      port,
 
       username,
       password,

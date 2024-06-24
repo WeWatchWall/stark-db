@@ -132,3 +132,4 @@ dist
 certs/
 data/
 test/data/
+stark-db.json

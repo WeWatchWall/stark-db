@@ -23,7 +23,7 @@ export class UserEvent implements IEntity {
   @PrimaryGeneratedColumn()
   version: number;
 
-  @Column("enum", { enum: EventType })
+  @Column({ type: 'text' })
   type: EventType;
 
   @Column("integer")

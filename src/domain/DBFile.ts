@@ -40,7 +40,6 @@ export abstract class DBFileBase {
   }
   protected abstract validateLoad(): void;
   protected async readyLoad(): Promise<void> {
-    await DBDriverSwitch.init();
     await DBDriverSwitch.createDB(this.name);
     await DBDriverSwitch.connect(this.name, this.types, true);
   }

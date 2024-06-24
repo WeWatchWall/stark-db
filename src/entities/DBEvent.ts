@@ -24,7 +24,7 @@ export class DBEvent implements IEntity {
   @PrimaryGeneratedColumn()
   version: number;
     
-  @Column("enum", { enum: EventType })
+  @Column({ type: 'text' })
   type: EventType;
 
   @Column("integer")

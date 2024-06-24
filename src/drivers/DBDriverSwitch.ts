@@ -1,5 +1,5 @@
 import { DataSource } from "typeorm";
-import * as args from "../utils/args";
+import { args } from "../utils/args";
 import { IDBDriver } from "./IDBDriver";
 import { DBDriver as PostgresDriver } from "./PostgreSQL/DBDriver";
 import { DBDriver as SQLiteDriver } from "./SQLite/DBDriver";
@@ -46,6 +46,7 @@ export class DBDriverSwitch {
           schemaSync,
 
           args.host,
+          <number>args.hostPort,
           args.username,
           args.password
         );
