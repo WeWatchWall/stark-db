@@ -52,7 +52,11 @@ export abstract class DBFileBase {
 
   protected async isType(version: number): Promise<boolean> {
     const type = new Variable({ DB: this.DB, name: VariableName.type });
-    await type.load();
+    try {
+      await type.load();
+    } catch {
+      return false;
+    }
 
     return type.value === version;
   }
