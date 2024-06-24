@@ -79,7 +79,7 @@ inactive after 1 day.
                                                             (default: "postgres")
   -q, --password <password>  STARK_DB_ENGINE_PASSWORD       Password for the engine host.
                                                             (default: "postgres")
-  -h, --help                 display help for command
+  -h, --help                                                display help for command
 ```
 ## Wiki
 See the Wiki for [HTTP API Documentation](https://github.com/WeWatchWall/stark-db/wiki/HTTP-API-Documentation).
