@@ -85,9 +85,6 @@ const options = program.opts();
 
 options.port = parseInt(options.port);
 options.ssl = parseInt(options.ssl);
-options.cookie = options.cookie === 'true' || options.cookie === 't';
-
-options.simple = options.simple === true || options.simple === 'true' || options.simple === 't';
 
 options.enginePort = parseInt(options.enginePort);
 
