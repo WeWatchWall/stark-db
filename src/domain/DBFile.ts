@@ -41,7 +41,7 @@ export abstract class DBFileBase {
   protected abstract validateLoad(): void;
   protected async readyLoad(): Promise<void> {
     await DBDriverSwitch.createDB(this.name);
-    await DBDriverSwitch.connect(this.name, this.types, true);
+    this.DB = await DBDriverSwitch.connect(this.name, this.types, true);
   }
 
   abstract save(arg: DBFileArg): Promise<void>;
