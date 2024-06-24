@@ -53,19 +53,32 @@ inactive after 1 day.
 ## CLI
 
 ```bash
-  -a, --address <address>    STARK_DB_HTTP_LISTEN_ADDRESS   HTTP address to listen on. (default: "127.0.0.1")
-  -i, --doc <address>        STARK_DB_DOC_ADDRESS           Address to query by the documentation. (default: "https://127.0.0.1")
-  -p, --port <port>          STARK_DB_HTTP_PORT             HTTP port to listen on. (default: "5983")
-  -s, --ssl <port>           STARK_DB_HTTPS_PORT            HTTPS port to listen on. (default: "5984")
-  -c, --cookie               STARK_DB_COOKIE                Secure cookie, served over valid HTTPS only. (default: false)
-  -k, --certs <path>         STARK_DB_CERTS_DIR             Path to the certs directory. (default: "./certs")
-  -f, --simple               STARK_DB_SIMPLE                Do not run change-tracking queries. (default: true)
-  -e, --engine <engine>      STARK_DB_ENGINE                The DB engine running underneath, i.e. sqlite or postgres. (default: "sqlite")
-  -d, --data <path>          STARK_DB_DATA_DIR              Path to the data directory. (default: "./data")
-  -g, --host <path>          STARK_DB_ENGINE_HOST           Address of the engine host. (default: "localhost")
-  -r, --hostPort <port>      STARK_DB_ENGINE_PORT           Port of the engine host. (default: "5432")
-  -u, --username <username>  STARK_DB_ENGINE_USERNAME       Username for the engine host. (default: "postgres")
-  -q, --password <password>  STARK_DB_ENGINE_PASSWORD       Password for the engine host. (default: "postgres")
+  -a, --address <address>    STARK_DB_HTTP_LISTEN_ADDRESS   HTTP address to listen on.
+                                                            (default: "127.0.0.1")
+  -i, --doc <address>        STARK_DB_DOC_ADDRESS           Address to query by the documentation.
+                                                            (default: "https://127.0.0.1")
+  -p, --port <port>          STARK_DB_HTTP_PORT             HTTP port to listen on.
+                                                            (default: "5983")
+  -s, --ssl <port>           STARK_DB_HTTPS_PORT            HTTPS port to listen on.
+                                                            (default: "5984")
+  -c, --cookie               STARK_DB_COOKIE                Secure cookie, served over valid HTTPS only.
+                                                            (default: false)
+  -k, --certs <path>         STARK_DB_CERTS_DIR             Path to the certs directory.
+                                                            (default: "./certs")
+  -f, --simple               STARK_DB_SIMPLE                Do not run change-tracking queries.
+                                                            (default: true)
+  -e, --engine <engine>      STARK_DB_ENGINE                The DB engine running underneath, i.e. sqlite or postgres.
+                                                            (default: "sqlite")
+  -d, --data <path>          STARK_DB_DATA_DIR              Path to the data directory.
+                                                            (default: "./data")
+  -g, --host <path>          STARK_DB_ENGINE_HOST           Address of the engine host.
+                                                            (default: "localhost")
+  -r, --hostPort <port>      STARK_DB_ENGINE_PORT           Port of the engine host.
+                                                            (default: "5432")
+  -u, --username <username>  STARK_DB_ENGINE_USERNAME       Username for the engine host.
+                                                            (default: "postgres")
+  -q, --password <password>  STARK_DB_ENGINE_PASSWORD       Password for the engine host.
+                                                            (default: "postgres")
   -h, --help                 display help for command
 ```
 ## Wiki
