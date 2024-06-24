@@ -1,6 +1,6 @@
 {
   "name": "stark-db",
-  "version": "2.3.3",
+  "version": "2.3.4",
   "description": "SQL engine connected to HTTP.",
   "bin": {
     "stark-db": "./dist/src/index.js"

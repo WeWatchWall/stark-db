@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { args } from "./utils/args";
 import { writeFileSync } from 'fs';
 import { Server } from './server';
+import cluster from 'cluster';
 
 const program = new Command();
 
@@ -108,7 +109,9 @@ args.username = process.env.STARK_DB_ENGINE_USERNAME || options.username;
 args.password = process.env.STARK_DB_ENGINE_PASSWORD || options.password;
 
 async function start(): Promise<void>  {
-  writeFileSync('stark-db.json', JSON.stringify(args));
+  if (cluster.isPrimary) {
+    writeFileSync('stark-db.json', JSON.stringify(args));
+  }
 
   await Server.start(); 
 };

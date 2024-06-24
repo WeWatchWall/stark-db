@@ -22,7 +22,6 @@ export class UserArg {
 }
 
 export class User {
-  private validator: LazyValidator;
 
   DB: DataSource;
 
@@ -36,14 +35,10 @@ export class User {
   version: number;
 
   constructor(init: UserArg) {
-    this.validator = new LazyValidator(
-      () => this.validateInit.apply(this, []),
-      () => this.readyInit.apply(this, [])
-    );
-
     if (init != undefined) {
       Object.assign(this, init);
-      this.validator.ready();
+      this.validateInit();
+      this.readyInit();
     }
   }
   private validateInit(): void { new UserInit(this); }
@@ -61,12 +56,8 @@ export class User {
   }
 
   async load(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateLoad.apply(this, []),
-      () => this.readyLoad.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateLoad();
+    await this.readyLoad();
   }
   private validateLoad(): void { new UserLoad(this); }
   private async readyLoad(): Promise<void> {
@@ -90,7 +81,7 @@ export class User {
   }
 
   private applyEvent(event: UserEvent): void {
-    if (event.type === EventType.add || event.type === EventType.del) {
+    if (event.type === EventType.del) {
       return;
     }
 
@@ -106,28 +97,20 @@ export class User {
   async change(arg: UserEventArg): Promise<void> {
     switch (arg.type) {
       case "add":
-        this.validator = new LazyValidator(
-          () => this.validateChangeAdd.apply(this, [arg]),
-          () => this.readyChangeAdd.apply(this, [arg])
-        );
+        this.validateChangeAdd(arg);
+        await this.readyChangeAdd(arg);
         break;
       case "set":
-        this.validator = new LazyValidator(
-          () => this.validateChangeSet.apply(this, [arg]),
-          () => this.readyChangeSet.apply(this, [arg])
-        );
+        this.validateChangeSet(arg);
+        await this.readyChangeSet(arg);
         break;
       case "del":
-        this.validator = new LazyValidator(
-          () => this.validateChangeDel.apply(this, [arg]),
-          () => this.readyChangeDel.apply(this, [arg])
-        );
-          break;
+        this.validateChangeDel(arg);
+        await this.readyChangeDel(arg);
+        break;
       default:
         break;
     }
-
-    await this.validator.readyAsync();
   }
 
   private validateChangeAdd(arg: UserEventArg): void { new UserChangeAdd(arg); }
@@ -182,12 +165,8 @@ export class User {
   }
 
   async save(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateSave.apply(this, []),
-      () => this.readySave.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateSave();
+    await this.readySave();
   }
   private validateSave(): void { new UserSave(this); }
   private async readySave(): Promise<void> {

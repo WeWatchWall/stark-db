@@ -21,7 +21,6 @@ export class DBArg {
 
 /* #region DBBase */
 export abstract class DBBase {
-  protected validator: LazyValidator;
 
   DB: DataSource;
 
@@ -34,26 +33,18 @@ export abstract class DBBase {
   version: number;
 
   constructor(init: DBArg) {
-    this.validator = new LazyValidator(
-      () => this.validateInit.apply(this, []),
-      () => this.readyInit.apply(this, [])
-    );
-
     if (init != undefined) {
       Object.assign(this, init);
-      this.validator.ready();
+      this.validateInit();
+      this.readyInit();
     }
   }
   private validateInit(): void { new DBInit(this); }
   private readyInit(): void { } // NOOP
 
   async load(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateLoad.apply(this, []),
-      () => this.readyLoad.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateLoad();
+    await this.readyLoad();
   }
   protected abstract validateLoad(): void;
   protected async readyLoad(): Promise<void> {
@@ -92,28 +83,20 @@ export abstract class DBBase {
   async change(arg: DBEventArg): Promise<void> {
     switch (arg.type) {
       case "add":
-        this.validator = new LazyValidator(
-          () => this.validateChangeAdd.apply(this, [arg]),
-          () => this.readyChangeAdd.apply(this, [arg])
-        );
+        this.validateChangeAdd(arg);
+        await this.readyChangeAdd(arg);
         break;
       case "set":
-        this.validator = new LazyValidator(
-          () => this.validateChangeSet.apply(this, [arg]),
-          () => this.readyChangeSet.apply(this, [arg])
-        );
+        this.validateChangeSet(arg);
+        await this.readyChangeSet(arg);
         break;
       case "del":
-        this.validator = new LazyValidator(
-          () => this.validateChangeDel.apply(this, [arg]),
-          () => this.readyChangeDel.apply(this, [arg])
-        );
-          break;
+        this.validateChangeDel(arg);
+        await this.readyChangeDel(arg);
+        break;
       default:
         break;
     }
-
-    await this.validator.readyAsync();
   }
 
   protected abstract validateChangeAdd(arg: DBEventArg): void;
@@ -170,12 +153,8 @@ export abstract class DBBase {
   }
 
   async save(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateSave.apply(this, []),
-      () => this.readySave.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateSave();
+    await this.readySave();
   }
   protected abstract validateSave(): void;
   protected async readySave(): Promise<void> {
