@@ -8,14 +8,40 @@ import { DBOp } from "../utils/DBOp";
 import defineAbilityForDB from "../valid/DB";
 import defineAbilityForUser from "../valid/user";
 import assert from "assert";
-import { ADMIN_NAME, ONE } from "../utils/constants";
+import { ADMIN_NAME, DOMAIN_EVENT_PERSIST, ONE, ZERO } from "../utils/constants";
 import { EventType } from "../entities/eventType";
+import { setTimeout } from "timers/promises";
 
 export class User {
   adminDB: AdminDB;
+  private isPrimary: boolean;
 
-  constructor(adminDB: AdminDB) {
+  constructor(adminDB: AdminDB, isPrimary: boolean) {
     this.adminDB = adminDB;
+    this.isPrimary = isPrimary;
+  }
+
+  async init(): Promise<void> {
+    if (!this.isPrimary) { return; }
+
+    void this.updateEntities();
+  }
+
+  
+  async updateEntities(): Promise<void> {
+    while (true) {
+      const localUserEntities = await this.adminDB.DB.manager.find(UserEntity);
+      for (const localUserEntity of localUserEntities) {
+        const localUserObject = new UserObject({
+          DB: this.adminDB.DB,
+          ID: localUserEntity.ID
+        });
+        await localUserObject.load();
+        await localUserObject.save();
+      }
+
+      await setTimeout(DOMAIN_EVENT_PERSIST);
+    }
   }
 
   async add(arg: {session: UserObject, arg: UserArg}): Promise<UserObject> {

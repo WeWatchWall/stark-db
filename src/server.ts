@@ -61,10 +61,11 @@ export class Server {
     app.use(express.json());
 
     /* #region Setup the services. */
-    Services.DB = new DB();
+    Services.DB = new DB(cluster.isPrimary);
     await Services.DB.init();
 
-    Services.User = new User(Services.DB.adminDB);
+    Services.User = new User(Services.DB.adminDB, cluster.isPrimary);
+    await Services.User.init();
 
     Services.DBFile = new DBFile(Services.DB.adminDB);
     /* #endregion */

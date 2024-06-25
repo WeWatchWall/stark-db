@@ -13,15 +13,17 @@ import { Variable as VariableEntity } from "../entities/variable";
 import { User } from "../domain/user";
 import { Variable } from "../domain/variable";
 import { DBOp } from "../utils/DBOp";
-import { ADMIN_NAME, DB_EXISTS_CHECK, ONE, ZERO } from "../utils/constants";
+import { ADMIN_NAME, DB_EXISTS_CHECK, DOMAIN_EVENT_PERSIST, ONE, ZERO } from "../utils/constants";
 import { Variable as VariableType } from '../utils/variable';
 import defineAbilityForDB from "../valid/DB";
+import { setTimeout } from "node:timers/promises";
 
 export class DB implements AsyncDisposable {
   adminDB: AdminDB;
   private adminDBFile: AdminDBFile;
+  private isPrimary: boolean;
 
-  constructor() {
+  constructor(isPrimary: boolean) {
     this.adminDBFile = new AdminDBFile({
       name: ADMIN_NAME,
       types: [
@@ -32,6 +34,8 @@ export class DB implements AsyncDisposable {
         UserEventEntity
       ]
     });
+
+    this.isPrimary = isPrimary;
   }
 
   async init(): Promise<void> {
@@ -42,34 +46,55 @@ export class DB implements AsyncDisposable {
       name: ADMIN_NAME
     });
 
-    if (await this.adminDBFile.isInit()) { await this.adminDB.load(); return; }
+    if (await this.adminDBFile.isInit()) { await this.adminDB.load(); }
+    else {
+      // Initialize the AdminDB.
+      await this.adminDB.change({
+        type: EventType.add,
 
-    // Initialize the AdminDB.
-    await this.adminDB.change({
-      type: EventType.add,
+        ID: ONE,
+        name: ADMIN_NAME,
+        admins: [ONE],
+        readers: [],
+        writers: []
+      });
+      assert.strictEqual(this.adminDB.ID, ONE);
 
-      ID: ONE,
-      name: ADMIN_NAME,
-      admins: [ONE],
-      readers: [],
-      writers: []
-    });
-    assert.strictEqual(this.adminDB.ID, ONE);
+      // Initialize the Admin user.
+      const adminUser = new User({ DB: this.adminDBFile.DB });
+      await adminUser.change({
+        type: EventType.add,
 
-    // Initialize the Admin user.
-    const adminUser = new User({ DB: this.adminDBFile.DB });
-    await adminUser.change({
-      type: EventType.add,
+        ID: ONE,
+        name: ADMIN_NAME,
+        password: ADMIN_NAME,
+        salt: ''
+      });
+      assert.strictEqual(adminUser.ID, ONE);
 
-      ID: ONE,
-      name: ADMIN_NAME,
-      password: ADMIN_NAME,
-      salt: ''
-    });
-    assert.strictEqual(adminUser.ID, ONE);
+      // Initialize the AdminDBFile.
+      await this.adminDBFile.setInit();
+    }
+    
+    if (!this.isPrimary) { return; }
 
-    // Initialize the AdminDBFile.
-    await this.adminDBFile.setInit();
+    void this.updateEntities();
+  }
+
+  async updateEntities(): Promise<void> {
+    while (true) {
+      const localDBEntities = await this.adminDB.DB.manager.find(DBEntity);
+      for (const localDBEntity of localDBEntities) {
+        const localDBObject = new DBObject({
+          DB: this.adminDB.DB,
+          ID: localDBEntity.ID
+        });
+        await localDBObject.load();
+        await localDBObject.save();
+      }
+
+      await setTimeout(DOMAIN_EVENT_PERSIST);
+    }
   }
 
   async add(arg: { user: User, DB: DBArg }): Promise<DBObject> {
