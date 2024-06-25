@@ -41,7 +41,7 @@ export class Server {
       path.join(__dirname, '..', '..', 'src', 'utils', 'swagger.json');
     const swaggerDocument =
       JSON.parse(fs.readFileSync(JSONPath).toString());
-    swaggerDocument.servers[ZERO].url = `${args.doc}:${args.port}`;
+    swaggerDocument.servers[ZERO].url = `${args.doc}:${args.sslPort}`;
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     /* #endregion */
 
