@@ -6,7 +6,6 @@ import {
   DB_IDENTIFIER,
   DB_IDENTIFIER_ADMIN,
 } from "../utils/constants";
-import { LazyValidator } from "../utils/lazyValidator";
 import { DBDriverSwitch } from '../drivers/DBDriverSwitch';
 import { Variable } from './variable';
 import { Variable as VariableName } from "../utils/variable";
@@ -17,8 +16,6 @@ export class DBFileArg {
 }
 
 export abstract class DBFileBase {
-  protected validator: LazyValidator;
-
   name: string;
   types: any[];
 
@@ -31,12 +28,8 @@ export abstract class DBFileBase {
   }
 
   async load(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateLoad.apply(this, []),
-      () => this.readyLoad.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateLoad();
+    await this.readyLoad();
   }
   protected abstract validateLoad(): void;
   protected async readyLoad(): Promise<void> {
@@ -80,12 +73,8 @@ export class DBFile extends DBFileBase {
   }
 
   async save(arg: DBFileArg): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateSave.apply(this, [arg]),
-      () => this.readySave.apply(this, [arg])
-    );
-
-    await this.validator.readyAsync();
+    this.validateSave(arg);
+    await this.readySave(arg);
   }
   protected validateSave(arg: DBFileArg): void {
     new DBInit(arg);
@@ -113,12 +102,8 @@ export class DBFile extends DBFileBase {
   }
 
   async delete(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateDelete.apply(this, []),
-      () => this.readyDelete.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateDelete();
+    await this.readyDelete();
   }
   protected validateDelete(): void { new DBInit(this); }
   protected async readyDelete(): Promise<void> {

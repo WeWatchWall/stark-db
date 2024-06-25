@@ -2,7 +2,6 @@ import { ObjectModel } from "objectmodel";
 import { DataSource } from "typeorm";
 
 import { Variable as VariableEntity } from "../entities/variable";
-import { LazyValidator } from "../utils/lazyValidator";
 
 export class VariableArg {
   DB?: DataSource;
@@ -12,7 +11,6 @@ export class VariableArg {
 }
 
 export class Variable {
-  private validator: LazyValidator;
 
   DB: DataSource;
 
@@ -20,26 +18,18 @@ export class Variable {
   value: boolean | number | string;
 
   constructor(init: VariableArg) {
-    this.validator = new LazyValidator(
-      () => this.validateInit.apply(this, []),
-      () => this.readyInit.apply(this, [])
-    );
-
     if (init != undefined) {
       Object.assign(this, init);
-      this.validator.ready();
+      this.validateInit();
+      this.readyInit();
     }
   }
   private validateInit(): void { new VariableInit(this); }
   private readyInit(): void { } // NOOP
 
   async load(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateLoad.apply(this, []),
-      () => this.readyLoad.apply(this, [])
-    );
-
-    await this.validator.readyAsync();
+    this.validateLoad();
+    await this.readyLoad();
   }
   validateLoad(): void { new VariableLoad(this); }
   async readyLoad(): Promise<void> {
@@ -50,12 +40,8 @@ export class Variable {
   }
 
   async save(arg: VariableArg): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateSave.apply(this, [arg]),
-      () => this.readySave.apply(this, [arg])
-    );
-
-    await this.validator.readyAsync();
+    this.validateSave(arg);
+    await this.readySave(arg);
   }
   validateSave(arg: VariableArg): void { new VariableSave(arg); }
   async readySave(arg: VariableArg): Promise<void> {
@@ -63,12 +49,8 @@ export class Variable {
   }
 
   async delete(): Promise<void> {
-    this.validator = new LazyValidator(
-      () => this.validateDelete.apply(this, []),
-      () => this.readyDelete.apply(this, [])
-    );
-    
-    await this.validator.readyAsync();
+    this.validateDelete();
+    await this.readyDelete();
   }
   validateDelete(): void { new VariableLoad(this); }
   async readyDelete(): Promise<void> {

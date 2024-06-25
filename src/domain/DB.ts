@@ -2,7 +2,6 @@ import { ArrayModel, ObjectModel } from "objectmodel";
 import { DataSource, MoreThan } from "typeorm";
 
 import { ADMIN_NAME, ONE, ZERO } from "../utils/constants";
-import { LazyValidator } from "../utils/lazyValidator";
 import { DB as DBEntity } from "../entities/DB";
 import { DBEvent, DBEventArg } from "../entities/DBEvent";
 import { EventType } from "../entities/eventType";
