@@ -1,7 +1,7 @@
 {
   "name": "stark-db",
   "version": "1.3.4",
-  "description": "Database engine based on SQLite.",
+  "description": "SQL Database engine with an HTTP interface.",
   "bin": {
     "stark-db": "./dist/src/index.js"
   },
@@ -32,6 +32,7 @@
     "eslint": "^8.57.1"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.1",
     "commander": "^12.1.0",
     "postgres": "^3.4.4",
     "sqlite3": "^5.1.7",
