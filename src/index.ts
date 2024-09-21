@@ -63,6 +63,3 @@ process.env.STARK_DB_COOKIE = options.cookie;
 process.env.STARK_DB_DATA_DIR = options.data;
 process.env.STARK_DB_CERTS_DIR = options.certs;
 process.env.STARK_DB_SIMPLE = options.simple;
-
-import { Server } from './server';
-Server.start(); // eslint-disable-line
