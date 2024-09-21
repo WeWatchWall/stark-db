@@ -7,13 +7,14 @@ import { createPinia } from "pinia";
 import { createApp } from "vue";
 
 describe("PGDB", () => {
+  let db: any;
   let clientStub: sinon.SinonStubbedInstance<Client>;
   let optionsStore: ReturnType<typeof useOptionsStore>;
 
   beforeEach(() => {
     const pinia = createPinia();
     const app = createApp({});
-    app.use(pinia)
+    app.use(pinia);
 
     clientStub = sinon.createStubInstance(Client);
     optionsStore = useOptionsStore();
@@ -22,6 +23,9 @@ describe("PGDB", () => {
     optionsStore.pghost = "localhost";
     optionsStore.pgpassword = "postgres";
     optionsStore.pgport = 5432;
+
+    db = new PGDB({ name: "testdb" });
+    db.client = clientStub as unknown as Client;
   });
 
   afterEach(() => {
@@ -29,10 +33,7 @@ describe("PGDB", () => {
   });
 
   it("should create a new database", async () => {
-    const pgdb = new PGDB({ name: "testdb" });
-    pgdb.client = clientStub as unknown as Client;
-
-    await pgdb.add();
+    await db.add();
 
     expect(clientStub.connect.calledOnce).to.be.true;
     expect(clientStub.query.calledWith(`CREATE DATABASE testdb`)).to.be.true;
@@ -40,10 +41,7 @@ describe("PGDB", () => {
   });
 
   it("should delete an existing database", async () => {
-    const pgdb = new PGDB({ name: "testdb" });
-    pgdb.client = clientStub as unknown as Client;
-
-    await pgdb.delete();
+    await db.delete();
 
     expect(clientStub.connect.calledOnce).to.be.true;
     expect(clientStub.query.calledWith(`DROP DATABASE testdb`)).to.be.true;
@@ -51,15 +49,12 @@ describe("PGDB", () => {
   });
 
   it("should rename an existing database", async () => {
-    const pgdb = new PGDB({ name: "testdb" });
-    pgdb.client = clientStub as unknown as Client;
-
-    await pgdb.set("newtestdb");
+    await db.set("newtestdb");
 
     expect(clientStub.connect.calledOnce).to.be.true;
     expect(clientStub.query.calledWith(`ALTER DATABASE testdb RENAME TO newtestdb`)).to.be.true;
     expect(clientStub.end.calledOnce).to.be.true;
 
-    expect(pgdb.name).to.equal("newtestdb");
+    expect(db.name).to.equal("newtestdb");
   });
 });

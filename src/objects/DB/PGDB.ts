@@ -1,7 +1,7 @@
 import { Client } from "pg";
 import { z } from "zod";
 
-import { IDB } from "./IDB";
+import { IDB, IDBSchema } from "./IDB";
 import { useOptionsStore } from "../../stores/options";
 
 export class PGDB implements IDB {
@@ -10,7 +10,7 @@ export class PGDB implements IDB {
   client: Client;
 
   constructor(arg: Partial<PGDB>) {
-    PGDBSchema.parse(arg);
+    IDBSchema.parse(arg);
     Object.assign(this, arg);
 
     const CLIStore = useOptionsStore();
@@ -54,8 +54,3 @@ export class PGDB implements IDB {
     }
   }
 }
-
-const PGDBSchema = z.object({
-  name: z.string(),
-  path: z.union([z.undefined(), z.null()]),
-});

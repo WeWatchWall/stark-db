@@ -24,7 +24,7 @@ export const useOptionsStore = defineStore('options', {
     ssl: 5984,
     cookie: false,
     certs: './certs',
-    engine: 'SQLite',
+    engine: 'SQLite' as DB_TYPES,
     data: './data',
     pghost: 'localhost',
     pgport: 5432,

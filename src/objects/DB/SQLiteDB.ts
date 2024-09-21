@@ -1,20 +1,23 @@
 import * as sqlite3 from "sqlite3";
 import { open } from "sqlite";
 import * as fs from "fs";
-import { computed } from "vue";
-import { z } from "zod";
+import { computed, Ref } from "vue";
 
-import { IDB } from "./IDB";
+
+import { IDB, IDBSchema } from "./IDB";
+import { useOptionsStore } from "../../stores/options";
 
 export class SQLiteDB implements IDB {
   name: string;
-  path?: string;
 
-  private fileName = computed(() => this.path ? `${this.path}/${this.name}.sqlite` : `${this.name}.sqlite`); 
+  private fileName: Ref<string>;
 
   constructor(arg: Partial<SQLiteDB>) {
-    SQLiteDBSchema.parse(arg);
+    IDBSchema.parse(arg);
     Object.assign(this, arg);
+
+    const optionsStore = useOptionsStore();
+    this.fileName = computed(() => `${optionsStore.data}/${this.name}.sqlite`);
   }
 
   // Create a new empty SQLite database file.
@@ -33,13 +36,9 @@ export class SQLiteDB implements IDB {
 
   // Rename an existing SQLite database file.
   async set(name: string) {
-    const newFileName = this.path ? `${this.path}/${name}.sqlite` : `${name}.sqlite`;
+    const optionsStore = useOptionsStore();
+    const newFileName = `${optionsStore.data}/${name}.sqlite`;
     fs.renameSync(this.fileName.value, newFileName);
     this.name = name;
   }
 }
-
-const SQLiteDBSchema = z.object({
-  name: z.string(),
-  path: z.string().optional(),
-});
