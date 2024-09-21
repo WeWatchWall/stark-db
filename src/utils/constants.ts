@@ -1,0 +1,1 @@
+export type DB_TYPES = "SQLite" | "PostgreSQL";

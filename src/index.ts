@@ -1,6 +1,9 @@
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
+import { DB_TYPES } from './utils/constants';
+import { useOptionsStore } from './stores/options';
 
 const program = new Command();
+const CLIStore = useOptionsStore();
 
 program
   .name('stark-db')
@@ -8,58 +11,78 @@ program
 
 program
   .description('Run the Stark DB server')
-  .option(
-    '-a, --address <address>',
-    'HTTP address to listen on',
-    process.env.STARK_DB_HTTP_LISTEN_ADDRESS || '127.0.0.1'
+  .addOption(
+    new Option('-a, --address <address>', 'unprotected HTTP address to listen on')
+      .env('STARK_DB_HTTP_LISTEN_ADDRESS')
+      .default('127.0.0.1')
   )
-  .option(
-    '-i, --doc <address>',
-    'Address to query by the documentation',
-    process.env.STARK_DB_DOCUMENTATION_ADDRESS || 'https://127.0.0.1'
+  .addOption(
+    new Option('-i, --doc <address>', 'Address to query by the documentation')
+      .env('STARK_DB_DOCUMENTATION_ADDRESS')
+      .default('https://127.0.0.1')
   )
-  .option(
-    '-p, --port <port>',
-    'HTTP port to listen on',
-    process.env.STARK_DB_HTTP_PORT || '5983'
+  .addOption(
+    new Option('-p, --port <port>', 'HTTP port to listen on')
+      .env('STARK_DB_HTTP_PORT')
+      .default('5983')
   )
-  .option(
-    '-s, --ssl <port>',
-    'HTTPS port to listen on',
-    process.env.STARK_DB_HTTPS_PORT || '5984'
+  .addOption(
+    new Option('-s, --ssl <port>', 'HTTPS port to listen on')
+      .env('STARK_DB_HTTPS_PORT')
+      .default('5984')
   )
-  .option('-c, --cookie',
-    'Secure cookie, served over valid HTTPS only',
-    process.env.STARK_DB_COOKIE === "true" || false
+  .addOption(
+    new Option('-c, --cookie', 'Secure cookie, served over valid HTTPS only')
+      .env('STARK_DB_COOKIE')
+      .default(false)
   )
-  .option(
-    '-d, --data <path>',
-    'Path to the data directory',
-    process.env.STARK_DB_DATA_DIR || './data'
+  .addOption(
+    new Option('-k, --certs <path>', 'Path to the certs directory')
+      .env('STARK_DB_CERTS_DIR')
+      .default('./certs')
   )
-  .option(
-    '-k, --certs <path>',
-    'Path to the certs directory',
-    process.env.STARK_DB_CERTS_DIR || './certs'
+  
+  .addOption(
+    new Option('-e, --engine <engine>', 'DB engine to use (SQLite, PostgreSQL)')
+      .env('STARK_DB_ENGINE')
+      .default('SQLite')
   )
-  .option('-f, --simple',
-    'Do not run change-tracking queries',
-    process.env.STARK_DB_SIMPLE === "true" || false
+  
+  .addOption(
+    new Option('-d, --data <path>', 'Path to the data directory')
+      .env('STARK_DB_DATA_DIR')
+      .default('./data')
+  )
+  
+  .addOption(
+    new Option('-j, --pghost <address>', 'PostgreSQL host')
+      .env('STARK_DB_PG_HOST')
+      .default('localhost')
+  
+  )
+  .addOption(
+    new Option('-q, --pgport <port>', 'PostgreSQL port')
+      .env('STARK_DB_PG_PORT')
+      .default('5432')
+  )
+  .addOption(
+    new Option('-u, --pguser <path>', 'PostgreSQL user')
+      .env('STARK_DB_PG_USER')
+      .default('postgres')
+  )
+  .addOption(
+    new Option('-r, --pgpassword <password>', 'PostgreSQL password')
+      .env('STARK_DB_PG_PASSWORD')
+      .default('postgres')
   );
 
-program.parse(process.argv);
+program.parse();
 const options = program.opts();
-
+  
 options.port = parseInt(options.port);
 options.ssl = parseInt(options.ssl);
 options.cookie = !!options.cookie;
+options.engine = options.engine === 'PostgreSQL' ? 'PostgreSQL' : 'SQLite' as DB_TYPES;
+options.pgport = parseInt(options.pgport);
 
-// DON'T USE CONSTANTS IN THIS FILE SO THEY CAN BE PRE-SET BY THE CLI
-process.env.STARK_DB_HTTP_LISTEN_ADDRESS = options.address;
-process.env.STARK_DB_DOCUMENTATION_ADDRESS = options.doc;
-process.env.STARK_DB_HTTP_PORT = options.port;
-process.env.STARK_DB_HTTPS_PORT = options.ssl;
-process.env.STARK_DB_COOKIE = options.cookie;
-process.env.STARK_DB_DATA_DIR = options.data;
-process.env.STARK_DB_CERTS_DIR = options.certs;
-process.env.STARK_DB_SIMPLE = options.simple;
+CLIStore.setOptions(options);
