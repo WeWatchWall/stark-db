@@ -1,9 +1,18 @@
 import { Command, Option } from 'commander';
-import { DB_TYPES } from './utils/constants';
+import { createPinia } from 'pinia';
+import { createApp } from 'vue';
+
 import { useOptionsStore } from './stores/options';
+import { DB_TYPES } from './utils/constants';
+
+
+const pinia = createPinia();
+const app = createApp({});
+app.use(pinia);
+
+const CLIStore = useOptionsStore();
 
 const program = new Command();
-const CLIStore = useOptionsStore();
 
 program
   .name('stark-db')
