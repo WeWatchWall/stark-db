@@ -20,13 +20,38 @@ export class SQLiteDB implements IDB {
     this.fileName = computed(() => `${optionsStore.data}/${this.name}.sqlite`);
   }
 
+  // Get whether there exists a SQLite database file.
+  async get() {
+    const fileExists = fs.existsSync(this.fileName.value);
+    if (!fileExists) return false;
+
+    let db;
+    try {
+      db = await open({
+        filename: this.fileName.value,
+        driver: sqlite3.Database
+      });
+      return true;
+    } catch (error) {
+      return false;
+    } finally {
+      await db?.close();
+    }
+  }
+
+
   // Create a new empty SQLite database file.
   async add() {
-    const db = await open({
-      filename: this.fileName.value,
-      driver: sqlite3.Database
-    });
-    await db.close();
+    let db;
+    
+    try {
+      db = await open({
+        filename: this.fileName.value,
+        driver: sqlite3.Database
+      });
+    } finally {
+      await db?.close();
+    }
   }
 
   // Remove an existing SQLite database file.

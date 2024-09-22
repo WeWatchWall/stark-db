@@ -32,7 +32,29 @@ describe("PGDB", () => {
     sinon.restore();
   });
 
-  it("should create a new database", async () => {
+  it("ctor: should initialize correctly", () => {
+    expect(db.name).to.equal("testdb");
+  });
+
+  it('get: should return true if the database exists', async function() {
+    clientStub.connect.resolves();
+    clientStub.query.resolves({ rowCount: 1 });
+    clientStub.end.resolves();
+
+    const result = await db.get();
+    expect(result).to.be.true;
+  });
+
+  it('get: should return false if the database does not exist', async function() {
+    clientStub.connect.resolves();
+    clientStub.query.resolves({ rowCount: 0 });
+    clientStub.end.resolves();
+
+    const result = await db.get();
+    expect(result).to.be.false;
+  });
+
+  it("add: should create a new database", async () => {
     await db.add();
 
     expect(clientStub.connect.calledOnce).to.be.true;
@@ -40,7 +62,7 @@ describe("PGDB", () => {
     expect(clientStub.end.calledOnce).to.be.true;
   });
 
-  it("should delete an existing database", async () => {
+  it("delete: should delete an existing database", async () => {
     await db.delete();
 
     expect(clientStub.connect.calledOnce).to.be.true;
@@ -48,7 +70,7 @@ describe("PGDB", () => {
     expect(clientStub.end.calledOnce).to.be.true;
   });
 
-  it("should rename an existing database", async () => {
+  it("set: should rename an existing database", async () => {
     await db.set("newtestdb");
 
     expect(clientStub.connect.calledOnce).to.be.true;

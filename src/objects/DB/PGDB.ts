@@ -23,6 +23,17 @@ export class PGDB implements IDB {
     });
   }
 
+  // Get whether there exists a PostgreSQL database.
+  async get() {
+    try {
+      await this.client.connect();
+      const res = await this.client.query(`SELECT 1 FROM pg_database WHERE datname = '${this.name}'`);
+      return res.rowCount === 1;
+    } finally {
+      await this.client.end(); 
+    }
+  }
+
   // Create a new empty PostgreSQL database.
   async add() {
     try {

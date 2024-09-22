@@ -9,14 +9,17 @@ import { useOptionsStore } from "../../../src/stores/options";
 describe("SQLiteDB", () => {
   let db: any;
   let openStub: sinon.SinonStub;
+  let existsSyncStub: sinon.SinonStub;
   let unlinkSyncStub: sinon.SinonStub;
   let renameSyncStub: sinon.SinonStub;
   let optionsStore: ReturnType<typeof useOptionsStore>;
 
   beforeEach(() => {
+    existsSyncStub = sinon.stub();
     unlinkSyncStub = sinon.stub();
     renameSyncStub = sinon.stub();
     const fsMock = {
+      existsSync: existsSyncStub,
       unlinkSync: unlinkSyncStub,
       renameSync: renameSyncStub,
     };
@@ -44,23 +47,48 @@ describe("SQLiteDB", () => {
     sinon.restore();
   });
 
-  it("should initialize correctly", () => {
+  it("ctor: should initialize correctly", () => {
     expect(db.name).to.equal("testDB");
   });
 
-  it("should create a new database file on add", async () => {
+  it('get: should return false if the database file does not exist', async function() {
+    existsSyncStub.returns(false);
+
+    const result = await db.get();
+    expect(result).to.be.false;
+  });
+
+  it('get: should return true if the database file exists and can be opened', async function() {
+    existsSyncStub.returns(true);
+    openStub.resolves({
+      close: sinon.stub().resolves()
+    });
+
+    const result = await db.get();
+    expect(result).to.be.true;
+  });
+
+  it('get: should return false if there is an error opening the database file', async function() {
+    existsSyncStub.returns(true);
+    openStub.rejects(new Error('Failed to open'));
+
+    const result = await db.get();
+    expect(result).to.be.false;
+  });
+
+  it("add: should create a new database file", async () => {
     await db.add();
     expect(openStub.calledOnce).to.be.true;
     expect(openStub.firstCall.args[0].filename).to.equal("./test/data/testDB.sqlite");
   });
 
-  it("should delete the database file on delete", () => {
+  it("delete: should delete the database file", () => {
     db.delete();
     expect(unlinkSyncStub.calledOnce).to.be.true;
     expect(unlinkSyncStub.firstCall.args[0]).to.equal("./test/data/testDB.sqlite");
   });
 
-  it("should rename the database file on set", () => {
+  it("set: should rename the database file", () => {
     db.set("newName");
     expect(renameSyncStub.calledOnce).to.be.true;
     expect(renameSyncStub.firstCall.args[0]).to.equal("./test/data/testDB.sqlite");
