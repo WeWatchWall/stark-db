@@ -5,9 +5,10 @@ import * as sinon from "sinon";
 import { createApp } from "vue";
 
 import { useOptionsStore } from "../../../src/stores/options";
+import { SQLiteDB } from "../../../src/objects/DB/SQLiteDB";
 
 describe("SQLiteDB", () => {
-  let db: any;
+  let db: SQLiteDB;
   let openStub: sinon.SinonStub;
   let existsSyncStub: sinon.SinonStub;
   let unlinkSyncStub: sinon.SinonStub;
@@ -24,7 +25,9 @@ describe("SQLiteDB", () => {
       renameSync: renameSyncStub,
     };
 
-    openStub = sinon.stub().resolves({ close: sinon.stub().resolves() } as any);
+    openStub = sinon.stub().resolves({ 
+      close: sinon.stub().resolves() 
+    } as any);
     const { SQLiteDB } = proxyquire("../../../src/objects/DB/SQLiteDB", {
       fs: fsMock,
       sqlite: {
@@ -47,18 +50,18 @@ describe("SQLiteDB", () => {
     sinon.restore();
   });
 
-  it("ctor: should initialize correctly", () => {
+  it("constructor: should set the database name correctly", () => {
     expect(db.name).to.equal("testDB");
   });
 
-  it('get: should return false if the database file does not exist', async function() {
+  it('get: returns false if the database file does not exist', async function() {
     existsSyncStub.returns(false);
 
     const result = await db.get();
     expect(result).to.be.false;
   });
 
-  it('get: should return true if the database file exists and can be opened', async function() {
+  it('get: returns true if the database file exists and can be opened', async function() {
     existsSyncStub.returns(true);
     openStub.resolves({
       close: sinon.stub().resolves()
@@ -68,7 +71,7 @@ describe("SQLiteDB", () => {
     expect(result).to.be.true;
   });
 
-  it('get: should return false if there is an error opening the database file', async function() {
+  it('get: returns false if there is an error opening the database file', async function() {
     existsSyncStub.returns(true);
     openStub.rejects(new Error('Failed to open'));
 
@@ -76,19 +79,19 @@ describe("SQLiteDB", () => {
     expect(result).to.be.false;
   });
 
-  it("add: should create a new database file", async () => {
+  it("add: creates a new database file", async () => {
     await db.add();
     expect(openStub.calledOnce).to.be.true;
     expect(openStub.firstCall.args[0].filename).to.equal("./test/data/testDB.sqlite");
   });
 
-  it("delete: should delete the database file", () => {
+  it("delete: deletes the database file", () => {
     db.delete();
     expect(unlinkSyncStub.calledOnce).to.be.true;
     expect(unlinkSyncStub.firstCall.args[0]).to.equal("./test/data/testDB.sqlite");
   });
 
-  it("set: should rename the database file", () => {
+  it("set: renames the database file", () => {
     db.set("newName");
     expect(renameSyncStub.calledOnce).to.be.true;
     expect(renameSyncStub.firstCall.args[0]).to.equal("./test/data/testDB.sqlite");

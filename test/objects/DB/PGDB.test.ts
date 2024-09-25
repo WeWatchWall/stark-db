@@ -7,7 +7,7 @@ import { createPinia } from "pinia";
 import { createApp } from "vue";
 
 describe("PGDB", () => {
-  let db: any;
+  let db: PGDB;
   let clientStub: sinon.SinonStubbedInstance<Client>;
   let optionsStore: ReturnType<typeof useOptionsStore>;
 
@@ -32,11 +32,11 @@ describe("PGDB", () => {
     sinon.restore();
   });
 
-  it("ctor: should initialize correctly", () => {
+  it("constructor: sets the db name correctly", () => {
     expect(db.name).to.equal("testdb");
   });
 
-  it('get: should return true if the database exists', async function() {
+  it('get: returns true if the database exists', async function() {
     clientStub.connect.resolves();
     clientStub.query.resolves({ rowCount: 1 });
     clientStub.end.resolves();
@@ -45,7 +45,7 @@ describe("PGDB", () => {
     expect(result).to.be.true;
   });
 
-  it('get: should return false if the database does not exist', async function() {
+  it('get: returns false if the database does not exist', async function() {
     clientStub.connect.resolves();
     clientStub.query.resolves({ rowCount: 0 });
     clientStub.end.resolves();
@@ -54,7 +54,7 @@ describe("PGDB", () => {
     expect(result).to.be.false;
   });
 
-  it("add: should create a new database", async () => {
+  it("add: creates a new database", async () => {
     await db.add();
 
     expect(clientStub.connect.calledOnce).to.be.true;
@@ -62,7 +62,7 @@ describe("PGDB", () => {
     expect(clientStub.end.calledOnce).to.be.true;
   });
 
-  it("delete: should delete an existing database", async () => {
+  it("delete: deletes an existing database", async () => {
     await db.delete();
 
     expect(clientStub.connect.calledOnce).to.be.true;
@@ -70,7 +70,7 @@ describe("PGDB", () => {
     expect(clientStub.end.calledOnce).to.be.true;
   });
 
-  it("set: should rename an existing database", async () => {
+  it("set: renames an existing database", async () => {
     await db.set("newtestdb");
 
     expect(clientStub.connect.calledOnce).to.be.true;
