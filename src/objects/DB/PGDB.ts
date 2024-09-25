@@ -1,5 +1,4 @@
 import { Client } from "pg";
-import { z } from "zod";
 
 import { IDB, IDBSchema } from "./IDB";
 import { useOptionsStore } from "../../stores/options";

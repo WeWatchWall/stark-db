@@ -3,9 +3,10 @@ import { z } from "zod";
 export interface IDB {
   name: string;
 
-  add(): void;
-  delete(): void;
-  set(name: string): void;
+  get(): Promise<boolean>;
+  add(): Promise<void>;
+  delete(): Promise<void>;
+  set(name: string): Promise<void>;
 }
 
 
