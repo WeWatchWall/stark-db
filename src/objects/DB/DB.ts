@@ -1,51 +1,51 @@
 import { useOptionsStore } from "../../stores/options";
-import { IDB } from "./IDB";
+import { IDB, IDBArg } from "./IDB";
 import { PGDB } from "./PGDB";
 import { SQLiteDB } from "./SQLiteDB";
 
 export class DB implements IDB {
-  private db: IDB;
+  private driver: IDB;
 
-  constructor(arg: {name: string}) {
+  constructor(arg: IDBArg) {
     const optionsStore = useOptionsStore();
     if (optionsStore.engine === "SQLite") {
-      this.db = new SQLiteDB(arg as Partial<SQLiteDB>);
+      this.driver = new SQLiteDB(arg);
     } else if (optionsStore.engine === "PostgreSQL") {
-      this.db = new PGDB(arg as Partial<PGDB>);
+      this.driver = new PGDB(arg);
     } else {
       throw new Error("Unsupported database engine");
     }
   }
 
   get name() {
-    return this.db.name;
+    return this.driver.name;
   }
-  set name(name: string) {
-    this.db.name = name;
+  set name(_name: string) {
+    throw new Error("Invalid operation.");
   }
 
   async get() {
-    return await this.db.get();
+    return await this.driver.get();
   }
 
   async add() {
-    if (await this.db.get()) {
+    if (await this.driver.get()) {
       throw new Error("Database already exists");
     }
-    await this.db.add();
+    await this.driver.add();
   }
 
   async delete() {
-    if (!(await this.db.get())) {
+    if (!(await this.driver.get())) {
       throw new Error("Database does not exist");
     }
-    await this.db.delete();
+    await this.driver.delete();
   }
 
   async set(name: string) {
-    if (!(await this.db.get())) {
+    if (!(await this.driver.get())) {
       throw new Error("Database does not exist");
     }
-    await this.db.set(name);
+    await this.driver.set(name);
   }
 }
