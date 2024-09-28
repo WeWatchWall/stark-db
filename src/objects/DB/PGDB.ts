@@ -35,7 +35,7 @@ export class PGDB implements IDB {
   // Get whether there exists a PostgreSQL database.
   async get() {
     await this.init();
-    const res = await this.client.query(`SELECT 1 FROM pg_database WHERE datname = '${this.name}'`);
+    const res = await this.client.query(`SELECT 1 FROM pg_database WHERE datname = '${this.name.toLowerCase()}'`);
     return res.rowCount === 1;
   }
 

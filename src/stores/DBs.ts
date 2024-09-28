@@ -45,7 +45,10 @@ export const useDBsStore = defineStore('DBs', () => {
         tables: { load: { DBs: 'DBs' }, save: { DBs: 'DBs' } }
       });
     } else if (optionsStore.engine === 'PostgreSQL') {
-      persister = await createPostgresPersister(store, connection.connection);
+      persister = await createPostgresPersister(store, connection.connection, {
+        mode: 'tabular',
+        tables: { load: { DBs: 'DBs' }, save: { DBs: 'DBs' } }
+      });
     }
 
     await persister.startAutoLoad();
