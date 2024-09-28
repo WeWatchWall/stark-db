@@ -8,13 +8,15 @@ export class PGDB implements IDB {
 
   client: Client;
 
+  private isInit = false;
+
   constructor(arg: Partial<PGDB>) {
     IDBSchema.parse(arg);
     Object.assign(this, arg);
 
     const CLIStore = useOptionsStore();
 
-    this.client =  new Client({
+    this.client = new Client({
       user: CLIStore.pguser,
       host: CLIStore.pghost,
       password: CLIStore.pgpassword,
@@ -22,45 +24,41 @@ export class PGDB implements IDB {
     });
   }
 
+  private async init() {
+    if (this.isInit) return;
+
+    await this.client.connect();
+
+    this.isInit = true;
+  }
+
   // Get whether there exists a PostgreSQL database.
   async get() {
-    try {
-      await this.client.connect();
-      const res = await this.client.query(`SELECT 1 FROM pg_database WHERE datname = '${this.name}'`);
-      return res.rowCount === 1;
-    } finally {
-      await this.client.end(); 
-    }
+    await this.init();
+    const res = await this.client.query(`SELECT 1 FROM pg_database WHERE datname = '${this.name}'`);
+    return res.rowCount === 1;
   }
 
   // Create a new empty PostgreSQL database.
   async add() {
-    try {
-      await this.client.connect();
-      await this.client.query(`CREATE DATABASE ${this.name}`);
-    } finally {
-      await this.client.end(); 
-    }
+    await this.init();
+    await this.client.query(`CREATE DATABASE ${this.name}`);
   }
 
   // Remove an existing PostgreSQL database.
   async delete() {
-    try {
-      await this.client.connect();
-      await this.client.query(`DROP DATABASE ${this.name}`);
-    } finally {
-      await this.client.end(); 
-    }
+    await this.init();
+    await this.client.query(`DROP DATABASE ${this.name}`);
   }
 
   // Rename an existing PostgreSQL database.
   async set(name: string) {
-    try {
-      await this.client.connect();
-      await this.client.query(`ALTER DATABASE ${this.name} RENAME TO ${name}`);
-      this.name = name;
-    } finally {
-      await this.client.end(); 
-    }
+    await this.init();
+    await this.client.query(`ALTER DATABASE ${this.name} RENAME TO ${name}`);
+    this.name = name;
+  }
+
+  async destroy() {
+    await this.client.end();
   }
 }

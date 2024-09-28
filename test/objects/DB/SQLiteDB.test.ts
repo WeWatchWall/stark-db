@@ -13,16 +13,19 @@ describe("SQLiteDB", () => {
   let existsSyncStub: sinon.SinonStub;
   let unlinkSyncStub: sinon.SinonStub;
   let renameSyncStub: sinon.SinonStub;
+  let mkdirSyncStub: sinon.SinonStub;
   let optionsStore: ReturnType<typeof useOptionsStore>;
 
   beforeEach(() => {
     existsSyncStub = sinon.stub();
     unlinkSyncStub = sinon.stub();
     renameSyncStub = sinon.stub();
+    mkdirSyncStub = sinon.stub();
     const fsMock = {
       existsSync: existsSyncStub,
       unlinkSync: unlinkSyncStub,
       renameSync: renameSyncStub,
+      mkdirSync: mkdirSyncStub,
     };
 
     openStub = sinon.stub().resolves({ 
@@ -82,20 +85,20 @@ describe("SQLiteDB", () => {
   it("add: creates a new database file", async () => {
     await db.add();
     expect(openStub.calledOnce).to.be.true;
-    expect(openStub.firstCall.args[0].filename).to.equal("./test/data/testDB.sqlite");
+    expect(openStub.firstCall.args[0].filename).to.equal("./test/data/testDB");
   });
 
   it("delete: deletes the database file", () => {
     db.delete();
     expect(unlinkSyncStub.calledOnce).to.be.true;
-    expect(unlinkSyncStub.firstCall.args[0]).to.equal("./test/data/testDB.sqlite");
+    expect(unlinkSyncStub.firstCall.args[0]).to.equal("./test/data/testDB");
   });
 
   it("set: renames the database file", () => {
     db.set("newName");
     expect(renameSyncStub.calledOnce).to.be.true;
-    expect(renameSyncStub.firstCall.args[0]).to.equal("./test/data/testDB.sqlite");
-    expect(renameSyncStub.firstCall.args[1]).to.equal("./test/data/newName.sqlite");
+    expect(renameSyncStub.firstCall.args[0]).to.equal("./test/data/testDB");
+    expect(renameSyncStub.firstCall.args[1]).to.equal("./test/data/newName");
     expect(db.name).to.equal("newName");
   });
 });

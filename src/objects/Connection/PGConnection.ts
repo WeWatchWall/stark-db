@@ -16,7 +16,7 @@ export class PGConnection implements IConnection {
   }
   async add() {
     const optionsStore = useOptionsStore();
-    this.connection = postgres({
+    this.connection = postgres("", {
       database: this.name,
       host: optionsStore.pghost,
       port: optionsStore.pgport,

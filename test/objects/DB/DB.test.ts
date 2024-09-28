@@ -24,13 +24,13 @@ describe('DB Class', () => {
     it('should initialize SQLiteDB when engine is SQLite', () => {
       optionsStoreStub.returns({ engine: 'SQLite' });
       const db = new DB({name: "Data"});
-      expect(db['db']).to.be.instanceOf(SQLiteDB);
+      expect(db['driver']).to.be.instanceOf(SQLiteDB);
     });
 
     it('should initialize PGDB when engine is PostgreSQL', () => {
       optionsStoreStub.returns({ engine: 'PostgreSQL' });
       const db = new DB({name: "Data"});
-      expect(db['db']).to.be.instanceOf(PGDB);
+      expect(db['driver']).to.be.instanceOf(PGDB);
     });
 
     it('should throw error for unsupported engine', () => {
@@ -42,7 +42,7 @@ describe('DB Class', () => {
   describe('name property', () => {
     it('should get the name from the underlying db', () => {
       const dbInstance = new DB({name: "Data"});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.name = 'TestDB';
 
       expect(dbInstance.name).to.equal('TestDB');
@@ -50,17 +50,22 @@ describe('DB Class', () => {
 
     it('should set the name on the underlying db', () => {
       const dbInstance = new DB({name: "Data"});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
 
-      dbInstance.name = 'NewName';
-      expect(sqliteDBStub.name).to.equal('NewName');
+      let error: any;
+      try {
+        dbInstance.name = 'NewName';
+      } catch (err: any) {
+        error = err;
+      }
+      expect(error.message).to.equal('Invalid operation.');
     });
   });
 
   describe('get method', () => {
     it('should call get on the underlying db', async () => {
       const dbInstance = new DB({name: 'Data'});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(true);
 
       const result = await dbInstance.get();
@@ -72,7 +77,7 @@ describe('DB Class', () => {
   describe('add method', () => {
     it('should throw error if db already exists', async () => {
       const dbInstance = new DB({name: 'Data'});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(true);
 
       try {
@@ -84,7 +89,7 @@ describe('DB Class', () => {
 
     it('should call add on the underlying db if db does not exist', async () => {
         const dbInstance = new DB({name: "Data"});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(false);
 
       await dbInstance.add();
@@ -95,7 +100,7 @@ describe('DB Class', () => {
   describe('delete method', () => {
     it('should throw error if db does not exist', async () => {
       const dbInstance = new DB({name: "Data"});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(false);
 
       try {
@@ -107,7 +112,7 @@ describe('DB Class', () => {
 
     it('should call delete on the underlying db if db exists', async () => {
       const dbInstance = new DB({name: 'Data'});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(true);
 
       await dbInstance.delete();
@@ -118,7 +123,7 @@ describe('DB Class', () => {
   describe('set method', () => {
     it('should throw error if db does not exist', async () => {
       const dbInstance = new DB({name: 'Data'});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(false);
 
       try {
@@ -130,7 +135,7 @@ describe('DB Class', () => {
 
     it('should call set on the underlying db if db exists', async () => {
       const dbInstance = new DB({name: 'Data'});
-      dbInstance['db'] = sqliteDBStub as unknown as IDB;
+      dbInstance['driver'] = sqliteDBStub as unknown as IDB;
       sqliteDBStub.get.resolves(true);
 
       await dbInstance.set('NewName');

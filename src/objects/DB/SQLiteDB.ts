@@ -17,7 +17,7 @@ export class SQLiteDB implements IDB {
     Object.assign(this, arg);
 
     const optionsStore = useOptionsStore();
-    this.fileName = computed(() => `${optionsStore.data}/${this.name}.sqlite`);
+    this.fileName = computed(() => `${optionsStore.data}/${this.name}`);
   }
 
   // Get whether there exists a SQLite database file.
@@ -45,6 +45,12 @@ export class SQLiteDB implements IDB {
     let db;
     
     try {
+      // Check if the path exists, if not create it.
+      const optionsStore = useOptionsStore();
+      if (!fs.existsSync(optionsStore.data)) {
+        fs.mkdirSync(optionsStore.data);
+      }
+
       db = await open({
         filename: this.fileName.value,
         driver: sqlite3.Database
@@ -62,7 +68,7 @@ export class SQLiteDB implements IDB {
   // Rename an existing SQLite database file.
   async set(name: string) {
     const optionsStore = useOptionsStore();
-    const newFileName = `${optionsStore.data}/${name}.sqlite`;
+    const newFileName = `${optionsStore.data}/${name}`;
     fs.renameSync(this.fileName.value, newFileName);
     this.name = name;
   }

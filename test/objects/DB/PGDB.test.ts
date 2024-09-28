@@ -59,7 +59,6 @@ describe("PGDB", () => {
 
     expect(clientStub.connect.calledOnce).to.be.true;
     expect(clientStub.query.calledWith(`CREATE DATABASE testdb`)).to.be.true;
-    expect(clientStub.end.calledOnce).to.be.true;
   });
 
   it("delete: deletes an existing database", async () => {
@@ -67,7 +66,6 @@ describe("PGDB", () => {
 
     expect(clientStub.connect.calledOnce).to.be.true;
     expect(clientStub.query.calledWith(`DROP DATABASE testdb`)).to.be.true;
-    expect(clientStub.end.calledOnce).to.be.true;
   });
 
   it("set: renames an existing database", async () => {
@@ -75,7 +73,6 @@ describe("PGDB", () => {
 
     expect(clientStub.connect.calledOnce).to.be.true;
     expect(clientStub.query.calledWith(`ALTER DATABASE testdb RENAME TO newtestdb`)).to.be.true;
-    expect(clientStub.end.calledOnce).to.be.true;
 
     expect(db.name).to.equal("newtestdb");
   });

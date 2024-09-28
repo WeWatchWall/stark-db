@@ -1,4 +1,4 @@
-function flatPromise() {
+export default function flatPromise() {
 
   let resolve: (value?: any) => void, reject: (value?: any) => void;
 
