@@ -7,7 +7,7 @@ import { DB } from '../../src/objects/DB/DB';
 import { DB_ADMIN_NAME } from '../../src/utils/constants';
 import { useEntitySyncStore } from '../../src/stores/EntitySync';
 
-describe.skip('useDBsStore End-to-End Tests', () => {
+describe('useDBsStore End-to-End Tests', () => {
   const sampleDB = {
     id: 'test-db',
     enabled: true,
@@ -81,7 +81,7 @@ describe.skip('useDBsStore End-to-End Tests', () => {
         });
       });
 
-      it.skip('should delete a DB entry', async () => {
+      it('should delete a DB entry', async () => {
         await dbsStore.del(sampleDB.id);
         const result = await dbsStore.get(sampleDB.id);
         expect(result).to.deep.equal({});
