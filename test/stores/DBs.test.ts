@@ -41,7 +41,7 @@ describe.skip('useDBsStore End-to-End Tests', () => {
       after(async () => {
         // Call del on the EntitySync store.
         const entitySyncStore = useEntitySyncStore();
-        await entitySyncStore.del();
+        await entitySyncStore.destroy();
 
         // Delete the admin database.
         const db = new DB({ name: DB_ADMIN_NAME });

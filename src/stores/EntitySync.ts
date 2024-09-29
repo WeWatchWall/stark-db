@@ -6,7 +6,7 @@ import { EntitySync } from "../objects/EntitySync/EntitySync";
 export const useEntitySyncStore = defineStore('entitySync', () => {
   const isInit = ref(false);
   const store = ref(null);
-  const object = ref(null);
+  const object = ref<EntitySync>(null);
   const connection = new ConnectionAdmin();
 
   async function init() {
@@ -22,10 +22,11 @@ export const useEntitySyncStore = defineStore('entitySync', () => {
     return store.value;
   }
 
-  async function del() {
-    await object.value.delete();
+  async function destroy() {
+    if (!isInit.value) return;
+    await object.value.destroy();
     await connection.destroy();
   }
 
-  return { store, get, del };
+  return { store, get, destroy };
 });
