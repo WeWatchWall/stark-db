@@ -25,7 +25,7 @@ export class EntitySync implements IEntitySync {
   async get(): Promise<Store> {
     return await this.driver.get();
   }
-  async delete() {
-    return await this.driver.delete();
+  async destroy() {
+    return await this.driver.destroy();
   }
 }

@@ -24,7 +24,7 @@ export const useEntitySyncStore = defineStore('entitySync', () => {
 
   async function del() {
     await object.value.delete();
-    await connection.delete();
+    await connection.destroy();
   }
 
   return { store, get, del };

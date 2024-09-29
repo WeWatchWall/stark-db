@@ -37,7 +37,7 @@ export abstract class ConnectionBase implements IConnection {
     }
   }
 
-  async delete() {
-    await this.driver.delete();
+  async destroy() {
+    await this.driver.destroy();
   }
 }

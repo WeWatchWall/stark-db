@@ -31,8 +31,7 @@ export class PGEntitySync extends EntitySyncBase {
     this.isInit = true;
   }
 
-  
-  async delete() {
+  async destroy() {
     this.persister.destroy();
   }
 }

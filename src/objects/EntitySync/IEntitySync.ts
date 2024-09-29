@@ -8,7 +8,7 @@ export interface IEntitySyncArg {
 
 export interface IEntitySync extends IEntitySyncArg {
   get(): Promise<Store>;
-  delete(): Promise<void>;
+  destroy(): Promise<void>;
 }
 
 export const IEntitySyncSchema = z.object({

@@ -34,11 +34,7 @@ export class SQLiteConnection implements IConnection {
     await promise;
   }
 
-  async delete() {
-    return await this.dispose();
-  }
-
-  private async dispose() {
+  async destroy() {
     if (!this.connection) { return }
 
     const { promise, resolve, reject } = flatPromise();

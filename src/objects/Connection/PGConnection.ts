@@ -25,12 +25,7 @@ export class PGConnection implements IConnection {
     });
   }
   
-  async delete() {
-    return await this.dispose();
-  }
-
-  
-  private async dispose() {
+  async destroy() {
     if (this.connection) {
       await this.connection.end();
     }

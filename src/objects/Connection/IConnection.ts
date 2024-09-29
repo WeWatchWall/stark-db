@@ -9,7 +9,7 @@ export interface IConnection extends IConnectionArg {
 
   get(): Promise<boolean>;
   add(): Promise<void>;
-  delete(): Promise<void>;
+  destroy(): Promise<void>;
 }
 
 export const IConnectionSchema = z.object({

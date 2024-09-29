@@ -27,5 +27,5 @@ export abstract class EntitySyncBase implements IEntitySync {
   }
 
   abstract get(): Promise<Store>;
-  abstract delete(): Promise<void>;
+  abstract destroy(): Promise<void>;
 }

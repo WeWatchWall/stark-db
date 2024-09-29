@@ -30,7 +30,7 @@ export class SQLiteEntitySync extends EntitySyncBase {
     this.isInit = true;
   }
 
-  async delete() {
+  async destroy() {
     this.persister.destroy();
   }
 }
