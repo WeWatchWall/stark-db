@@ -10,6 +10,7 @@ export interface IDB extends IDBArg {
   add(): Promise<void>;
   delete(): Promise<void>;
   set(name: string): Promise<void>;
+  destroy(): Promise<void>;
 }
 
 export const IDBSchema = z.object({

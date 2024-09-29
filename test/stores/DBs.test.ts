@@ -3,6 +3,9 @@ import { describe, it, before } from 'mocha';
 import { setActivePinia, createPinia } from 'pinia';
 import { useOptionsStore } from '../../src/stores/options';
 import { useDBsStore } from '../../src/stores/DBs';
+import { DB } from '../../src/objects/DB/DB';
+import { DB_ADMIN_NAME } from '../../src/utils/constants';
+import { useEntitySyncStore } from '../../src/stores/EntitySync';
 
 describe.skip('useDBsStore End-to-End Tests', () => {
   const sampleDB = {
@@ -13,7 +16,6 @@ describe.skip('useDBsStore End-to-End Tests', () => {
   };
 
   function initializeStore(engine: 'SQLite' | 'PostgreSQL') {
-    setActivePinia(createPinia());
     const optionsStore = useOptionsStore();
     optionsStore.engine = engine;
     optionsStore.data = './test/data';
@@ -26,7 +28,25 @@ describe.skip('useDBsStore End-to-End Tests', () => {
       let dbsStore: ReturnType<typeof useDBsStore>;
 
       before(async () => {
+        setActivePinia(createPinia());
+
         dbsStore = initializeStore(engine as 'SQLite' | 'PostgreSQL');
+
+        // Initialize the admin database.
+        const db = new DB({ name: DB_ADMIN_NAME });
+        await db.add();
+        await db.destroy();
+      });
+
+      after(async () => {
+        // Call del on the EntitySync store.
+        const entitySyncStore = useEntitySyncStore();
+        await entitySyncStore.del();
+
+        // Delete the admin database.
+        const db = new DB({ name: DB_ADMIN_NAME });
+        await db.delete();
+        await db.destroy();
       });
 
       it('should add a DB entry', async () => {

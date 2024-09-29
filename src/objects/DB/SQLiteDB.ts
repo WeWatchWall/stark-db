@@ -72,4 +72,8 @@ export class SQLiteDB implements IDB {
     fs.renameSync(this.fileName.value, newFileName);
     this.name = name;
   }
+
+  async destroy(): Promise<void> {
+    // No need to do anything here.
+  }
 }

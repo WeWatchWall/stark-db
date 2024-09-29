@@ -24,7 +24,7 @@ export class DB implements IDB {
     throw new Error("Invalid operation.");
   }
 
-  async get() {
+  async get(): Promise<boolean> {
     return await this.driver.get();
   }
 
@@ -47,5 +47,9 @@ export class DB implements IDB {
       throw new Error("Database does not exist");
     }
     await this.driver.set(name);
+  }
+
+  async destroy(): Promise<void> {
+    await this.driver.destroy();
   }
 }
