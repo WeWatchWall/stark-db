@@ -3,7 +3,6 @@ import {
 } from "tinybase/persisters/persister-sqlite3";
 import { EntitySyncBase } from "./EntitySyncBase";
 import { createStore } from "tinybase/store";
-import { ConnectionAdmin } from "../Connection/ConnectionAdmin";
 
 export class SQLiteEntitySync extends EntitySyncBase {
   async get() {
@@ -14,8 +13,6 @@ export class SQLiteEntitySync extends EntitySyncBase {
   private persister: Sqlite3Persister;
   private async init() {
     if (this.isInit) return;
-
-    this.connection = new ConnectionAdmin();
 
     this.store = createStore();
     this.store.setTablesSchema(this.schema);

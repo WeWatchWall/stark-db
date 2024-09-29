@@ -7,11 +7,12 @@ export const useEntitySyncStore = defineStore('entitySync', () => {
   const isInit = ref(false);
   const store = ref(null);
   const object = ref<EntitySync>(null);
-  const connection = new ConnectionAdmin();
+  let connection: ConnectionAdmin = null;
 
   async function init() {
     if (isInit.value) return;
 
+    connection = new ConnectionAdmin();
     object.value = new EntitySync({ connection });
     store.value = await object.value.get();
     isInit.value = true;
