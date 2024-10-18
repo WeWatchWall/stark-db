@@ -1,5 +1,4 @@
-import * as sqlite3 from "sqlite3";
-import { open } from "sqlite";
+import Database from 'better-sqlite3';
 import * as fs from "fs";
 import { computed, Ref } from "vue";
 
@@ -27,18 +26,14 @@ export class SQLiteDB implements IDB {
 
     let db;
     try {
-      db = await open({
-        filename: this.fileName.value,
-        driver: sqlite3.Database
-      });
+      db = new Database(this.fileName.value, { fileMustExist: true });
       return true;
     } catch (error) {
       return false;
     } finally {
-      await db?.close();
+      db?.close();
     }
   }
-
 
   // Create a new empty SQLite database file.
   async add() {
@@ -51,12 +46,9 @@ export class SQLiteDB implements IDB {
         fs.mkdirSync(optionsStore.data);
       }
 
-      db = await open({
-        filename: this.fileName.value,
-        driver: sqlite3.Database
-      });
+      db = new Database(this.fileName.value);
     } finally {
-      await db?.close();
+      db?.close();
     }
   }
 

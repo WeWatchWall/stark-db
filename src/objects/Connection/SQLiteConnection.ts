@@ -1,11 +1,11 @@
-import sqlite3 from 'sqlite3';
+import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { IConnection, IConnectionArg, IConnectionSchema } from './IConnection';
 import { useOptionsStore } from '../../stores/options';
 import flatPromise from '../../utils/flatPromise';
 
 export class SQLiteConnection implements IConnection {
   name: string;
-  connection: sqlite3.Database | undefined;
+  connection: DatabaseType | undefined;
 
   constructor(arg: IConnectionArg) {
     IConnectionSchema.parse(arg);
@@ -20,35 +20,14 @@ export class SQLiteConnection implements IConnection {
     const optionsStore = useOptionsStore();
     const databaseFilePath = `${optionsStore.data}/${this.name}`;
 
-    const { promise, resolve, reject } = flatPromise();
 
-    this.connection = new sqlite3.Database(databaseFilePath, (err) => {
-      if (err) {
-        console.error(err.message);
-        reject(err);
-      }
-
-      resolve();
-    });
-
-    await promise;
+    this.connection = new Database(databaseFilePath);
   }
 
   async destroy() {
     if (!this.connection) { return }
 
-    const { promise, resolve, reject } = flatPromise();
-
-    this.connection.close((err) => {
-      if (err) {
-        console.error(err.message);
-        reject(err);
-      }
-
-      resolve();
-    });
-
-    await promise;
+    this.connection.close();
     delete this.connection;
   }
 }

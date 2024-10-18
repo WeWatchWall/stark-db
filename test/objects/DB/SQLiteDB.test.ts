@@ -9,7 +9,7 @@ import { SQLiteDB } from "../../../src/objects/DB/SQLiteDB";
 
 describe("SQLiteDB", () => {
   let db: SQLiteDB;
-  let openStub: sinon.SinonStub;
+  let DatabaseStub: sinon.SinonStub;
   let existsSyncStub: sinon.SinonStub;
   let unlinkSyncStub: sinon.SinonStub;
   let renameSyncStub: sinon.SinonStub;
@@ -28,14 +28,13 @@ describe("SQLiteDB", () => {
       mkdirSync: mkdirSyncStub,
     };
 
-    openStub = sinon.stub().resolves({ 
-      close: sinon.stub().resolves() 
-    } as any);
+    const dbInstanceMock = {
+      close: sinon.stub(),
+    };
+    DatabaseStub = sinon.stub().returns(dbInstanceMock);
     const { SQLiteDB } = proxyquire("../../../src/objects/DB/SQLiteDB", {
       fs: fsMock,
-      sqlite: {
-        open: openStub,
-      },
+      "better-sqlite3": DatabaseStub,
     });
 
     const pinia = createPinia();
@@ -57,35 +56,38 @@ describe("SQLiteDB", () => {
     expect(db.name).to.equal("testDB");
   });
 
-  it('get: returns false if the database file does not exist', async function() {
+  it("get: returns false if the database file does not exist", async () => {
     existsSyncStub.returns(false);
 
     const result = await db.get();
     expect(result).to.be.false;
+    expect(DatabaseStub.notCalled).to.be.true;
   });
 
-  it('get: returns true if the database file exists and can be opened', async function() {
+  it("get: returns true if the database file exists and can be opened", async () => {
     existsSyncStub.returns(true);
-    openStub.resolves({
-      close: sinon.stub().resolves()
-    });
 
     const result = await db.get();
     expect(result).to.be.true;
+    expect(DatabaseStub.calledOnce).to.be.true;
+    expect(DatabaseStub.firstCall.args[0]).to.equal("./test/data/testDB");
   });
 
-  it('get: returns false if there is an error opening the database file', async function() {
+  it("get: returns false if there is an error opening the database file", async () => {
     existsSyncStub.returns(true);
-    openStub.rejects(new Error('Failed to open'));
+    DatabaseStub.throws(new Error("Failed to open"));
 
     const result = await db.get();
     expect(result).to.be.false;
+    expect(DatabaseStub.calledOnce).to.be.true;
+    expect(DatabaseStub.firstCall.args[0]).to.equal("./test/data/testDB");
   });
 
   it("add: creates a new database file", async () => {
+    existsSyncStub.returns(false);
     await db.add();
-    expect(openStub.calledOnce).to.be.true;
-    expect(openStub.firstCall.args[0].filename).to.equal("./test/data/testDB");
+    expect(DatabaseStub.calledOnce).to.be.true;
+    expect(DatabaseStub.firstCall.args[0]).to.equal("./test/data/testDB");
   });
 
   it("delete: deletes the database file", () => {
