@@ -1,6 +1,7 @@
 export class DB {
-  id: string; // Primary Key
+  name: string; // Primary Key
   enabled: boolean;
+  admins: string[];
   readers: string[];
   writers: string[];
 }

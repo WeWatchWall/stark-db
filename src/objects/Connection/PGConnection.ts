@@ -1,10 +1,10 @@
-import postgres from 'postgres';
+import pg from 'pg'
 import { IConnection, IConnectionArg, IConnectionSchema } from './IConnection';
 import { useOptionsStore } from '../../stores/options';
 
 export class PGConnection implements IConnection {
   name: string;
-  connection: postgres.Sql<{}>;
+  connection: pg.Client;
 
   constructor(arg: IConnectionArg) {
     IConnectionSchema.parse(arg);
@@ -16,13 +16,15 @@ export class PGConnection implements IConnection {
   }
   async add() {
     const optionsStore = useOptionsStore();
-    this.connection = postgres("", {
+    this.connection = new pg.Client({
       database: this.name.toLowerCase(),
       host: optionsStore.pghost,
       port: optionsStore.pgport,
-      username: optionsStore.pguser,
+      user: optionsStore.pguser,
       password: optionsStore.pgpassword
     });
+
+    await this.connection.connect();
   }
   
   async destroy() {

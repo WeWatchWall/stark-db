@@ -1,7 +1,6 @@
 import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { IConnection, IConnectionArg, IConnectionSchema } from './IConnection';
 import { useOptionsStore } from '../../stores/options';
-import flatPromise from '../../utils/flatPromise';
 
 export class SQLiteConnection implements IConnection {
   name: string;
